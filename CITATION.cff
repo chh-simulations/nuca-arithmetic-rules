@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the paper and this repository."
+title: "Arithmetic-rule non-uniform cellular automata: reference implementations and verification suite"
+authors:
+  - family-names: Stoychev
+    given-names: Plamen
+    orcid: "https://orcid.org/0009-0006-7994-1816"
+    affiliation: "Information Physics Institute, Sofia, Bulgaria"
+version: "1.0.0"
+date-released: "2026-10-11"
+license: MIT
+repository-code: "https://github.com/chh-simulations/nuca-arithmetic-rules"
+preferred-citation:
+  type: article
+  title: "Phase structure and contraction timescales of a non-uniform cellular automaton with arithmetic rule dynamics"
+  authors:
+    - family-names: Stoychev
+      given-names: Plamen
+  year: 2026
+  notes: "Submitted."
