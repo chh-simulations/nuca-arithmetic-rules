@@ -7,11 +7,12 @@ Reference implementations and the verification suite for the paper
 > (submitted, 2026).
 
 The system implemented here is due to T. E. Raptis
-([github.com/rtheo](https://github.com/rtheo)), who introduced it
-(Chaos, Solitons & Fractals 91, 503 (2016)) and whose original MATLAB
-implementation precedes this repository; his account is listed here,
-at his request, as a sideways contribution. He is not responsible for
-any errors in these ports.
+([github.com/rtheo](https://github.com/rtheo)), who introduced it in
+his notes of 2026, building on his spectral framework for cellular
+automata (Chaos, Solitons & Fractals 91, 503 (2016)), and whose
+original MATLAB implementation precedes this repository; his account
+is listed here, at his request, as a sideways contribution. He is not
+responsible for any errors in these ports.
 
 ## Layout
 
