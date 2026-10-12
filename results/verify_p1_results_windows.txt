@@ -1,6 +1,6 @@
 verify_p1  2026-10-11  Windows run (reported by the author); check lines digit-identical to the Linux run
 
-S1. Canonical simulator vs the reference run of Raptis (notes, Fig. 2): width 800, 1000 steps, seed 1
+S1. Canonical simulator vs the reference run of Raptis (private communication, Fig. 2): width 800, 1000 steps, seed 1
   [PASS] msb-lin start rank: got 242.40, expected 242.00 (tol 1.5)
   [PASS] msb-lin tail rank: got 71.36, expected 71.00 (tol 1.5)
   [PASS] msb-lin start modc: got 275.80, expected 276.00 (tol 1.5)
