@@ -1,5 +1,7 @@
 # Arithmetic-rule non-uniform cellular automata
 
+[![DOI](https://zenodo.org/badge/1414496132.svg)](https://doi.org/10.5281/zenodo.23322968)
+
 Reference implementations and the verification suite for the paper
 
 > P. Stoychev, *Phase structure and contraction timescales of a
@@ -53,7 +55,10 @@ Python 3.9 or later; `pip install numpy scipy matplotlib`.
 
 ## Citation
 
-See `CITATION.cff`. Until the paper appears, cite this repository.
+See `CITATION.cff`. This release (v1.0.0) is archived at Zenodo,
+doi:10.5281/zenodo.23322969; the concept DOI 10.5281/zenodo.23322968
+always resolves to the latest version. Until the paper appears, cite
+the repository through these.
 
 ## License
 

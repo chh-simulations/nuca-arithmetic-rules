@@ -9,6 +9,14 @@ authors:
 version: "1.0.0"
 date-released: "2026-10-12"
 license: MIT
+doi: "10.5281/zenodo.23322968"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.23322969"
+    description: "Zenodo archive of release v1.0.0"
+  - type: doi
+    value: "10.5281/zenodo.23322968"
+    description: "Zenodo concept DOI (all versions)"
 repository-code: "https://github.com/chh-simulations/nuca-arithmetic-rules"
 preferred-citation:
   type: article
