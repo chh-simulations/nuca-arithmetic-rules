@@ -11,7 +11,7 @@ Run:   python verify_p1.py            (all sections, 15-30 min)
 
 Sections and the parts of the paper they cover:
   S1  canonical simulator against the reference run of Raptis
-      (notes, Fig. 2): width 800, 1000 steps          (Section 2)
+      (private communication, Fig. 2): width 800, 1000 steps          (Section 2)
   S2  exact identities: reflector, antihomomorphism, palindrome fixed
       points, the conjugation identity of Theorem 2   (Section 3)
   S3  increment sweep, width 800, 600 steps            (Section 8)
@@ -114,7 +114,7 @@ INCR = {
 
 # ---------------------------------------------------------------- sections --
 def S1():
-    emit("\nS1. Canonical simulator vs the reference run of Raptis (notes, Fig. 2): width 800, 1000 steps, seed 1")
+    emit("\nS1. Canonical simulator vs the reference run of Raptis (private communication, Fig. 2): width 800, 1000 steps, seed 1")
     r, m, _ = run(800, 1000, 1, 'msb', 'linear', 'plain')
     check("msb-lin start rank", r[:5].mean(), 242, 1.5)
     check("msb-lin tail rank", r[-100:].mean(), 71, 1.5)

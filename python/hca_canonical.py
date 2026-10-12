@@ -27,7 +27,7 @@ mode     : 'plain'     — the original map M
 
 Reported per step: rank (distinct rule integers) and modcount (config bits
 changed vs previous step) - the two curves of the reference run (Raptis,
-notes, Fig. 2).
+private communication, Fig. 2).
 
 Runtime: dim=800, 1000 steps ~ 1-2 min per run (pure Python). numpy, scipy.
 """
