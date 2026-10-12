@@ -7,7 +7,7 @@ authors:
     orcid: "https://orcid.org/0009-0006-7994-1816"
     affiliation: "Information Physics Institute, Sofia, Bulgaria"
 version: "1.0.0"
-date-released: "2026-10-11"
+date-released: "2026-10-12"
 license: MIT
 repository-code: "https://github.com/chh-simulations/nuca-arithmetic-rules"
 preferred-citation:
