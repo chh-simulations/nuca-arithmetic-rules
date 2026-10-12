@@ -57,8 +57,8 @@ Python 3.9 or later; `pip install numpy scipy matplotlib`.
 
 See `CITATION.cff`. This release (v1.0.0) is archived at Zenodo,
 doi:10.5281/zenodo.23322969; the concept DOI 10.5281/zenodo.23322968
-always resolves to the latest version. Until the paper appears, cite
-the repository through these.
+always resolves to the latest version. The paper's preprint is
+deposited at doi:10.5281/zenodo.23323145.
 
 ## License
 
