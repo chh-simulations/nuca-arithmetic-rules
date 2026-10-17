@@ -42,6 +42,14 @@ responsible for any errors in these ports.
 - `results/` - the recorded output of the full verification run on
   two independent machines (Linux and Windows, numpy 2.4.4); the 399
   check lines are digit-identical.
+- `transition_study/` - the follow-up study of the frozen-to-active
+  transition (a separate paper in preparation): a compiled runner
+  gated against the canonical loop, the measurement drivers (fronts,
+  bulk runs, quench of the developed phase, creep, island lifetimes,
+  a reduced edge model), the stored results of the campaign at word
+  lengths 8 to 12, and `verify_pre.py`, which regenerates the numbers
+  and compares them with the recorded values. Requires numba. See its
+  README.
 
 ## Verification discipline
 
@@ -51,7 +59,8 @@ on any deviation. No port is trusted until its self-test passes.
 
 ## Requirements
 
-Python 3.9 or later; `pip install numpy scipy matplotlib`.
+Python 3.9 or later; `pip install numpy scipy matplotlib` (and `numba`
+for `transition_study/`).
 
 ## Citation
 
