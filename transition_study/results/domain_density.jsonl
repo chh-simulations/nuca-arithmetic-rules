@@ -1,0 +1,10 @@
+{"B": 8, "r": 95, "N": 2143, "T": 1000000, "seed": 1, "domains": 2, "covered": 0.9818, "density": 46.94, "ones": 72.23, "widths": [284, 1820], "secs": 12.3}
+{"B": 8, "r": 97, "N": 2145, "T": 1000000, "seed": 1, "domains": 1, "covered": 1.0, "density": 46.7, "ones": 72.42, "widths": [2145], "secs": 9.6}
+{"B": 9, "r": 191, "N": 4287, "T": 1000000, "seed": 1, "domains": 12, "covered": 0.5286, "density": 44.76, "ones": 68.89, "widths": [176, 181, 209, 246, 487], "secs": 19.7}
+{"B": 9, "r": 193, "N": 4289, "T": 1000000, "seed": 1, "domains": 1, "covered": 1.0, "density": 45.63, "ones": 70.56, "widths": [4289], "secs": 20.3}
+{"B": 10, "r": 383, "N": 10623, "T": 2000000, "seed": 1, "domains": 34, "covered": 0.5011, "density": 44.91, "ones": 69.2, "widths": [255, 264, 277, 302, 349], "secs": 99.3}
+{"B": 10, "r": 385, "N": 10625, "T": 2000000, "seed": 1, "domains": 1, "covered": 1.0, "density": 46.01, "ones": 71.11, "widths": [10625], "secs": 98.5}
+{"B": 11, "r": 767, "N": 17151, "T": 4000000, "seed": 1, "domains": 49, "covered": 0.4033, "density": 44.66, "ones": 69.03, "widths": [209, 209, 238, 287, 309], "secs": 342.2}
+{"B": 11, "r": 769, "N": 17153, "T": 4000000, "seed": 1, "domains": 1, "covered": 1.0, "density": 45.98, "ones": 71.15, "widths": [17153], "secs": 327.7}
+{"B": 12, "r": 1535, "N": 17919, "T": 8000000, "seed": 1, "domains": 54, "covered": 0.3966, "density": 44.89, "ones": 69.4, "widths": [216, 237, 243, 277, 281], "secs": 727.2}
+{"B": 12, "r": 1537, "N": 17921, "T": 8000000, "seed": 1, "domains": 1, "covered": 1.0, "density": 46.22, "ones": 71.41, "widths": [17921], "secs": 759.2}

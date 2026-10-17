@@ -26,6 +26,8 @@ Scripts, in the order of use:
   below the direct threshold). Results: `creep_B{B}.jsonl`.
 - `island_life.py`: islands harvested from random states, transplanted
   into fresh seas; lifetimes. Results: `island_life_B{B}.jsonl`.
+- `domain_density.py`: the activity inside the growing domains at
+  r_c - 1 and in the bulk at r_c + 1. Results: `domain_density.jsonl`.
 - `edge_model.py`: the reduced driven-edge model (creep tail, the
   factors at r_c - 1 and r_c + 1, the B-independence per clock period).
 - `spread.py`: spreading from a random patch (written for the

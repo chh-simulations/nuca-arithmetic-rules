@@ -185,6 +185,27 @@ for rx in (382, 383, 384, 385):
         checkbool(f"r={rx}: tail activity at 4e5 = {tail:.2f}% in [{lo_}, {hi_}]; domains {len(islx)}, inside density {dens:.1f}%",
                   lo_ <= tail <= hi_ and (dens > 35 if grow else True))
 
+# ---------------------------------------------------------------- S5b domain densities at r_c - 1 and r_c + 1
+emit("S5b domain density at r_c - 1 and bulk density at r_c + 1 (domain_density.py)")
+import domain_density as DD
+exp_dd = {(8, 95): (2, 0.9818, 46.94, 72.23),
+          (8, 97): (1, 1.0, 46.7, 72.42),
+          (9, 191): (12, 0.5286, 44.76, 68.89),
+          (9, 193): (1, 1.0, 45.63, 70.56),
+          (10, 383): (34, 0.5011, 44.91, 69.2),
+          (10, 385): (1, 1.0, 46.01, 71.11),
+          (11, 767): (49, 0.4033, 44.66, 69.03),
+          (11, 769): (1, 1.0, 45.98, 71.15),
+          (12, 1535): (54, 0.3966, 44.89, 69.4),
+          (12, 1537): (1, 1.0, 46.22, 71.41)}
+plan_dd = {8: (8, 1000000), 9: (8, 1000000), 10: (10, 2000000), 11: (8, 4000000), 12: (4, 8000000)}
+for (Bx, rx), e in sorted(exp_dd.items()):
+    if MODE == "quick" and Bx > 9: continue
+    k, T = plan_dd[Bx]
+    rec = DD.measure(Bx, rx, k, T, 1)
+    check(f"B={Bx} r={rx} (r_c{rx - 3 * (1 << (Bx - 3)):+d}): domains, covered fraction, activity inside (%), ones inside (%)",
+          [rec['domains'], rec['covered'], rec['density'], rec['ones']], list(e), 1e-9)
+
 # ---------------------------------------------------------------- S6 quench
 emit("S6  the developed active phase below threshold (quench.py)")
 for (Bx, rx, seed), e in sorted(EXPECTED['quench'].items()):
