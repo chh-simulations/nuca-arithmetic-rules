@@ -46,3 +46,8 @@ B = 8 (5e5 steps), 9 (1e6), 10 (2e6), 11 (2-4e6), 12 (4-8e6) on rings of
 24 2^B + r (B <= 10) or 8 2^B + r cells; thresholds at B = 8, 9, 11, 12
 (4e6 to 1.6e7 steps); quench at B = 8, 10 (4e6); creep and island
 lifetimes at B = 8 (1e7); island lifetimes at B = 10 (4e6).
+
+The quick form of `verify_pre.py` (71 checks) has passed with zero
+failures and digit-identical check lines on two machines (Linux and
+Windows, numpy 2.4.4, numba 0.68): `results/verify_pre_results_quick_linux.txt`
+and `results/verify_pre_results_quick_windows.txt`.

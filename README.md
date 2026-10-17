@@ -44,8 +44,8 @@ responsible for any errors in these ports.
   (Linux and Windows, numpy 2.4.4), digit-identical; version 2 (407
   checks: the interface velocity of Fig. 2b re-measured with the
   changed cells counted in the prepared half of the ring, 17 Oct 2026)
-  on Linux, `verify_p1_results_v2_linux.txt`; the Windows run of
-  version 2 follows.
+  on the same two machines, `verify_p1_results_v2_linux.txt` and
+  `verify_p1_results_v2_windows.txt`, digit-identical.
 - `transition_study/` - the follow-up study of the frozen-to-active
   transition (a separate paper in preparation): a compiled runner
   gated against the canonical loop, the measurement drivers (fronts,
