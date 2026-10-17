@@ -5,7 +5,7 @@ automaton with arithmetic rule dynamics" (P. Stoychev). Self-contained
 (numpy only). Every check prints measured against expected and PASS,
 WARN or FAIL; a copy of the output is written to verify_p1_results.txt.
 
-Run:   python verify_p1.py            (all sections, 15-30 min)
+Run:   python verify_p1.py            (all sections, 30-50 min)
        python verify_p1.py --quick    (one seed where two are used)
        python verify_p1.py S8 S9      (chosen sections only)
 
@@ -23,7 +23,8 @@ Sections and the parts of the paper they cover:
       out-of-sample residues, core structure, threshold (Section 5)
   S9  the law across word lengths: regimes at B = 9, 10; threshold
       r_c = 3*2^(B-3) at B = 6..12; growth at r_c+1; the exact
-      excitability crossing; interface velocity at B = 10 (Section 5)
+      excitability crossing; interface velocity at B = 10, counted
+      in the prepared half of the ring (Section 5)
   S10 eight-seed ensembles for every cell of Table 1    (Section 4)
 
 Tolerances: identities exact; counts +-1.5; percentages +-0.6 points in
@@ -542,9 +543,15 @@ def S9():
     checkbool("r_c+1: activity strictly increasing over T, 2T, 4T (B=8..12, both seeds)", grow_ok)
     checkbool("r_c: activity <= 2% at 4T (B=8..10, both seeds)", stat_ok)
 
-    # (g) prepared interface at B = 10: half frozen sea (words < r), half random
-    def front(B, r, seed, steps=120000, win=50, every=1000):
-        base = 1 << B; N = base + r; mask = base - 1
+    # (g) prepared interface at B = 10: half of a ring of 4*2^10 + r cells
+    #     is the frozen sea (words < r), half random; the number of cells
+    #     changed within the last 50 steps is counted in the PREPARED half
+    #     only, so that only the two fronts entering it are measured
+    #     (domains growing inside the random half before they merge are
+    #     not counted); v = half the slope of that count over t >= 40000
+    #     while it is below 0.8 of the prepared half.
+    def front(B, r, seed, k=4, steps=200000, win=50, every=500, t0=40000):
+        base = 1 << B; N = k * base + r; mask = base - 1
         rng = np.random.default_rng(seed); half = N // 2
         c = np.zeros(N, dtype=np.int64); n = np.zeros(N, dtype=np.int64)
         n[:half] = rng.integers(0, r, half)
@@ -557,24 +564,25 @@ def S9():
             ch = (c != prev); prev = c.copy()
             recent = np.where(ch, 0, recent + 1)
             if t % every == 0:
-                out.append((t, int((recent < win).sum())))
+                out.append((t, int((recent[:half] < win).sum())))
         A = np.array(out)
-        m = (A[:, 0] >= 20000) & (A[:, 1] < 0.8 * N)
+        m = (A[:, 0] >= t0) & (A[:, 1] < 0.8 * half)
         v = np.polyfit(A[m, 0], A[m, 1], 1)[0] / 2 if m.sum() >= 5 else float('nan')
         return v, A
-    exp_v = {376: (-0.000, 0.000), 380: (-0.000, -0.000), 382: (-0.03, 0.00), 383: (0.13, 0.01),
-             384: (0.22, 0.01), 385: (2.08, 1.83), 386: (5.22, 3.71), 388: (5.88, 4.55),
-             391: (6.30, 6.48), 400: (7.40, 8.45)}
+    exp_v = {376: (0.00, 0.00), 380: (0.00, 0.00), 382: (0.00, 0.00), 383: (0.00, 0.00),
+             384: (0.00, 0.00), 385: (0.54, 0.64), 386: (4.97, 4.89), 388: (5.04, 5.39),
+             391: (5.98, 6.04), 400: (7.77, 8.10), 416: (9.62, 8.31), 448: (13.27, 13.19),
+             480: (14.61, 14.48), 512: (14.15, 14.35)}
     v_ok = True
     for r, exps in exp_v.items():
         for seed in (1, 2):
             v, A = front(10, r, seed)
-            check(f"B=10 interface r={r} e={(r-256)/r:.4f} seed{seed} v (10^-3 cells/step)",
+            check(f"B=10 interface r={r} e={(r-256)/r:.4f} seed{seed} v (10^-3 cells/step, prepared half)",
                   1000 * v, exps[seed - 1], 0.05)
-            if r <= 384: v_ok &= abs(v) <= 0.0003
-            elif r == 385: v_ok &= v >= 0.0015
+            if r <= 384: v_ok &= abs(v) <= 0.0001
+            elif r == 385: v_ok &= v >= 0.0002
             else: v_ok &= v >= 0.003
-    checkbool("interface velocity: |v| <= 3e-4 for r <= 384; >= 1.5e-3 at 385; >= 3e-3 for r >= 386", v_ok)
+    checkbool("interface velocity: |v| <= 1e-4 for r <= 384; >= 2e-4 at 385; >= 3e-3 for r >= 386", v_ok)
 
 def S10():
     emit("\nS10. Ensembles for Table 1: eight seeds per cell, 800 steps; means,")

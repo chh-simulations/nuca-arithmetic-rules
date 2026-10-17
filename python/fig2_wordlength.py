@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # fig2_wordlength.py - Figure 2 of P1: the attraction threshold across
 # word lengths (a) and the interface velocity at B = 10 (b).
-# Regenerates every point by simulation (about three minutes); the same
+# Regenerates every point by simulation (about twenty minutes); the same
 # numbers are asserted in verify_p1.py, section S9.
 import numpy as np
 import matplotlib
@@ -22,8 +22,13 @@ def run_B(dim, steps, seed, B, tail=100):
         acts.append(float(np.mean(c != prev))); prev = c.copy()
     return 100 * float(np.mean(acts[-tail:]))
 
-def front(B, r, seed, steps=120000, win=50, every=1000):
-    base = 1 << B; N = base + r; mask = base - 1
+def front(B, r, seed, k=4, steps=200000, win=50, every=500, t0=40000):
+    """Half of a ring of k 2^B + r cells is the frozen sea (words < r),
+    half random; the number of cells of the PREPARED half changed within
+    the last `win` steps is followed, so that only the two fronts entering
+    it are counted; v = half its slope over t >= t0 while the count is
+    below 0.8 of the prepared half."""
+    base = 1 << B; N = k * base + r; mask = base - 1
     rng = np.random.default_rng(seed); half = N // 2
     c = np.zeros(N, dtype=np.int64); n = np.zeros(N, dtype=np.int64)
     n[:half] = rng.integers(0, r, half)
@@ -36,9 +41,9 @@ def front(B, r, seed, steps=120000, win=50, every=1000):
         ch = (c != prev); prev = c.copy()
         recent = np.where(ch, 0, recent + 1)
         if t % every == 0:
-            out.append((t, int((recent < win).sum())))
+            out.append((t, int((recent[:half] < win).sum())))
     A = np.array(out)
-    m = (A[:, 0] >= 20000) & (A[:, 1] < 0.8 * N)
+    m = (A[:, 0] >= t0) & (A[:, 1] < 0.8 * half)
     return np.polyfit(A[m, 0], A[m, 1], 1)[0] / 2 if m.sum() >= 5 else float('nan')
 
 # (a) threshold triple, B = 6..12
@@ -51,7 +56,7 @@ for B in range(6, 13):
         print("B=%d r=%d (r_c%+d) T=%d: %s" % (B, r, d, T, panel_a[(B, d)]))
 
 # (b) interface velocity at B = 10
-rs = [376, 380, 382, 383, 384, 385, 386, 388, 391, 400]
+rs = [376, 380, 382, 383, 384, 385, 386, 388, 391, 400, 416, 448, 480, 512]
 panel_b = {}
 for r in rs:
     panel_b[r] = [front(10, r, s) for s in (1, 2)]

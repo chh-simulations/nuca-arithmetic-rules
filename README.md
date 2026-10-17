@@ -19,10 +19,10 @@ responsible for any errors in these ports.
 
 ## Layout
 
-- `python/verify_p1.py` - regenerates every number of the paper: 399
+- `python/verify_p1.py` - regenerates every number of the paper: 407
   labelled checks in ten sections (S1-S10), each printing measured
   against expected with PASS / WARN / FAIL. Requires numpy only.
-  Full run 15-30 minutes; `python verify_p1.py S8 S9` runs chosen
+  Full run 30-50 minutes; `python verify_p1.py S8 S9` runs chosen
   sections; `--quick` uses one seed where two are used.
 - `python/hca_canonical.py` - the canonical simulator (pure Python,
   numpy, scipy), faithful to the original MATLAB implementation.
@@ -39,9 +39,13 @@ responsible for any errors in these ports.
   Python reference on deterministic initial data. Run the file; it
   errors on any disagreement. Self-test passed under GNU Octave
   (2026-10-11).
-- `results/` - the recorded output of the full verification run on
-  two independent machines (Linux and Windows, numpy 2.4.4); the 399
-  check lines are digit-identical.
+- `results/` - the recorded output of the full verification run:
+  version 1 of the script (399 checks) on two independent machines
+  (Linux and Windows, numpy 2.4.4), digit-identical; version 2 (407
+  checks: the interface velocity of Fig. 2b re-measured with the
+  changed cells counted in the prepared half of the ring, 17 Oct 2026)
+  on Linux, `verify_p1_results_v2_linux.txt`; the Windows run of
+  version 2 follows.
 - `transition_study/` - the follow-up study of the frozen-to-active
   transition (a separate paper in preparation): a compiled runner
   gated against the canonical loop, the measurement drivers (fronts,
