@@ -68,8 +68,10 @@ for `transition_study/`).
 
 ## Citation
 
-See `CITATION.cff`. This release (v1.0.0) is archived at Zenodo,
-doi:10.5281/zenodo.23322969; the concept DOI 10.5281/zenodo.23322968
+See `CITATION.cff`. Release v1.0.0 is archived at Zenodo,
+doi:10.5281/zenodo.23322969, and release v1.1.0 (the interface velocity
+re-measured, the transition study added) under the same concept DOI;
+the concept DOI 10.5281/zenodo.23322968
 always resolves to the latest version. The paper's preprint is
 deposited at doi:10.5281/zenodo.23323145.
 

@@ -6,14 +6,14 @@ authors:
     given-names: Plamen
     orcid: "https://orcid.org/0009-0006-7994-1816"
     affiliation: "Information Physics Institute, Sofia, Bulgaria"
-version: "1.0.0"
-date-released: "2026-10-12"
+version: "1.1.0"
+date-released: "2026-10-17"
 license: MIT
 doi: "10.5281/zenodo.23322968"
 identifiers:
   - type: doi
     value: "10.5281/zenodo.23322969"
-    description: "Zenodo archive of release v1.0.0"
+    description: "Zenodo archive of release v1.0.0 (the archive of v1.1.0 is listed on the concept DOI)"
   - type: doi
     value: "10.5281/zenodo.23322968"
     description: "Zenodo concept DOI (all versions)"
