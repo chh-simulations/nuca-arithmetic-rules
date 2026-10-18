@@ -73,8 +73,9 @@ doi:10.5281/zenodo.23322969, and release v1.1.0 (the interface velocity
 re-measured, the transition study added) under the same concept DOI;
 the concept DOI 10.5281/zenodo.23322968
 always resolves to the latest version. The paper's preprint is
-deposited at doi:10.5281/zenodo.23323144 (all versions; version 2 of
-17 October 2026 carries the re-measured Fig. 2b).
+deposited at doi:10.5281/zenodo.23323144 (all versions); version 2 of
+17 October 2026, doi:10.5281/zenodo.23434750, carries the re-measured
+Fig. 2b (version 1: doi:10.5281/zenodo.23323145).
 
 ## License
 
