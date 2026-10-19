@@ -30,8 +30,23 @@ Scripts, in the order of use:
   r_c - 1 and in the bulk at r_c + 1. Results: `domain_density.jsonl`.
 - `edge_model.py`: the reduced driven-edge model (creep tail, the
   factors at r_c - 1 and r_c + 1, the B-independence per clock period).
-- `spread.py`: spreading from a random patch (written for the
-  directed-percolation design; not used in the paper).
+- `spread.py`: spreading from a random patch of 32 cells in the
+  prepared sea; "alive at T" and the extent of the changed cells.
+  Results: `spread_B{B}_r{r}_w32_a.npz` (B = 8: r = 80..96; 9: 190..192;
+  10: 382..384; 1e6-2e6 steps).
+- `long_survival.py`: the same seeds followed in chunks to long times
+  (1e8 steps), restart-safe (per-chunk checkpoints in `ckpt/`, one
+  record file per seed in `records/`); with `seeds=...` a list of seeds
+  of an earlier run is followed further. Results:
+  `long_survival_B8_r94.jsonl` (1000 seeds, 1e8),
+  `long_survival_B10_r382.jsonl` (200 seeds, 2e7) and
+  `long_survival_B10_r382_cont.jsonl` (its 28 survivors to 1e8).
+- `front_dev.py`, `front_dev_long.py`: fronts of the developed active
+  phase (prepared at r = 2^(B-1)) against the prepared sea; the long
+  version runs in chunks with checkpoints. Results: `front_dev_B8.jsonl`
+  (r = 80..96, 4e6 steps), `front_dev_long_B{9,10,11}.jsonl` (the
+  fixed-excitability chains: B = 9 r = 190; B = 10 r = 380, 381, 382;
+  B = 11 r = 764, 766; 5e7-1e8 steps, eight fronts each).
 - `analyze.py`: tables from the stored results. `table_rows.py`: the
   LaTeX rows of the velocity table. `figures.py`: the figures.
 - `make_expected.py` writes `expected_pre.py` from the stored results;
@@ -40,6 +55,11 @@ Scripts, in the order of use:
   look for them in their own folder, so copy or link them there before
   running `analyze.py`, `figures.py`, `make_expected.py` or
   `verify_pre.py` (or run the measurement drivers to regenerate them).
+
+Second campaign, 18-19 October 2026: the 28 survivors of B = 10,
+r = 382 followed to 1e8 steps (all grow, 3.7e-7 cells per step per
+front), and the developed-phase creep at fixed excitability across word
+lengths (B = 9, 10, 11; 1e8 steps).
 
 Measurement campaign of 16-17 October 2026 (two cores): fronts at
 B = 8 (5e5 steps), 9 (1e6), 10 (2e6), 11 (2-4e6), 12 (4-8e6) on rings of
