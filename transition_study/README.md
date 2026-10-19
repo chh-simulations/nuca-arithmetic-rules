@@ -47,6 +47,12 @@ Scripts, in the order of use:
   (r = 80..96, 4e6 steps), `front_dev_long_B{9,10,11}.jsonl` (the
   fixed-excitability chains: B = 9 r = 190; B = 10 r = 380, 381, 382;
   B = 11 r = 764, 766; 5e7-1e8 steps, eight fronts each).
+- `floor_exact.py`: exact reachability of the words of one sea cell
+  under arbitrary neighbours (the pinning floor): for r <= 5 2^(B-4) the
+  reachable words are exactly [0, r) (B = 6..13, every r; B = 14 at the
+  floor), for r > 5 2^(B-4) a climb to 2^(B-1) + 1 exists. Results:
+  `floor_exact.jsonl`. `floor_exact2.py`, `floor_exact3.py`: the same
+  with two and three exact sea cells (same threshold).
 - `analyze.py`: tables from the stored results. `table_rows.py`: the
   LaTeX rows of the velocity table. `figures.py`: the figures.
 - `make_expected.py` writes `expected_pre.py` from the stored results;
