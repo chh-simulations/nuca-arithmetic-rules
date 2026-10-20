@@ -53,7 +53,21 @@ Scripts, in the order of use:
   floor), for r > 5 2^(B-4) a climb to 2^(B-1) + 1 exists. Results:
   `floor_exact.jsonl`. `floor_exact2.py`, `floor_exact3.py`: the same
   with two and three exact sea cells (same threshold).
-- `analyze.py`: tables from the stored results. `table_rows.py`: the
+- `island_cores.py`, `phase_words.py`: island cores from random states
+  (B = 8..12) and the word statistics of the developed active phase.
+  Results: `island_cores.jsonl`, `phase_words.jsonl`.
+- `front_natural.py`: developed fronts against the sea left by a
+  collapsed random state, with the uniform sea as control. Results:
+  `front_natural_B8.jsonl`.
+- `quench_long.py`: the developed phase below threshold to 1e8 steps
+  (chunked, checkpointed). Results: `quench_long_B10.jsonl` (r = 376,
+  378, 380, 382).
+- `paper_numbers.py`: every number quoted in the paper from the stored
+  results (writes `paper_numbers.json`); `make_tables.py` writes the
+  rows of Tables II-IV into the manuscript from it;
+  `rebuild_front_dev_records.py` rebuilds a missing summary line of
+  `front_dev_long_B*.jsonl` from the per-seed files in `results/records/`.
+- `analyze.py`: tables from the stored results (first campaign). `table_rows.py`: the
   LaTeX rows of the velocity table. `figures.py`: the figures.
 - `make_expected.py` writes `expected_pre.py` from the stored results;
   `verify_pre.py quick|full` regenerates the numbers and compares.
@@ -61,6 +75,11 @@ Scripts, in the order of use:
   look for them in their own folder, so copy or link them there before
   running `analyze.py`, `figures.py`, `make_expected.py` or
   `verify_pre.py` (or run the measurement drivers to regenerate them).
+
+Third campaign, 19-20 October 2026 (for the revised paper): bulk runs
+and island lifetimes at B = 10, the natural-sea check, developed-phase
+fronts at dr = -1, 0, +1 for B = 8..12 on rings of 24 2^B + r cells, the
+developed phase to 1e8 steps at B = 10 (r = 376..382).
 
 Second campaign, 18-19 October 2026: the 28 survivors of B = 10,
 r = 382 followed to 1e8 steps (all grow, 3.7e-7 cells per step per

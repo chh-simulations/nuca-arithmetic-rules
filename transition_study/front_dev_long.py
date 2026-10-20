@@ -21,9 +21,12 @@ import numpy as np
 from multiprocessing import Pool
 import nuca_fast as nf
 
+NONE = -(1 << 40)   # sentinel for 'no changed cell' in the checkpoint arrays (front positions can be negative)
+
 
 def one(args):
-    B, r, k, tprep, seed, T, chunk = args
+    B, r, k, tprep, seed, T, chunk = args[:7]
+    use_ckpt = args[7] if len(args) > 7 else True     # the verification suite regenerates from scratch
     base = 1 << B; rprep = base // 2
     c0, n0 = nf.ic_random(k * base + rprep, B, seed)
     nf.run(c0, n0, rprep, B, tprep, stop_dead=False)
@@ -37,11 +40,11 @@ def one(args):
     import os
     os.makedirs('ckpt', exist_ok=True)
     ck = f"ckpt/frontdev_B{B}_r{r}_k{k}_s{seed}.npz"  # T-independent, so a run can be extended to a larger T
-    if os.path.exists(ck):
+    if use_ckpt and os.path.exists(ck):
         z = np.load(ck)
         if int(z['t']) <= T:
             c[:] = z['c']; n[:] = z['n']; t = int(z['t'])
-            hist = [(int(x[0]), None if x[1] < 0 else int(x[1]), None if x[2] < 0 else int(x[2]), int(x[3])) for x in z['hist']]
+            hist = [(int(x[0]), None if x[1] == NONE else int(x[1]), None if x[2] == NONE else int(x[2]), int(x[3])) for x in z['hist']]
     while t < T:
         steps = min(chunk, T - t)
         nch, n1, lo, hi, td = nf.run(c, n, r, B, steps, stop_dead=True)
@@ -54,8 +57,9 @@ def one(args):
             hist.append((t, int(a - l[ok].min()), int(h[ok].max() - b), int(nch[-2000:].mean())))
         else:
             hist.append((t, None, None, 0))
-        hk = np.array([(x[0], -1 if x[1] is None else x[1], -1 if x[2] is None else x[2], x[3]) for x in hist], dtype=np.int64).reshape(-1, 4)
-        np.savez(ck + '.tmp.npz', c=c, n=n, t=t, hist=hk); os.replace(ck + '.tmp.npz', ck)
+        if use_ckpt:
+            hk = np.array([(x[0], NONE if x[1] is None else x[1], NONE if x[2] is None else x[2], x[3]) for x in hist], dtype=np.int64).reshape(-1, 4)
+            np.savez(ck + '.tmp.npz', c=c, n=n, t=t, hist=hk); os.replace(ck + '.tmp.npz', ck)
     H = np.array([(x[0], x[1], x[2]) for x in hist if x[1] is not None], dtype=float)
     out = dict(seed=seed, tdead=tdead, hist=hist)
     if len(H) >= 4:

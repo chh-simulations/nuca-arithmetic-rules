@@ -1,0 +1,7 @@
+{"B": 8, "r": 97, "N": 1121, "T": 51200, "seed": 1, "changing_pct": 45.84, "on_pct": 71.05, "near_half_pct": 93.5, "near_three_quarters_pct": 0.0, "below_r_pct": 6.5}
+{"B": 8, "r": 128, "N": 1152, "T": 51200, "seed": 1, "changing_pct": 47.23, "on_pct": 72.63, "near_half_pct": 100.0, "near_three_quarters_pct": 0.0, "below_r_pct": 78.6}
+{"B": 10, "r": 385, "N": 4481, "T": 204800, "seed": 1, "changing_pct": 45.53, "on_pct": 70.63, "near_half_pct": 92.7, "near_three_quarters_pct": 2.7, "below_r_pct": 4.4}
+{"B": 10, "r": 400, "N": 4496, "T": 204800, "seed": 1, "changing_pct": 44.31, "on_pct": 68.97, "near_half_pct": 87.5, "near_three_quarters_pct": 3.3, "below_r_pct": 9.2}
+{"B": 10, "r": 512, "N": 4608, "T": 204800, "seed": 1, "changing_pct": 45.08, "on_pct": 71.91, "near_half_pct": 85.0, "near_three_quarters_pct": 11.4, "below_r_pct": 68.7}
+{"B": 12, "r": 1537, "N": 17921, "T": 819200, "seed": 1, "changing_pct": 43.75, "on_pct": 67.65, "near_half_pct": 90.3, "near_three_quarters_pct": 1.8, "below_r_pct": 7.9}
+{"B": 12, "r": 2048, "N": 18432, "T": 819200, "seed": 1, "changing_pct": 44.99, "on_pct": 71.87, "near_half_pct": 84.9, "near_three_quarters_pct": 11.3, "below_r_pct": 68.7}
