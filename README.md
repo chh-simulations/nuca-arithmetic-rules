@@ -47,13 +47,17 @@ responsible for any errors in these ports.
   on the same two machines, `verify_p1_results_v2_linux.txt` and
   `verify_p1_results_v2_windows.txt`, digit-identical.
 - `transition_study/` - the follow-up study of the frozen-to-active
-  transition (a separate paper in preparation): a compiled runner
-  gated against the canonical loop, the measurement drivers (fronts,
-  bulk runs, quench of the developed phase, creep, island lifetimes,
-  a reduced edge model), the stored results of the campaign at word
-  lengths 8 to 12, and `verify_pre.py`, which regenerates the numbers
-  and compares them with the recorded values. Requires numba. See its
-  README.
+  transition (the transition paper, "Front pinning and depinning at
+  exact rational thresholds in a cellular automaton with arithmetic
+  rule words"): a compiled runner gated against the canonical loop,
+  the exact reachability of the pinning floor, the measurement drivers
+  (fronts of both preparations, bulk runs, quench of the developed
+  phase, creep, island cores, lifetimes and seeds, a reduced edge
+  model), the stored results of the four campaigns of 16-20 October
+  2026 at word lengths 8 to 12, `paper_numbers.py`, which prints every
+  number quoted in that paper from the stored results, and
+  `verify_pre.py`, which regenerates the numbers and compares them
+  with the recorded values. Requires numba. See its README.
 
 ## Verification discipline
 
@@ -69,10 +73,12 @@ for `transition_study/`).
 ## Citation
 
 See `CITATION.cff`. Release v1.0.0 is archived at Zenodo,
-doi:10.5281/zenodo.23322969, and release v1.1.0 (the interface velocity
-re-measured, the transition study added) under the same concept DOI;
-the concept DOI 10.5281/zenodo.23322968
-always resolves to the latest version. The paper's preprint is
+doi:10.5281/zenodo.23322969, release v1.1.0 (the interface velocity
+re-measured, the transition study added) at doi:10.5281/zenodo.23434888,
+and release v1.2.0 (the transition study complete: the campaigns of
+18-20 October, the exact pinning floor, the sectioned verification
+suite) under the same concept DOI; the concept DOI
+10.5281/zenodo.23322968 always resolves to the latest version. The paper's preprint is
 deposited at doi:10.5281/zenodo.23323144 (all versions); version 2 of
 17 October 2026, doi:10.5281/zenodo.23434750, carries the re-measured
 Fig. 2b (version 1: doi:10.5281/zenodo.23323145).
