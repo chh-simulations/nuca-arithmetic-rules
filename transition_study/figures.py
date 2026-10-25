@@ -51,7 +51,7 @@ def fig_velocity(fronts):
             if mm.any():
                 ax1.errorbar(d[mm], v[mm], yerr=np.minimum(e[mm], 0.999 * v[mm]), fmt=markers[B], mfc=face, mec=colors[B], ecolor=colors[B], ms=3.5, lw=0, elinewidth=0.8, capsize=1.5, label=f"B = {B}" if kd == 'dev' else None)
     ax1.set_yscale('log'); ax1.set_xlabel(r"$dr = r - r_c$"); ax1.set_ylabel(r"$v\, 2^{B-3}$")
-    ax1.set_xlim(-4.5, 8.5); ax1.axvline(0.5, color='0.6', lw=0.6, ls='--'); ax1.legend(frameon=False, loc='lower right')
+    ax1.set_xlim(-4.5, 8.5); ax1.set_ylim(2e-6, 4); ax1.axvline(0.5, color='0.6', lw=0.6, ls='--'); ax1.legend(frameon=False, loc='lower right')
     # (b) chains
     styles = {"e1=0.3263 (r = 95, 190, 380)": ('o-', '#4477aa', r"$e_1 = 0.3263$"), "e1=0.3298 (r = 191, 382, 764)": ('s-', '#cc6677', r"$e_1 = 0.3298$"),
               "e1=0.3316 (r = 383, 766)": ('^-', '#228833', r"$e_1 = 0.3316$"), "e1=1/3 (dr=0)": ('v--', '0.4', r"$e_1 = 1/3$"),
@@ -60,8 +60,8 @@ def fig_velocity(fronts):
         pts = chains[name]
         Bs = [p['B'] for p in pts]; sc = [p['scaled'] for p in pts]; er = [p['err'] * (1 << (p['B'] - 3)) for p in pts]
         ax2.errorbar(Bs, sc, yerr=np.minimum(er, 0.999 * np.array(sc)), fmt=fmt, color=col, ms=3.5, lw=0.8, capsize=1.5, label=lab)
-    ax2.set_yscale('log'); ax2.set_xlabel(r"$B$"); ax2.set_ylabel(r"$v\, 2^{B-3}$"); ax2.set_xticks([8, 9, 10, 11, 12]); ax2.set_ylim(3e-7, 2e-1)
-    ax2.legend(frameon=False, fontsize=6, loc='lower left', ncol=2, columnspacing=0.8, handlelength=1.5)
+    ax2.set_yscale('log'); ax2.set_xlabel(r"$B$"); ax2.set_ylabel(r"$v\, 2^{B-3}$"); ax2.set_xticks([8, 9, 10, 11, 12]); ax2.set_ylim(2e-7, 1.5)
+    ax2.legend(frameon=False, fontsize=5.5, loc='lower left', ncol=2, columnspacing=0.6, handlelength=1.4, borderaxespad=0.2)
     # (c) v / v_tau against e_1 (random-block fronts)
     for B, rr in sorted(fronts.items()):
         e1 = (rr[:, 0] - (1 << (B - 2))) / rr[:, 0]
@@ -89,13 +89,13 @@ def fig_island():
     rows = np.array(rows); words = np.array(words)
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.0, 2.6), gridspec_kw=dict(width_ratios=[1.2, 1]))
     ax1.imshow(rows.T, cmap='Greys', aspect='auto', interpolation='nearest')
-    ax1.set_xlabel("step"); ax1.set_ylabel("cell"); ax1.set_title("island, B = 10, r = 376", fontsize=9)
+    ax1.set_xlabel("step"); ax1.set_ylabel("cell")
     for j in range(words.shape[1]):
         w = words[:, j]
         if w.max() > r: ax2.plot(w, lw=0.8, label=f"cell {j + a0 - a}")
     for y, lab in ((base // 2, r"$2^{B-1}$"), (3 * base // 4, r"$3\cdot 2^{B-2}$")):
-        ax2.axhline(y, color='0.5', lw=0.6, ls='--'); ax2.text(2, y + 6, lab, fontsize=8, color='0.3')
-    ax2.set_xlabel("step"); ax2.set_ylabel("word"); ax2.set_ylim(480, 800)
+        ax2.axhline(y, color='0.5', lw=0.6, ls='--'); ax2.text(60, y + 6, lab, fontsize=8, color='0.3')
+    ax2.set_xlabel("step"); ax2.set_ylabel("word"); ax2.set_ylim(480, 840)
     ax1.text(0.02, 0.95, '(a)', transform=ax1.transAxes, va='top', color='k'); ax2.text(0.02, 0.95, '(b)', transform=ax2.transAxes, va='top')
     fig.tight_layout(); fig.savefig("figP_island.pdf"); plt.close(fig)
 
