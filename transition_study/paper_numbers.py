@@ -11,7 +11,7 @@ OUT = {}
 
 def vtau(B, r):
     e1 = (r - (1 << (B - 2))) / r
-    return 1.0 / ((1 - e1) * (1 << (B - 3)) + 0.5)
+    return 1.0 / ((1 - e1) * ((1 << (B - 3)) + 0.5))   # Eq. (4): mean wait (1 - e1)(2^(B-3) + 1/2)
 
 
 def e1_of(B, r):
@@ -61,7 +61,7 @@ def table_velocity():
     print("          'rb': random-block fronts (front.py, four fronts, mean and half the spread).  Scaled: v 2^(B-3).")
     for B in (8, 9, 10, 11, 12):
         rc = 3 * (1 << (B - 3))
-        for dr in (-4, -3, -2, -1, 0, 1, 2, 3, 4, 8):
+        for dr in ([-16, -14, -12, -10, -8, -7, -6, -5] if B == 8 else []) + [-4, -3, -2, -1, 0, 1, 2, 3, 4, 8]:
             r = rc + dr
             if (B, r) in D:
                 v = D[(B, r)]['v']; m = v.mean(); s = v.std(ddof=1) / np.sqrt(len(v))
@@ -76,7 +76,23 @@ def table_velocity():
         B, dr = key; x = rows[key]; sc = (1 << (B - 3))
         r = x.get('r', 3 * (1 << (B - 3)) + dr if isinstance(dr, int) else None)
         print(f"  B={B:2d} dr={str(dr):>3} r={r:5d} e1={e1_of(B, r):.4f}: v = {x['v']:.3e} +- {x['err']:.1e} ({x['kind']}, {x['n']} fronts{', T=%.0e' % x['T'] if 'T' in x else ''}) [min {x['lo']:.2e}, max {x['hi']:.2e}]  scaled {(('%.4f' % (x['v']*sc)) if x['v']*sc >= 0.01 else ('%.2e' % (x['v']*sc)))}  v/v_tau {x['v']/vtau(B, r):.3f}")
+    for (B, dr), x in rows.items():
+        r = x.get('r', 3 * (1 << (B - 3)) + dr if isinstance(dr, int) else None)
+        x['r'] = r; x['e1'] = e1_of(B, r); x['scaled'] = x['v'] * (1 << (B - 3)); x['v_over_vtau'] = x['v'] / vtau(B, r)
     OUT['velocity_rows'] = {f"{k[0]},{k[1]}": {kk: (float(vv) if isinstance(vv, (float, np.floating)) else vv) for kk, vv in x.items()} for k, x in rows.items()}
+    # the two preparations where they overlap (dr = -1, 0, +1)
+    print("\nTWO PREPARATIONS at dr = -1, 0, +1: random-block (four fronts: mean, min, max) against developed-phase (eight fronts: mean, min, max), ratio of means")
+    tp = {}
+    for dr in (-1, 0, 1):
+        for B in (8, 9, 10, 11, 12):
+            r = 3 * (1 << (B - 3)) + dr
+            if (B, r) in V and (B, r) in D:
+                v = V[(B, r)]; d = D[(B, r)]['v']
+                tp[f"{B},{dr}"] = dict(rb_mean=float(v.mean()), rb_min=float(v.min()), rb_max=float(v.max()), dev_mean=float(d.mean()), dev_min=float(d.min()), dev_max=float(d.max()), ratio=float(v.mean() / d.mean()),
+                                       ranges_overlap=bool(v.min() <= d.max() and d.min() <= v.max()))
+                x = tp[f"{B},{dr}"]
+                print(f"  dr={dr:+d} B={B}: rb {x['rb_mean']:.3e} [{x['rb_min']:.2e}, {x['rb_max']:.2e}], dev {x['dev_mean']:.3e} [{x['dev_min']:.2e}, {x['dev_max']:.2e}], ratio {x['ratio']:.2f}, ranges overlap {x['ranges_overlap']}")
+    OUT['two_preparations'] = tp
     # ratios and collapse
     print("\nRATIOS per B (random-block values at dr >= 1, developed at dr <= 0 where available):")
     for B in (8, 9, 10, 11, 12):
@@ -104,6 +120,32 @@ def table_velocity():
         elif (B, u7 - 1) in V and (B, u7 + 1) in V:
             print(f"        {u7-1} -> {u7+1}: {100*(V[(B, u7+1)].mean()/V[(B, u7-1)].mean()-1):+.1f}%")
     return rows
+
+
+# ---------------------------------------------------------------- fixed excitability above threshold
+def fixed_e1():
+    """v/v_tau at the residues that share an excitability across word lengths (r doubles with B); random-block fronts,
+    dr >= 2 only (dr = 1 is the anomalous neighbourhood of the threshold and is listed separately)."""
+    from fractions import Fraction
+    V = load_random_block(); D = load_developed()
+    print("\nFIXED EXCITABILITY above threshold (random-block fronts, dr >= 2): v/v_tau at the residues r = r0 2^(B-B0)")
+    groups = {}
+    for (B, r), v in V.items():
+        dr = r - 3 * (1 << (B - 3))
+        if dr < 2: continue
+        e = Fraction(r - (1 << (B - 2)), r)
+        groups.setdefault(e, []).append((B, r, dr, float(v.mean()) / vtau(B, r), float((v.max() - v.min()) / 2) / vtau(B, r)))
+    out = {}
+    for e in sorted(groups):
+        g = sorted(groups[e])
+        if len(g) < 2: continue
+        key = f"{float(e):.4f}"
+        out[key] = dict(e1=float(e), dist=float(e) - 1 / 3, points=[dict(B=B, r=r, dr=dr, G=G, spread=s) for B, r, dr, G, s in g],
+                        G_mean=float(np.mean([x[3] for x in g])), G_min=min(x[3] for x in g), G_max=max(x[3] for x in g))
+        print(f"  e1={float(e):.4f} (e1-1/3={float(e)-1/3:+.4f}): " + ", ".join(f"B{B} r{r} (dr{dr:+d}): {G:.3f}+-{s:.3f}" for B, r, dr, G, s in g) + f"   mean {out[key]['G_mean']:.3f}")
+    print("  dr=+1 (developed-phase fronts), v/v_tau: " + ", ".join(f"B{B}: {D[(B, 3*(1<<(B-3))+1)]['v'].mean()/vtau(B, 3*(1<<(B-3))+1):.3f}" for B in (8, 9, 10, 11, 12) if (B, 3*(1<<(B-3))+1) in D))
+    print("  closest points above threshold (dr=+2), v/v_tau and e1-1/3: " + ", ".join(f"B{B}: {V[(B, 3*(1<<(B-3))+2)].mean()/vtau(B, 3*(1<<(B-3))+2):.3f} at {e1_of(B, 3*(1<<(B-3))+2)-1/3:.4f}" for B in (8, 9, 10, 11, 12) if (B, 3*(1<<(B-3))+2) in V))
+    OUT['fixed_e1'] = out
 
 
 # ---------------------------------------------------------------- creep chains
@@ -183,9 +225,12 @@ def bulk():
                             act_min=float(np.nanmin(later)), t_min=tmin, islands_mid=rec['islands_mid'], islands_end=rec['islands_end'],
                             wmax_mid=max(rec['widths_mid']) if rec['widths_mid'] else 0, wmax_end=max(rec['widths_end']) if rec['widths_end'] else 0,
                             act_mid=rec['act_mid'], act_end_rec=rec['act_end'])
+            # time from which the activity stays within 5% of its final value (end of the first such window), for the runs that reach the bulk phase
+            fin = out[key]['act_end']; ok = np.array([bool(np.all(rho[i:] >= 0.95 * fin)) for i in range(len(rho))])
+            out[key]['t_95'] = float(e[1:][int(np.argmax(ok))]) if ok.any() and fin > 40 else None
             x = out[key]
             print(f"  B={B} r={r} (dr{r-rec['rc']:+d}) seed {seed} N={rec['N']} T={rec['T']:.1e}: act 1e2 {x['act_1e2']:.1f}%, 6e3 {x['act_6e3']:.2f}%, min {x['act_min']:.2f}% at {x['t_min']:.0e}, 1e5 {x['act_1e5']:.2f}%, end {x['act_end']:.2f}%; "
-                  f"islands {x['islands_mid']} (w<={x['wmax_mid']}) -> {x['islands_end']} (w<={x['wmax_end']})")
+                  f"islands {x['islands_mid']} (w<={x['wmax_mid']}) -> {x['islands_end']} (w<={x['wmax_end']})" + (f"; within 5% of final from t={x['t_95']:.1e}" if x['t_95'] else ''))
     OUT['bulk'] = out
 
 
@@ -206,11 +251,78 @@ def quench():
             print(f"  B={B} r={r} (dr{r-3*(1<<(B-3)):+d}) seed {seed} N={N}: " + ", ".join(f"{c[2]:.1f}% ({c[1]} dom.) at {c[0]:.0e}" for c in cps) + f"; holes {d0} -> {d1}: {nuc:.1e} per cell-step; v_retreat {rec.get('v_retreat'):.1e}")
     OUT['quench'] = out
     if glob.glob('quench_long_B*.jsonl'):
-        print("\nQUENCH LONG (quench_long_B*.jsonl):")
+        print("\nQUENCH LONG (quench_long_B*.jsonl): minimum coverage and when, coverage and holes at the end, holes after the relaxation (t >= 2e7)")
+        ql = {}
         for fn in sorted(glob.glob('quench_long_B*.jsonl')):
             for rec in (json.loads(l) for l in open(fn)):
-                h = rec['hist']
-                print(f"  B={rec['B']} r={rec['r']} N={rec['N']} T={rec['T']:.0e}: " + ", ".join(f"{x[2]:.2f}% ({int(x[1])}) at {x[0]:.0e}" for x in h[::max(1, len(h)//8)]) + f"; final {h[-1][2]:.2f}% ({int(h[-1][1])} domains)")
+                h = rec['hist']; cov = np.array([x[2] for x in h]); dom = np.array([int(x[1]) for x in h]); tt = np.array([x[0] for x in h])
+                j = int(cov.argmin()); late = tt >= 2e7
+                back = tt[(tt > tt[j]) & (cov >= 99.95)]
+                i7 = int(np.searchsorted(tt, 1e7))
+                d = dict(N=rec['N'], T=rec['T'], min_cover=float(cov[j]), t_min=float(tt[j]), cover_1e7=float(cov[i7]), holes_1e7=int(dom[i7]), final_cover=float(cov[-1]), final_holes=int(dom[-1]),
+                         holes_late=[int(dom[late].min()), int(dom[late].max())], cover_late=[float(cov[late].min()), float(cov[late].max())],
+                         t_back_to_100=float(back[0]) if back.size else None)
+                ql[f"{rec['B']},{rec['r']},{rec['seed']}"] = d
+                print(f"  B={rec['B']} r={rec['r']} (dr{rec['r']-3*(1<<(rec['B']-3)):+d}, e1={e1_of(rec['B'], rec['r']):.3f}) N={rec['N']} T={rec['T']:.0e}: min {d['min_cover']:.2f}% at {d['t_min']:.0e}; at 1e7 {d['cover_1e7']:.2f}% ({d['holes_1e7']} holes); "
+                      f"back to >= 99.95% at {d['t_back_to_100']}; final {d['final_cover']:.2f}% with {d['final_holes']} holes; t >= 2e7: {d['cover_late'][0]:.2f}-{d['cover_late'][1]:.2f}%, {d['holes_late'][0]}-{d['holes_late'][1]} holes")
+        OUT['quench_long'] = ql
+    if os.path.exists('hole_words.jsonl'):
+        print("\nHOLES of the quenched phase at T (hole_words.jsonl): lengths, words of the hole cells, lower bounds on openings and closings from the stored hole counts")
+        hw = {}
+        for rec in (json.loads(l) for l in open('hole_words.jsonl')):
+            t = rec['totals']; per = rec['chunks'] * rec['chunk'] / 1e7
+            hw[f"{rec['B']},{rec['r']},{rec['seed']}"] = dict(N=rec['N'], t=rec['t'], holes=t['holes'], lengths=rec['lengths'], cells=t['cells'], sea_range=t['sea_range'], lower_band=t['lower_band'], upper_band=t['upper_band'], other=t['other'], on=t['on'],
+                                                              openings_per_1e7=rec['count_increases'] / per, closings_per_1e7=rec['count_decreases'] / per)
+            print(f"  B={rec['B']} r={rec['r']} (e1={e1_of(rec['B'], rec['r']):.3f}) t={rec['t']:.0e} N={rec['N']}: {t['holes']} holes of {min(rec['lengths']) if rec['lengths'] else 0}-{max(rec['lengths']) if rec['lengths'] else 0} cells ({t['cells']} cells, {100*t['cells']/rec['N']:.2f}% of N); "
+                  f"words in [0,r): {t['sea_range']}, in the bands: {t['lower_band']+t['upper_band']}, other: {t['other']}, on: {t['on']}; hole count up {rec['count_increases']} / down {rec['count_decreases']} in {rec['chunks']} chunks = {rec['count_increases']/per:.1f} openings and {rec['count_decreases']/per:.1f} closings per 1e7 steps (lower bounds)")
+        OUT['holes'] = hw
+
+
+# ---------------------------------------------------------------- domain density, the floor models, the reduced edge model
+def domain_density():
+    if os.path.exists('domain_density.jsonl'):
+        print("\nDOMAIN DENSITY (domain_density.jsonl): activity inside the growing domains at r_c - 1 and in the bulk at r_c + 1")
+        out = {}
+        for x in (json.loads(l) for l in open('domain_density.jsonl')):
+            out[f"{x['B']},{x['r']}"] = dict(N=x['N'], T=x['T'], domains=x['domains'], covered=x['covered'], density=x['density'], ones=x['ones'])
+            print(f"  B={x['B']} r={x['r']} (dr{x['r']-3*(1<<(x['B']-3)):+d}) T={x['T']:.0e}: {x['domains']} domains covering {100*x['covered']:.1f}%; cells changing per step inside {x['density']}%, on {x['ones']}%")
+        OUT['domain_density'] = out
+
+
+def floor_models():
+    if os.path.exists('floor_models.jsonl'):
+        print("\nFLOOR MODELS (floor_models.jsonl): two and three exact sea cells with free inputs at the ends; largest reachable word at floor-1, floor, floor+1")
+        out = []
+        for x in (json.loads(l) for l in open('floor_models.jsonl')):
+            out.append(dict(cells=x['cells'], B=x['B'], r=x['r'], floor=x['floor'], max_word=x['max_word'], states=x['states']))
+            print(f"  {x['cells']} cells, B={x['B']} r={x['r']} (floor{x['r']-x['floor']:+d}): largest reachable word {x['max_word']} ({'= r-1, sea range only' if x['max_word'] == x['r'] - 1 else '= 2^(B-1)+1' if x['max_word'] == (1 << (x['B'] - 1)) + 1 else ''}), {x['states']} reachable states")
+        OUT['floor_models'] = out
+
+
+def edge_model():
+    if not os.path.exists('edge_model.jsonl'): return
+    print("\nREDUCED EDGE MODEL (edge_model.jsonl): successes (sea words reaching the pinned band) per run, 47 sea cells beside a random edge")
+    R = [json.loads(l) for l in open('edge_model.jsonl')]
+    out = {}
+    tab = {(x['p'], x['r']): x for x in R if x['kind'] == 'table'}
+    for p in (0.5, 0.7):
+        rows = sorted((r, x) for (pp, r), x in tab.items() if pp == p)
+        s = {r: float(np.mean(x['successes'])) for r, x in rows}
+        print(f"  B=10, p={p}, T=4e6, seeds 1-3, mean successes: " + ", ".join(f"r={r}: {s[r]:.1f}" for r, x in rows))
+        f = dict(v0_over_vm1=s[384] / s[383], closure_vm1_over_vm2=s[383] / s[382], jump_v1_over_v0=s[385] / s[384], v2_over_v1=s[386] / s[385],
+                 below=[s[382] / s[381], s[381] / s[380], s[380] / s[378], s[378] / s[376]])
+        out[f"table_p{p}"] = dict(successes={str(r): x['successes'] for r, x in rows}, factors=f)
+        print(f"      factors: dr=0 / dr=-1: {f['v0_over_vm1']:.2f}; closure dr=-1 / dr=-2: {f['closure_vm1_over_vm2']:.2f}; jump dr=+1 / dr=0: {f['jump_v1_over_v0']:.1f}; dr=+2 / dr=+1: {f['v2_over_v1']:.2f}; "
+              f"ratios 382/381, 381/380, 380/378, 378/376: " + ", ".join(f"{v:.2f}" for v in f['below']))
+    sc = [x for x in R if x['kind'] == 'scaling']
+    print("  scaling (p=0.5, seeds 1-2, T = 4e6 2^(B-10)): successes per clock period (successes r / T) at fixed dr:")
+    per = {}
+    for x in sc:
+        per[(x['B'], x['dr'] if abs(x['dr']) <= 2 else x['dr'] // max(1, (1 << x['B']) // 1024))] = float(np.mean(x['successes'])) * x['r'] / x['T']
+    for dr in (-2, -1, 0, 1, 2, 4, 8, 16, 32, 64):
+        print(f"      dr={dr:+d}: " + ", ".join(f"B{B}: {per[(B, dr)]:.3f}" for B in (9, 10, 11, 12) if (B, dr) in per) + (f"   (dr scaled with 2^(B-10) for |dr| > 2)" if abs(dr) > 2 else ''))
+    out['scaling_per_clock'] = {f"{B},{dr}": v for (B, dr), v in per.items()}
+    OUT['edge_model'] = out
 
 
 # ---------------------------------------------------------------- phase words
@@ -226,20 +338,96 @@ def phase():
 def natural():
     if os.path.exists('front_natural_B8.jsonl'):
         print("\nNATURAL SEA (front_natural_B8.jsonl):")
+        out = {}
         for rec in (json.loads(l) for l in open('front_natural_B8.jsonl')):
-            print(f"  B={rec['B']} r={rec['r']} T={rec['T']:.0e}: natural {rec['v_natural_mean']:.3e} +- {rec['v_natural_sem']:.1e}, uniform {rec['v_uniform_mean']:.3e} +- {rec['v_uniform_sem']:.1e}; sea histograms {[x['sea_hist'] for x in rec['runs']][:1]}")
+            dead = [x for x in rec['runs'] if x['natural_sea_dead']]
+            H = np.array([x['sea_hist'] for x in dead], dtype=float); pooled = H.sum(axis=0); exp = pooled.sum() / 8; chi2 = float(((pooled - exp) ** 2 / exp).sum())
+            nat = np.array([x['natural']['v'] for x in dead]).ravel(); uni = np.array([x['uniform']['v'] for x in rec['runs']]).ravel()
+            out[str(rec['r'])] = dict(T=rec['T'], N=rec['N'], seeds_dead=[x['seed'] for x in dead], natural_mean=float(nat.mean()), natural_sem=float(nat.std(ddof=1) / np.sqrt(nat.size)), natural_n=int(nat.size),
+                                       uniform_mean=float(uni.mean()), uniform_sem=float(uni.std(ddof=1) / np.sqrt(uni.size)), uniform_n=int(uni.size), pooled_hist=pooled.astype(int).tolist(), chi2_7dof=chi2)
+            print(f"  B={rec['B']} r={rec['r']} T={rec['T']:.0e} N={rec['N']}: dead seas in seeds {out[str(rec['r'])]['seeds_dead']}; natural {nat.mean():.3e} +- {out[str(rec['r'])]['natural_sem']:.1e} ({nat.size} fronts), "
+                  f"uniform {uni.mean():.3e} +- {out[str(rec['r'])]['uniform_sem']:.1e} ({uni.size} fronts); pooled phase histogram (eighths of [0, r_sea)) {pooled.astype(int).tolist()}, chi2 {chi2:.1f} (7 dof)")
+        OUT['natural'] = out
+
+
+def word_fronts(rows):
+    """word_front.jsonl: the word-defined front at T against the changed-cell front at T and the slope-based displacement."""
+    if not os.path.exists('word_front.jsonl'): return
+    print("\nWORD FRONT at T (word_front.jsonl): mean over eight fronts of the displacement of the outermost cell with a word outside [0, r); the changed-cell front at T; the halo; slope x T from Table II")
+    out = {}
+    for rec in (json.loads(l) for l in open('word_front.jsonl')):
+        B, r = rec['B'], rec['r']; dr = r - 3 * (1 << (B - 3))
+        wf = np.array([run['word_front'] for run in rec['runs']], dtype=float).ravel()
+        cf = np.array([run['changed_front'] for run in rec['runs']], dtype=float).ravel()
+        T = rec['runs'][0]['t']; row = rows.get((B, dr))
+        d = dict(T=T, fronts=int(wf.size), word_mean=float(wf.mean()), word_sem=float(wf.std(ddof=1) / np.sqrt(wf.size)), changed_mean=float(cf.mean()), changed_sem=float(cf.std(ddof=1) / np.sqrt(cf.size)),
+                 halo_mean=float((cf - wf).mean()), halo_min=float((cf - wf).min()), halo_max=float((cf - wf).max()),
+                 slope_x_T=float(row['v'] * T) if row else None, slope_x_T_err=float(row['err'] * T) if row else None, v_word=float(wf.mean() / T), v_word_sem=float(wf.std(ddof=1) / np.sqrt(wf.size) / T))
+        out[f"{B},{r}"] = d
+        d['word_fronts'] = [run['word_front'] for run in rec['runs']]; d['changed_fronts'] = [run['changed_front'] for run in rec['runs']]
+        print(f"  B={B} r={r} (dr{dr:+d}, e1={e1_of(B, r):.4f}) T={T:.0e}: word front {d['word_mean']:.1f} +- {d['word_sem']:.1f} cells (v_word {d['v_word']:.2e} +- {d['v_word_sem']:.1e}); changed-cell front {d['changed_mean']:.1f} +- {d['changed_sem']:.1f}; halo {d['halo_mean']:.1f} [{d['halo_min']:.0f}, {d['halo_max']:.0f}]"
+              + (f"; slope x T {d['slope_x_T']:.1f} +- {d['slope_x_T_err']:.1f}" if row else f"; per front: words {d['word_fronts']}, changed cells {d['changed_fronts']} (no Table II row: control run)"))
+    OUT['word_front'] = out
 
 
 def seeds():
-    print("\nSEED SURVIVAL (long_survival*.jsonl): alive at T and growing")
+    print("\nSEED SURVIVAL (long_survival*.jsonl): alive at T, latest death, extents at T, growth of the extent (least squares over t >= T/10, per front = half the slope)")
+    out = {}
     for fn in sorted(glob.glob('long_survival_B*.jsonl')):
         R = [json.loads(l) for l in open(fn)]
         T = R[0]['T']; alive = [x for x in R if x['tdead'] == 0]
-        print(f"  {fn}: {len(R)} seeds, T={T:.0e}: alive {len(alive)}; latest death {max(x['tdead'] for x in R)}; extents at T {sorted(x['hist'][-1][1] for x in alive)[:10]}{'...' if len(alive)>10 else ''}")
+        ext = sorted(x['hist'][-1][1] for x in alive)
+        rates = []
+        for x in alive:
+            H = np.array([(h[0], h[1]) for h in x['hist'] if h[0] >= T / 10], dtype=float)
+            if len(H) >= 4: rates.append(float(np.polyfit(H[:, 0], H[:, 1], 1)[0]) / 2)
+        d = dict(n=len(R), T=T, alive=len(alive), frac_alive=len(alive) / len(R), latest_death=max(x['tdead'] for x in R), ext_min=min(ext) if ext else None, ext_max=max(ext) if ext else None,
+                 rate_per_front_min=min(rates) if rates else None, rate_per_front_max=max(rates) if rates else None, rate_per_front_mean=float(np.mean(rates)) if rates else None)
+        out[fn] = d
+        print(f"  {fn}: {d['n']} seeds, T={T:.0e}: alive {d['alive']} ({d['frac_alive']:.3f}); latest death {d['latest_death']:.2e}; extents at T {d['ext_min']}-{d['ext_max']}; "
+              f"growth per front {d['rate_per_front_min']:.2e}-{d['rate_per_front_max']:.2e} (mean {d['rate_per_front_mean']:.2e})" if alive else f"  {fn}: {d['n']} seeds: none alive")
+    # survival curves and interval hazards (deaths per island-step) of the seed populations and of the transplanted islands
+    print("\nSURVIVAL: P(alive at t) and the hazard (deaths per island-step) in each decade, seeds (long_survival) and transplants (island_life, time since transplant)")
+    def hazards(td, T, bounds):
+        td = np.array(td, dtype=float); res = []
+        for t1, t2 in bounds:
+            if t1 >= T: res.append(None); continue
+            t2 = min(t2, T)
+            alive1 = (td == 0) | (td > t1); deaths = int(((td > t1) & (td <= t2)).sum())
+            ends = np.where(td == 0, T, td)[alive1]; expo = float(np.sum(np.minimum(ends, t2) - t1))
+            res.append(dict(t1=t1, t2=t2, alive_at_start=int(alive1.sum()), deaths=deaths, exposure=expo, hazard=deaths / expo if expo else None))
+        return res
+    bounds = [(1e3, 1e4), (1e4, 1e5), (1e5, 1e6), (1e6, 1e7), (1e7, 1e8)]; times = [1e3, 1e4, 1e5, 1e6, 1e7, 1e8]
+    sv = {}
+    for fn in sorted(glob.glob('long_survival_B*.jsonl')):
+        R = [json.loads(l) for l in open(fn)]; T = R[0]['T']; td = np.array([x['tdead'] for x in R], dtype=float)
+        P = [float(((td == 0) | (td > t)).mean()) if t <= T else None for t in times]
+        sv[fn] = dict(n=len(R), T=T, P_alive=P, hazards=hazards(td, T, bounds))
+        print(f"  {fn}: n={len(R)}, P(alive) at 1e3..1e8: " + ", ".join('-' if v is None else f"{v:.3f}" for v in P) + "; hazard per decade: " +
+              ", ".join('-' if h is None else f"{h['deaths']}/{h['exposure']:.1e}={h['hazard']:.1e}" for h in sv[fn]['hazards']))
+    for fn in sorted(glob.glob('island_life_B*.jsonl')):
+        R = [json.loads(l) for l in open(fn)]; Bx = R[0]['B']
+        rs = sorted(set(x['r'] for x in R)); Tt = 1e7 if Bx == 8 else 4e6
+        for sel, name in [(rs, 'all r')] + [([rx], f"r={rx}") for rx in rs]:
+            td = np.array([x['tdead'] for x in R if x['r'] in sel], dtype=float)
+            hz = hazards(td, Tt, bounds); key = f"{fn}:{name}"
+            sv[key] = dict(n=int(td.size), T=Tt, hazards=hz, deaths=int((td > 0).sum()), rate_overall=float((td > 0).sum() / np.sum(np.where(td == 0, Tt, td))))
+            print(f"  {fn} {name}: n={td.size}, deaths {sv[key]['deaths']}, overall {sv[key]['rate_overall']:.1e}; hazard per decade since transplant: " + ", ".join('-' if h is None else f"{h['deaths']}/{h['exposure']:.1e}={h['hazard']:.1e}" for h in hz))
+    OUT['survival'] = sv
+    print("\nSPREAD (spread_B*_w32_a.npz): fraction alive at 1e3, 1e5 and T; extent at 1e5 and T of the runs alive at T")
+    for fn in sorted(glob.glob('spread_B*_w32_a.npz')):
+        z = np.load(fn); t = z['times']; al = z['alive']; ex = z['ext']; last = al[:, -1] == 1
+        i3, i5 = int(np.searchsorted(t, 1000)), int(np.searchsorted(t, 100000))
+        B_, r_ = (int(s[1:]) for s in fn.split('_')[1:3])
+        d = dict(B=B_, r=r_, runs=int(al.shape[0]), T=int(t[-1]), alive_1e3=float(al[:, i3].mean()), alive_1e5=float(al[:, i5].mean()), alive_T=float(last.mean()),
+                 ext_1e5_of_survivors=[int(ex[last, i5].min()), int(ex[last, i5].max())] if last.any() else None, ext_T_of_survivors=[int(ex[last, -1].min()), int(ex[last, -1].max())] if last.any() else None)
+        out[fn] = d
+        print(f"  B={B_} r={r_} (dr{r_-3*(1<<(B_-3)):+d}): {d['runs']} runs, T={d['T']:.0e}: alive {d['alive_1e3']:.3f} at 1e3, {d['alive_1e5']:.3f} at 1e5, {d['alive_T']:.3f} at T; survivors' extent {d['ext_1e5_of_survivors']} at 1e5, {d['ext_T_of_survivors']} at T")
+    OUT['seeds'] = out
 
 
 if __name__ == '__main__':
-    rows = table_velocity(); creep_chains(rows); floor_table(); islands(); bulk(); quench(); phase(); natural(); seeds()
+    rows = table_velocity(); fixed_e1(); creep_chains(rows); word_fronts(rows); floor_table(); floor_models(); edge_model(); islands(); bulk(); domain_density(); quench(); phase(); natural(); seeds()
     if 'json' in sys.argv:
         json.dump(OUT, open('paper_numbers.json', 'w'), indent=1, default=float)
         print("\nwritten paper_numbers.json")

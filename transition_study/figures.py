@@ -43,8 +43,13 @@ def fig_velocity(fronts):
             pts.append((dr, x['v'] * sc, x['err'] * sc))
         pts.sort()
         d = np.array([p[0] for p in pts]); v = np.array([p[1] for p in pts]); e = np.array([p[2] for p in pts])
+        kind = np.array([rows[f"{B},{int(p[0])}"]['kind'] for p in pts])
         m = v > 0
-        ax1.errorbar(d[m], v[m], yerr=np.minimum(e[m], 0.999 * v[m]), fmt=markers[B] + '-', color=colors[B], ms=3.5, lw=0.8, capsize=1.5, label=f"B = {B}")
+        ax1.plot(d[m], v[m], '-', color=colors[B], lw=0.8)
+        for kd, face in (('dev', colors[B]), ('rb', 'white')):      # filled: developed-phase fronts (standard errors); open: random-block fronts (half spreads)
+            mm = m & (kind == kd)
+            if mm.any():
+                ax1.errorbar(d[mm], v[mm], yerr=np.minimum(e[mm], 0.999 * v[mm]), fmt=markers[B], mfc=face, mec=colors[B], ecolor=colors[B], ms=3.5, lw=0, elinewidth=0.8, capsize=1.5, label=f"B = {B}" if kd == 'dev' else None)
     ax1.set_yscale('log'); ax1.set_xlabel(r"$dr = r - r_c$"); ax1.set_ylabel(r"$v\, 2^{B-3}$")
     ax1.set_xlim(-4.5, 8.5); ax1.axvline(0.5, color='0.6', lw=0.6, ls='--'); ax1.legend(frameon=False, loc='lower right')
     # (b) chains
@@ -55,11 +60,12 @@ def fig_velocity(fronts):
         pts = chains[name]
         Bs = [p['B'] for p in pts]; sc = [p['scaled'] for p in pts]; er = [p['err'] * (1 << (p['B'] - 3)) for p in pts]
         ax2.errorbar(Bs, sc, yerr=np.minimum(er, 0.999 * np.array(sc)), fmt=fmt, color=col, ms=3.5, lw=0.8, capsize=1.5, label=lab)
-    ax2.set_yscale('log'); ax2.set_xlabel(r"$B$"); ax2.set_ylabel(r"$v\, 2^{B-3}$"); ax2.set_xticks([8, 9, 10, 11, 12]); ax2.legend(frameon=False, fontsize=6.5, loc='lower left')
+    ax2.set_yscale('log'); ax2.set_xlabel(r"$B$"); ax2.set_ylabel(r"$v\, 2^{B-3}$"); ax2.set_xticks([8, 9, 10, 11, 12]); ax2.set_ylim(3e-7, 2e-1)
+    ax2.legend(frameon=False, fontsize=6, loc='lower left', ncol=2, columnspacing=0.8, handlelength=1.5)
     # (c) v / v_tau against e_1 (random-block fronts)
     for B, rr in sorted(fronts.items()):
         e1 = (rr[:, 0] - (1 << (B - 2))) / rr[:, 0]
-        vt = 1.0 / ((1 - e1) * (1 << (B - 3)) + 0.5)
+        vt = 1.0 / ((1 - e1) * ((1 << (B - 3)) + 0.5))
         m = rr[:, 1] > 0
         ax3.plot(e1[m], (rr[:, 1] / vt)[m], markers[B] + '-', color=colors[B], ms=3, lw=0.7, label=f"B = {B}")
     for x in (1 / 3, 3 / 7, 1 / 2):
@@ -107,7 +113,10 @@ def fig_activity():
     for rec in sorted(recs, key=lambda x: x['r']):
         t = [x['t'] for x in rec['checkpoints']]; cov = [100 * x['cover'] for x in rec['checkpoints']]
         ax2.plot(t, cov, 'o-', ms=3, lw=0.8, label=f"r = {rec['r']}")
-    ax2.set_xscale('log'); ax2.set_xlabel("t"); ax2.set_ylabel("active fraction (%)"); ax2.legend(frameon=False, fontsize=6, ncol=2, loc='lower left', columnspacing=0.8, handlelength=1.5)
+    for rec in sorted((json.loads(l) for fn in glob.glob("quench_long_B10.jsonl") for l in open(fn)), key=lambda x: x['r']):
+        h = np.array(rec['hist']); ax2.plot(h[:, 0], h[:, 2], '-', lw=1.2, color='k', alpha=0.6)
+        ax2.text(h[-1, 0] * 1.05, h[-1, 2], str(rec['r']), fontsize=6, va='center')
+    ax2.set_xscale('log'); ax2.set_xlim(1.5e5, 2.5e8); ax2.set_xlabel("t"); ax2.set_ylabel("active fraction (%)"); ax2.legend(frameon=False, fontsize=6, ncol=2, loc='lower left', columnspacing=0.8, handlelength=1.5)
     ax1.text(0.02, 0.95, '(a)', transform=ax1.transAxes, va='top'); ax2.text(0.02, 0.95, '(b)', transform=ax2.transAxes, va='top')
     fig.tight_layout(); fig.savefig("figP_activity.pdf"); plt.close(fig)
 

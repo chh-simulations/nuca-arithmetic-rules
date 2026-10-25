@@ -91,7 +91,7 @@ def _sec_S2b():
     global npass, nfail
     emit("S2b the pinning floor by exact reachability (floor_exact.py): the largest word a sea cell can ever reach, every residue")
     import floor_exact as FE
-    for Bx in (range(6, 11) if MODE == "quick" else range(6, 13)):
+    for Bx in (range(6, 11) if MODE == "quick" else range(6, 15)):
         t0 = time.time(); got = {}
         for rx in range(1 << (Bx - 2), 1 << (Bx - 1)):
             got[rx] = FE.summary(Bx, rx)['max_word']
@@ -100,6 +100,19 @@ def _sec_S2b():
         checkbool(f"B={Bx}: r <= {floor}: reachable words exactly [0, r) (except r = 2^(B-2), 2^(B-2)+1: up to 2^(B-2)+1); r > {floor}: 2^(B-1)+1 reached",
                   all((got[rx] == rx - 1) if rx > (1 << (Bx - 2)) + 1 else (got[rx] == (1 << (Bx - 2)) + 1) for rx in got if rx <= floor)
                   and all(got[rx] == (1 << (Bx - 1)) + 1 for rx in got if rx > floor))
+
+# ---------------------------------------------------------------- S2c the two- and three-cell models of the floor
+def _sec_S2c():
+    global npass, nfail
+    emit("S2c the pinning floor in the two- and three-cell exact models (floor_models.py): largest reachable word at floor-1, floor, floor+1")
+    import floor_models as FM
+    for e in EXPECTED.get('floor_models', []):
+        t0 = time.time()
+        if e['cells'] == 2:
+            mx = FM.reachable2(e['B'], e['r'])[0]
+        else:
+            mx = FM.reach3(e['B'], e['r'])[0]
+        check(f"{e['cells']} cells, B={e['B']} r={e['r']} (floor{e['r'] - e['floor']:+d}): largest reachable word ({time.time() - t0:.0f}s)", mx, e['max_word'])
 
 # ---------------------------------------------------------------- S3 islands
 def _sec_S3():
@@ -285,10 +298,17 @@ def _sec_S8():
     global npass, nfail
     emit("S8  the reduced edge model (edge_model.py), B = 10, p = 0.5, seed 1, 4e6 steps")
     import edge_model as EM
-    exp_edge = {376: 1, 380: 16, 382: 60, 383: 180, 384: 283, 385: 3033, 386: 5786, 400: 9872}
-    for rx, e in exp_edge.items():
-        s_, _, _ = EM.run_edge(rx, 10, 48, 4_000_000, 0.5, 1)
-        check(f"edge model r={rx}: successes", s_, e)
+    if 'edge' in EXPECTED:
+        for e in EXPECTED['edge']:
+            if MODE == "quick" and not (e['kind'] == 'table' and e['p'] == 0.5): continue
+            t0 = time.time()
+            got = [EM.run_edge(e['r'], e['B'], e['L'], e['T'], e['p'], s)[0] for s in e['seeds']]
+            check(f"edge model {e['kind']} B={e['B']} r={e['r']} p={e['p']} T={e['T']:.0e}: successes of seeds {e['seeds']} ({time.time()-t0:.0f}s)", got, e['successes'])
+    else:
+        exp_edge = {376: 1, 380: 16, 382: 60, 383: 180, 384: 283, 385: 3033, 386: 5786, 400: 9872}
+        for rx, e in exp_edge.items():
+            s_, _, _ = EM.run_edge(rx, 10, 48, 4_000_000, 0.5, 1)
+            check(f"edge model r={rx}: successes", s_, e)
 
 # ---------------------------------------------------------------- S9 the stored long runs: the analysis regenerated from the records
 def _sec_S9():
@@ -299,6 +319,8 @@ def _sec_S9():
         if Bx == 8: continue
         recs = [r_ for fn in _glob.glob(f"front_dev_long_B{Bx}.jsonl") for r_ in (_json.loads(l) for l in open(fn)) if r_['r'] == rx and r_['T'] == e['T']]
         got = []
+        if not recs:
+            nfail += 1; emit(f"FAIL B={Bx} r={rx}: no stored record with T={e['T']:.0e} in front_dev_long_B{Bx}.jsonl"); continue
         for run in recs[-1]['runs']:
             for col in (1, 2):
                 pts = np.array([(h[0], h[col]) for h in run['hist'] if h[col] is not None and h[0] >= e['T'] / 10], dtype=float)
@@ -311,6 +333,38 @@ def _sec_S9():
         alive = [x for x in R if x['tdead'] == 0]
         check(f"{fn}: seeds, alive at T, latest death", [len(R), len(alive), max(x['tdead'] for x in R)], [e['n'], e['alive'], e['latest_death']])
         check(f"{fn}: extents of the survivors at T", sorted(x['hist'][-1][1] for x in alive), e['extents'])
+    for (Bx, rx, seed), e in sorted(EXPECTED.get('quench_long', {}).items()):
+        recs = [r_ for fn in _glob.glob(f"quench_long_B{Bx}.jsonl") for r_ in (_json.loads(l) for l in open(fn)) if r_['r'] == rx and r_['seed'] == seed and r_['T'] == e['T']]
+        if not recs:
+            nfail += 1; emit(f"FAIL B={Bx} r={rx} seed {seed}: no stored long-quench record with T={e['T']:.0e}"); continue
+        h = recs[-1]['hist']
+        check(f"B={Bx} r={rx} seed {seed}, T={e['T']:.0e}: long quench, covered fraction at every tenth checkpoint, final coverage and holes",
+              [round(x[2], 4) for x in h[::10]] + [h[-1][2], h[-1][1]], e['cover'] + [e['final_cover'], e['final_domains']], 1e-9)
+    for fn, e in sorted(EXPECTED.get('spread', {}).items()):
+        z = np.load(fn); t = z['times']; al = z['alive']; ex = z['ext']; last = al[:, -1] == 1
+        i3, i5 = int(np.searchsorted(t, 1000)), int(np.searchsorted(t, 100000))
+        check(f"{fn}: runs, T, alive at 1e3, 1e5 and T, latest death, extents of the survivors at T",
+              [int(al.shape[0]), int(t[-1]), int(al[:, i3].sum()), int(al[:, i5].sum()), int(last.sum()), int(z['tdead'].max())] + sorted(int(v_) for v_ in ex[last, -1]),
+              [e['runs'], e['T'], e['alive_1e3'], e['alive_1e5'], e['alive_T'], e['tdead_max']] + e['ext_T'])
+    if 'word_front' in EXPECTED:
+        import word_front as WF
+        for (Bx, rx, kx), e in sorted(EXPECTED['word_front'].items()):
+            rec = WF.measure(Bx, rx, kx)
+            if not rec['runs']:
+                nfail += 1; emit(f"FAIL B={Bx} r={rx} k={kx}: no final states for the word front (ckpt/ or final_states/)"); continue
+            check(f"B={Bx} r={rx} k={kx}: word front and changed-cell front of every final state (t={rec['runs'][0]['t']:.0e})",
+                  [v_ for run in rec['runs'] for v_ in run['word_front'] + run['changed_front']], [v_ for wf, cf in zip(e['word_fronts'], e['changed_fronts']) for v_ in wf + cf])
+    if 'holes' in EXPECTED:
+        import hole_words as HW
+        for (Bx, rx, kx, seed), e in sorted(EXPECTED['holes'].items()):
+            try:
+                rec = HW.analyse(Bx, rx, kx, seed)
+            except FileNotFoundError as ex:
+                nfail += 1; emit(f"FAIL {ex}"); continue
+            tt = rec['totals']; et = e['totals']
+            check(f"B={Bx} r={rx} seed {seed}: holes of the final state at t={rec['t']:.0e} (count, cells, cells with words in [0,r), in the bands, on; openings and closings of the count) and the hole lengths",
+                  [tt['holes'], tt['cells'], tt['sea_range'], tt['lower_band'] + tt['upper_band'], tt['on'], rec['count_increases'], rec['count_decreases']] + rec['lengths'],
+                  [et['holes'], et['cells'], et['sea_range'], et['lower_band'] + et['upper_band'], et['on'], e['up'], e['down']] + e['lengths'])
 
 # ---------------------------------------------------------------- S10 island cores and the active phase
 def _sec_S10():
@@ -338,7 +392,7 @@ def _sec_S11():
             emit(f"     B={Bx} r={rx}: recorded natural {np.mean(e['natural']):.3e}, uniform {np.mean(e['uniform']):.3e} (regeneration: run front_natural.py 8 16 94 2000000 200000 4 {rx}:{e['T']})")
 
 
-SECTIONS = ['S1', 'S2', 'S2b', 'S3', 'S4', 'S4b', 'S5', 'S5b', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11']
+SECTIONS = ['S1', 'S2', 'S2b', 'S2c', 'S3', 'S4', 'S4b', 'S5', 'S5b', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11']
 ONLY = [s for s in sys.argv[2].split(',')] if len(sys.argv) > 2 else None   # e.g. 'quick S2b,S9' runs two sections
 for _name in SECTIONS:
     if ONLY is None or _name in ONLY:

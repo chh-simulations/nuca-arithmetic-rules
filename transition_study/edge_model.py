@@ -65,8 +65,33 @@ def scaling():
         print(f"B={B} r_c={rc} T={T}: " + "  ".join(f"r_c{dr:+d}{'x' if abs(dr) > 2 and base > 1024 else ''}:{sum(res)/2:.0f}" for r, dr, res in rows), flush=True)
 
 
+def record():
+    """edge_model.jsonl: the B = 10 table (p = 0.5 and 0.7, seeds 1-3) and the scaling runs (B = 9..12, p = 0.5, seeds 1, 2),
+    successes per run, so that paper_numbers.py can print the factors quoted in the paper."""
+    import json, time
+    out = open('edge_model.jsonl', 'w')
+    B = 10; L = 48; T = 4_000_000
+    for p in (0.5, 0.7):
+        for r in (376, 378, 380, 381, 382, 383, 384, 385, 386, 388, 392, 400):
+            t0 = time.time()
+            res = [run_edge(r, B, L, T, p, s) for s in (1, 2, 3)]
+            rec = dict(kind='table', B=B, r=r, dr=r - 384, L=L, T=T, p=p, seeds=[1, 2, 3], successes=[int(x[0]) for x in res], rc_words=[int(x[1]) for x in res], maxw=[int(x[2]) for x in res], secs=round(time.time() - t0, 1))
+            out.write(json.dumps(rec) + '\n'); out.flush(); print(rec, flush=True)
+    for B in (9, 10, 11, 12):
+        base = 1 << B; rc = 3 * base // 8; T = 4_000_000 * base // 1024
+        for dr in (-2, -1, 0, 1, 2, 4, 8, 16, 32, 64):
+            r = rc + dr * max(1, base // 1024) if abs(dr) > 2 else rc + dr
+            t0 = time.time()
+            res = [run_edge(r, B, 48, T, 0.5, s) for s in (1, 2)]
+            rec = dict(kind='scaling', B=B, r=r, dr=r - rc, L=48, T=T, p=0.5, seeds=[1, 2], successes=[int(x[0]) for x in res], rc_words=[int(x[1]) for x in res], maxw=[int(x[2]) for x in res], secs=round(time.time() - t0, 1))
+            out.write(json.dumps(rec) + '\n'); out.flush(); print(rec, flush=True)
+    out.close()
+
+
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "scaling":
         scaling()
+    elif len(sys.argv) > 1 and sys.argv[1] == "record":
+        record()
     else:
         table()

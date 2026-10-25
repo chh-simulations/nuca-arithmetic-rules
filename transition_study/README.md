@@ -62,6 +62,15 @@ Scripts, in the order of use:
 - `quench_long.py`: the developed phase below threshold to 1e8 steps
   (chunked, checkpointed). Results: `quench_long_B10.jsonl` (r = 376,
   378, 380, 382).
+- `hole_words.py`: the holes of the quenched developed phase in the
+  final states of `quench_long.py` (sizes, words, activity). Results:
+  `hole_words.jsonl`. `word_front.py`: the word-defined front of the
+  final states of the developed-phase runs against the changed-cell
+  front. Results: `word_front.jsonl`.
+- `floor_models.py`: the two- and three-cell models of the pinning
+  floor at B = 8 and 10 (largest reachable word one residue below, at
+  and above the floor). Results: `floor_models.jsonl`. The reduced
+  edge model's record is `edge_model.jsonl`.
 - `paper_numbers.py`: every number quoted in the paper from the stored
   results (writes `paper_numbers.json`); `make_tables.py` writes the
   rows of Tables II-IV into the manuscript from it;
@@ -75,6 +84,13 @@ Scripts, in the order of use:
   look for them in their own folder, so copy or link them there before
   running `analyze.py`, `figures.py`, `make_expected.py` or
   `verify_pre.py` (or run the measurement drivers to regenerate them).
+
+Fourth campaign, 20 October 2026: the developed-phase creep at B = 10,
+r = 380 rerun (four seeds, 1e8 steps), a control run at the floor
+(B = 10, r = 320, 1e8 steps: the word front stays at the block edge),
+the long quench at r = 380 and 382, the analysis of the holes and of
+the word fronts, and the two- and three-cell floor models as stored
+records.
 
 Third campaign, 19-20 October 2026 (for the revised paper): bulk runs
 and island lifetimes at B = 10, the natural-sea check, developed-phase

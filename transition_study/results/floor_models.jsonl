@@ -1,0 +1,9 @@
+{"cells": 2, "B": 8, "r": 79, "floor": 80, "max_word": 78, "states": 15204, "reach_climb_band": false, "reach_active_band": false, "secs": 0.3}
+{"cells": 2, "B": 8, "r": 80, "floor": 80, "max_word": 79, "states": 15708, "reach_climb_band": false, "reach_active_band": false, "secs": 0.2}
+{"cells": 2, "B": 8, "r": 81, "floor": 80, "max_word": 129, "states": 47583, "reach_climb_band": true, "reach_active_band": true, "secs": 0.7}
+{"cells": 3, "B": 8, "r": 79, "floor": 80, "max_word": 78, "states": 1716780, "reach_climb_band": false, "reach_active_band": false, "secs": 3.5}
+{"cells": 3, "B": 8, "r": 80, "floor": 80, "max_word": 79, "states": 1807177, "reach_climb_band": false, "reach_active_band": false, "secs": 4.1}
+{"cells": 3, "B": 8, "r": 81, "floor": 80, "max_word": 129, "states": 9341956, "reach_climb_band": true, "reach_active_band": true, "secs": 27.9}
+{"cells": 2, "B": 10, "r": 319, "floor": 320, "max_word": 318, "states": 253316, "reach_climb_band": false, "reach_active_band": false, "secs": 17.9}
+{"cells": 2, "B": 10, "r": 320, "floor": 320, "max_word": 319, "states": 255356, "reach_climb_band": false, "reach_active_band": false, "secs": 19.9}
+{"cells": 2, "B": 10, "r": 321, "floor": 320, "max_word": 513, "states": 760655, "reach_climb_band": true, "reach_active_band": true, "secs": 70.7}

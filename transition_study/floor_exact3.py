@@ -35,7 +35,8 @@ def reach3(B, r):
     allst = np.flatnonzero(seen)
     w = np.concatenate([(allst // (S * S)) % base, ((allst // S) % S) % base, (allst % S) % base])
     return int(w.max()), int(allst.size), it
-B = int(sys.argv[1]); base = 1 << B; rc = 3 * (1 << (B - 3)); floor = 5 * (1 << (B - 4))
-for r in (int(x) for x in sys.argv[2:]):
-    mx, cnt, it = reach3(B, r)
-    print(json.dumps(dict(B=B, r=r, u=round(r / (1 << (B - 4)), 4), max_word=mx, states=cnt, iterations=it, reach_climb_band=mx >= floor, reach_active_band=mx >= base // 2)), flush=True)
+if __name__ == '__main__':
+    B = int(sys.argv[1]); base = 1 << B; rc = 3 * (1 << (B - 3)); floor = 5 * (1 << (B - 4))
+    for r in (int(x) for x in sys.argv[2:]):
+        mx, cnt, it = reach3(B, r)
+        print(json.dumps(dict(B=B, r=r, u=round(r / (1 << (B - 4)), 4), max_word=mx, states=cnt, iterations=it, reach_climb_band=mx >= floor, reach_active_band=mx >= base // 2)), flush=True)
