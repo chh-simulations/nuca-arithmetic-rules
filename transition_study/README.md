@@ -112,7 +112,12 @@ B = 8 (5e5 steps), 9 (1e6), 10 (2e6), 11 (2-4e6), 12 (4-8e6) on rings of
 (4e6 to 1.6e7 steps); quench at B = 8, 10 (4e6); creep and island
 lifetimes at B = 8 (1e7); island lifetimes at B = 10 (4e6).
 
-The quick form of `verify_pre.py` (71 checks) has passed with zero
-failures and digit-identical check lines on two machines (Linux and
-Windows, numpy 2.4.4, numba 0.68): `results/verify_pre_results_quick_linux.txt`
-and `results/verify_pre_results_quick_windows.txt`.
+The quick form of `verify_pre.py` (168 checks, the runner gate counted
+as one; about 70 minutes on two cores) has passed with zero failures on
+Linux (numpy 2.5.3, numba 0.68.0, 25 October 2026):
+`results/verify_pre_results_quick_linux.txt`. Its earlier form (71
+checks, 17 October) passed with digit-identical check lines on two
+machines: `results/verify_pre_results_quick_linux_17Oct.txt` and
+`results/verify_pre_results_quick_windows_17Oct.txt`. To run the suite,
+copy the contents of `results/` (files and the folders `records/` and
+`final_states/`) beside the scripts, from a local disk.

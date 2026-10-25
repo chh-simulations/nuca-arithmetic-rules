@@ -1,0 +1,81 @@
+S1  the compiled runner against the canonical loop (gate_fast.py)
+PASS gate_fast.py: 118 PASS, 0 FAIL
+S2  the readable bits of an ignited word, exact, B = 6..14
+PASS bit B-3 present iff u > 6 (e_1 > 1/3); bit B-4 iff u > 5 (e_1 > 1/5); both iff u > 7 (e_1 > 3/7)
+PASS e_1(r_c) = 1/3 exactly, B = 6..14
+PASS the trap at 2^(B-1): below it bits B-2..B-4 set and B-1 clear, above it the reverse (min(8, 2^(B-4)) words each side)
+S3  islands at B = 10, r = 376
+PASS number of islands (N = 2424, 2e5 steps, seed 1): 13 vs 13
+PASS island widths (changed cells within 4000 steps): [18. 18. 13. 14. 14. 15. 12. 16. 26. 14. 12. 15. 14.] vs [18. 18. 13. 14. 14. 15. 12. 16. 26. 14. 12. 15. 14.]
+PASS core sizes: [ 5.  5.  5.  6.  6.  6.  6.  7.  7.  7.  8.  9. 10.] vs [ 5.  5.  5.  6.  6.  6.  6.  7.  7.  7.  8.  9. 10.]
+PASS core words in the band at 512 / at 768: [61. 26.] vs [61. 26.]
+PASS largest offset of a core word from its band centre: 20 vs 20
+PASS transplant: alive at 2e6 in three seas (tdead = 0): [0. 0. 0.] vs [0. 0. 0.]
+PASS transplant: cells changing per step, late: [2.53 2.53 2.53] vs [2.53 2.53 2.53]
+PASS transplant: cells on per step, late: [4.16 4.16 4.16] vs [4.16 4.16 4.16]
+PASS transplant: extreme offsets of changed cells (max right, min left), sea 100: [30.  4.] vs [30.  4.]
+PASS sensitivity: (cells, words) differing at t = 10, 100, 1000, 3000 after a +1 word perturbation: [ 0.  1.  1. 13.  3. 17.  8. 18.] vs [ 0.  1.  1. 13.  3. 17.  8. 18.]
+S3b island cores at B = 9, 11 (r = r_c - 8*2^(B-10), 200*2^B steps)
+PASS B=9 r=184: number of islands: 8 vs 8
+PASS B=9 r=184: core sizes: [5. 5. 5. 5. 5. 6. 7. 9.] vs [5. 5. 5. 5. 5. 6. 7. 9.]
+PASS B=9 r=184: core words in the lower / upper band: [38.  9.] vs [38.  9.]
+PASS B=11 r=752: number of islands: 49 vs 49
+PASS B=11 r=752: mode of the core size: 5 vs 5
+PASS B=11 r=752: core words in the lower / upper band: [247.  99.] vs [247.  99.]
+S4  front velocities (front.py geometry, two seeds, four fronts)
+PASS B=8 r=94 (r_c-2) four front velocities (15s): [ 5.043413e-06  3.846148e-06 -4.160839e-05 -2.290210e-05] vs [ 5.043413e-06  3.846148e-06 -4.160839e-05 -2.290210e-05]
+PASS B=8 r=95 (r_c-1) four front velocities (29s): [0.000129 0.000165 0.000141 0.000101] vs [0.000129 0.000165 0.000141 0.000101]
+PASS B=8 r=96 (r_c+0) four front velocities (28s): [0.000307 0.000263 0.000255 0.000296] vs [0.000307 0.000263 0.000255 0.000296]
+PASS B=8 r=97 (r_c+1) four front velocities (29s): [0.002703 0.002248 0.002806 0.002327] vs [0.002703 0.002248 0.002806 0.002327]
+PASS B=8 r=98 (r_c+2) four front velocities (29s): [0.023068 0.020985 0.021962 0.025264] vs [0.023068 0.020985 0.021962 0.025264]
+PASS B=8 r=99 (r_c+3) four front velocities (32s): [0.024394 0.024768 0.034384 0.031534] vs [0.024394 0.024768 0.034384 0.031534]
+PASS B=8 r=100 (r_c+4) four front velocities (30s): [0.027753 0.027747 0.030328 0.028959] vs [0.027753 0.027747 0.030328 0.028959]
+PASS B=8 r=102 (r_c+6) four front velocities (29s): [0.035799 0.024001 0.038534 0.034053] vs [0.035799 0.024001 0.038534 0.034053]
+PASS B=8 r=104 (r_c+8) four front velocities (28s): [0.03647  0.035224 0.040228 0.04009 ] vs [0.03647  0.035224 0.040228 0.04009 ]
+PASS B=8 r=108 (r_c+12) four front velocities (29s): [0.04391  0.038799 0.042685 0.042306] vs [0.04391  0.038799 0.042685 0.042306]
+PASS B=8 r=110 (r_c+14) four front velocities (28s): [0.047647 0.041436 0.049848 0.044307] vs [0.047647 0.041436 0.049848 0.044307]
+PASS B=8 r=111 (r_c+15) four front velocities (28s): [0.045735 0.041509 0.045187 0.047889] vs [0.045735 0.041509 0.045187 0.047889]
+PASS B=8 r=112 (r_c+16) four front velocities (29s): [0.049509 0.047787 0.053545 0.052408] vs [0.049509 0.047787 0.053545 0.052408]
+PASS B=8 r=113 (r_c+17) four front velocities (29s): [0.054503 0.052446 0.055598 0.055626] vs [0.054503 0.052446 0.055598 0.055626]
+PASS B=8 r=114 (r_c+18) four front velocities (28s): [0.05379  0.055053 0.060099 0.05583 ] vs [0.05379  0.055053 0.060099 0.05583 ]
+PASS B=8 r=116 (r_c+20) four front velocities (28s): [0.061604 0.056034 0.059243 0.059078] vs [0.061604 0.056034 0.059243 0.059078]
+PASS B=8 r=118 (r_c+22) four front velocities (29s): [0.062645 0.05424  0.059316 0.057015] vs [0.062645 0.05424  0.059316 0.057015]
+PASS B=8 r=120 (r_c+24) four front velocities (29s): [0.064993 0.055079 0.059005 0.058641] vs [0.064993 0.055079 0.059005 0.058641]
+PASS B=8 r=124 (r_c+28) four front velocities (29s): [0.062526 0.055091 0.065957 0.058829] vs [0.062526 0.055091 0.065957 0.058829]
+PASS B=8 r=128 (r_c+32) four front velocities (29s): [0.062995 0.056751 0.066414 0.05236 ] vs [0.062995 0.056751 0.066414 0.05236 ]
+PASS B=9 r=190 (r_c-2) four front velocities (116s): [-2.655778e-03  1.057533e-05 -3.086019e-06 -1.037830e-04] vs [-2.655778e-03  1.057533e-05 -3.086019e-06 -1.037830e-04]
+PASS B=9 r=191 (r_c-1) four front velocities (115s): [6.242867e-05 7.712264e-05 7.042460e-05 4.836077e-05] vs [6.242867e-05 7.712264e-05 7.042460e-05 4.836077e-05]
+PASS B=9 r=192 (r_c+0) four front velocities (113s): [0.000135 0.000108 0.000107 0.000111] vs [0.000135 0.000108 0.000107 0.000111]
+PASS B=9 r=193 (r_c+1) four front velocities (112s): [0.001094 0.0011   0.001018 0.001295] vs [0.001094 0.0011   0.001018 0.001295]
+PASS B=9 r=194 (r_c+2) four front velocities (112s): [0.009451 0.01061  0.01121  0.010864] vs [0.009451 0.01061  0.01121  0.010864]
+PASS B=9 r=195 (r_c+3) four front velocities (111s): [0.012628 0.013218 0.010999 0.01105 ] vs [0.012628 0.013218 0.010999 0.01105 ]
+PASS B=9 r=256 (r_c+64) four front velocities (114s): [0.031449 0.030479 0.030701 0.02961 ] vs [0.031449 0.030479 0.030701 0.02961 ]
+S5  random start at B = 10: collapse to islands, creep at 383-384, invasion at 385; domain density
+PASS r=382: tail activity at 4e5 = 1.70% in [1.2, 1.8]; domains 49, inside density 25.8%
+PASS r=383: tail activity at 4e5 = 6.93% in [3.0, 25.0]; domains 56, inside density 38.3%
+PASS r=384: tail activity at 4e5 = 12.97% in [5.0, 40.0]; domains 51, inside density 42.3%
+PASS r=385: tail activity at 4e5 = 45.93% in [44.0, 47.0]; domains 1, inside density 45.9%
+S6  the developed active phase below threshold (quench.py)
+PASS B=8 r=80 seed 1: covered fraction at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=80 seed 1: number of active domains at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=80 seed 2: covered fraction at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=80 seed 2: number of active domains at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=94 seed 1: covered fraction at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=94 seed 1: number of active domains at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=94 seed 2: covered fraction at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=94 seed 2: number of active domains at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=96 seed 1: covered fraction at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=96 seed 1: number of active domains at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=96 seed 2: covered fraction at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=96 seed 2: number of active domains at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+S8  the reduced edge model (edge_model.py), B = 10, p = 0.5, seed 1, 4e6 steps
+PASS edge model r=376: successes: 1 vs 1
+PASS edge model r=380: successes: 16 vs 16
+PASS edge model r=382: successes: 60 vs 60
+PASS edge model r=383: successes: 180 vs 180
+PASS edge model r=384: successes: 283 vs 283
+PASS edge model r=385: successes: 3033 vs 3033
+PASS edge model r=386: successes: 5786 vs 5786
+PASS edge model r=400: successes: 9872 vs 9872
+
+SUMMARY quick: 71 PASS, 0 FAIL
