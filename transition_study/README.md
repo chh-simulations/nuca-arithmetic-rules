@@ -80,6 +80,10 @@ Scripts, in the order of use:
   LaTeX rows of the velocity table. `figures.py`: the figures.
 - `make_expected.py` writes `expected_pre.py` from the stored results;
   `verify_pre.py quick|full` regenerates the numbers and compares.
+- `results/final_states/`: the final states (cells and words) of the
+  developed-phase runs of 5e7-1e8 steps at k = 4 (B = 8..11) and of the
+  long quench (B = 10, r = 376..382), which `word_front.py`,
+  `hole_words.py` and the suite re-analyse.
 - The stored results of the campaign are in `results/`; the scripts
   look for them in their own folder, so copy or link them there before
   running `analyze.py`, `figures.py`, `make_expected.py` or
