@@ -113,11 +113,21 @@ B = 8 (5e5 steps), 9 (1e6), 10 (2e6), 11 (2-4e6), 12 (4-8e6) on rings of
 lifetimes at B = 8 (1e7); island lifetimes at B = 10 (4e6).
 
 The quick form of `verify_pre.py` (168 checks, the runner gate counted
-as one; about 70 minutes on two cores) has passed with zero failures on
-Linux (numpy 2.5.3, numba 0.68.0, 25 October 2026):
-`results/verify_pre_results_quick_linux.txt`. Its earlier form (71
-checks, 17 October) passed with digit-identical check lines on two
+as one; 70 to 100 minutes on two cores) has passed with zero failures
+on two machines: Linux (Python 3.13, numpy 2.5.3, numba 0.68.0, 25
+October 2026), `results/verify_pre_results_quick_linux.txt`, and
+Windows 10 (Python 3.13.15, numpy 2.5.3, numba 0.68.0, 26 October
+2026), `results/verify_pre_results_quick_windows.txt`. The 323 lines of
+the two files are identical apart from the timings in parentheses and
+one line, the S4b slopes at B = 8, r = 96: those slopes are exact
+rationals n / (2 x 10^6), six of the eight end in 5 at the seventh
+decimal, and the sixth printed digit rounds the tie one way or the
+other depending on the last bits of the floating-point fit (the
+BLAS of the machine); the compared values agree to 1e-9, as the
+check requires, and the integer front positions behind them are the
+same on both machines. The earlier form of the suite (71 checks,
+17 October) passed with digit-identical lines on the same two
 machines: `results/verify_pre_results_quick_linux_17Oct.txt` and
-`results/verify_pre_results_quick_windows_17Oct.txt`. To run the suite,
-copy the contents of `results/` (files and the folders `records/` and
-`final_states/`) beside the scripts, from a local disk.
+`results/verify_pre_results_quick_windows_17Oct.txt`. To run the
+suite, copy the contents of `results/` (files and the folders
+`records/` and `final_states/`) beside the scripts, on a local disk.
