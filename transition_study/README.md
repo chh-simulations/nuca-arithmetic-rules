@@ -84,6 +84,11 @@ Scripts, in the order of use:
   developed-phase runs of 5e7-1e8 steps at k = 4 (B = 8..11) and of the
   long quench (B = 10, r = 376..382), which `word_front.py`,
   `hole_words.py` and the suite re-analyse.
+- `notes/predictions_16Oct2026.md`: the predictions for B = 9, 11 and
+  12 as written on 16 October 2026 from the lookup table, before those
+  runs, with the entries that recorded their outcome (verbatim excerpts
+  of the working record; "P1" is the companion paper, "the PRE paper"
+  this one).
 - The stored results of the campaign are in `results/`; the scripts
   look for them in their own folder, so copy or link them there before
   running `analyze.py`, `figures.py`, `make_expected.py` or
