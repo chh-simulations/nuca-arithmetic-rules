@@ -32,8 +32,8 @@ def fig_velocity(fronts):
     J = json.load(open('paper_numbers.json'))
     rows = J['velocity_rows']; chains = J['chains']
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(7.2, 2.7))
-    markers = {8: 'o', 9: 's', 10: '^', 11: 'v', 12: 'D'}
-    colors = {8: '#1b1b1b', 9: '#4477aa', 10: '#cc6677', 11: '#228833', 12: '#aa3377'}
+    markers = {8: 'o', 9: 's', 10: '^', 11: 'v', 12: 'D', 13: 'p'}
+    colors = {8: '#1b1b1b', 9: '#4477aa', 10: '#cc6677', 11: '#228833', 12: '#aa3377', 13: '#66ccee'}
     for B in (8, 9, 10, 11, 12):
         pts = []
         for key, x in rows.items():

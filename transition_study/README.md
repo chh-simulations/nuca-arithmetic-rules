@@ -94,6 +94,13 @@ Scripts, in the order of use:
   running `analyze.py`, `figures.py`, `make_expected.py` or
   `verify_pre.py` (or run the measurement drivers to regenerate them).
 
+Fifth campaign, 27-28 October 2026: the developed-phase creep at B = 10,
+dr = -5 to -8 (2e8 steps), at B = 9, dr = -3 to -8 (1e8), and at B = 11,
+dr = -8 (2e8, the fourth point of the chain e_1 = 0.3263); random-block
+fronts at B = 13 at e_1 = 3/7 and 1/2 (`front_B13.npz`, not repeated by
+the suite); `alternation.py` (period-two statistics of the developed
+phase, `alternation.jsonl`); the word fronts of the new final states.
+
 Fourth campaign, 20 October 2026: the developed-phase creep at B = 10,
 r = 380 rerun (four seeds, 1e8 steps), a control run at the floor
 (B = 10, r = 320, 1e8 steps: the word front stays at the block edge),
@@ -117,14 +124,17 @@ B = 8 (5e5 steps), 9 (1e6), 10 (2e6), 11 (2-4e6), 12 (4-8e6) on rings of
 (4e6 to 1.6e7 steps); quench at B = 8, 10 (4e6); creep and island
 lifetimes at B = 8 (1e7); island lifetimes at B = 10 (4e6).
 
-The quick form of `verify_pre.py` (168 checks, the runner gate counted
-as one; 70 to 100 minutes on two cores) has passed with zero failures
-on two machines: Linux (Python 3.13, numpy 2.5.3, numba 0.68.0, 25
-October 2026), `results/verify_pre_results_quick_linux.txt`, and
-Windows 10 (Python 3.13.15, numpy 2.5.3, numba 0.68.0, 26 October
-2026), `results/verify_pre_results_quick_windows.txt`. The 323 lines of
-the two files are identical apart from the timings in parentheses and
-one line, the S4b slopes at B = 8, r = 96: those slopes are exact
+The quick form of `verify_pre.py` (190 checks after the fifth campaign
+of 27-28 October, the runner gate counted as one; 70 to 100 minutes on
+two cores) has passed with zero failures on Linux (Python 3.13, numpy
+2.5.3, numba 0.68.0, 28 October 2026),
+`results/verify_pre_results_quick_linux.txt`; the Windows run of this
+form is pending. Its 168-check form of 25 October passed with zero
+failures on two machines: Linux (`results/verify_pre_results_quick_linux_25Oct.txt`)
+and Windows 10 (Python 3.13.15, numpy 2.5.3, numba 0.68.0, 26 October
+2026, `results/verify_pre_results_quick_windows_26Oct.txt`). The 323
+lines of those two files are identical apart from the timings in
+parentheses and one line, the S4b slopes at B = 8, r = 96: those slopes are exact
 rationals n / (2 x 10^6), six of the eight end in 5 at the seventh
 decimal, and the sixth printed digit rounds the tie one way or the
 other depending on the last bits of the floating-point fit (the

@@ -22,7 +22,8 @@ def e1_of(B, r):
 def load_random_block():
     """front_B*.npz: v{r} = four front velocities (two seeds x two fronts)."""
     V = {}
-    for B in (8, 9, 10, 11, 12):
+    for B in (8, 9, 10, 11, 12, 13):
+        if not os.path.exists(f'front_B{B}.npz'): continue
         d = np.load(f'front_B{B}.npz', allow_pickle=True)
         for k in d.files:
             if k.startswith('v'):
@@ -59,7 +60,7 @@ def table_velocity():
     rows = {}
     print("TABLE II: front velocity per step.  'dev': developed-phase fronts (front_dev*, least-squares slope of each front's position over t >= T/10, mean +- sem over fronts, T in steps);")
     print("          'rb': random-block fronts (front.py, four fronts, mean and half the spread).  Scaled: v 2^(B-3).")
-    for B in (8, 9, 10, 11, 12):
+    for B in (8, 9, 10, 11, 12, 13):
         rc = 3 * (1 << (B - 3))
         for dr in ([-16, -14, -12, -10] if B == 8 else []) + [-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 8]:
             r = rc + dr
