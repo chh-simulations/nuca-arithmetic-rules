@@ -43,7 +43,7 @@ def fmt_scaled(v, B):
 
 def table_v():
     out = []; out_s = []
-    order = [-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 8, 'u7', 'u8']
+    order = [-4, -3, -2, -1, 0, 1, 2, 3, 4, 8, 'u7', 'u8']
     for dr in order:
         lab = f"${dr:+d}$" if isinstance(dr, int) else ("$e_1 = 3/7$" if dr == 'u7' else "$e_1 = 1/2$")
         vs = []; scs = []

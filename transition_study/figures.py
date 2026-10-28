@@ -49,17 +49,20 @@ def fig_velocity(fronts):
         for kd, face in (('dev', colors[B]), ('rb', 'white')):      # filled: developed-phase fronts (standard errors); open: random-block fronts (half spreads)
             mm = m & (kind == kd)
             if mm.any():
-                ax1.errorbar(d[mm], v[mm], yerr=np.minimum(e[mm], 0.999 * v[mm]), fmt=markers[B], mfc=face, mec=colors[B], ecolor=colors[B], ms=3.5, lw=0, elinewidth=0.8, capsize=1.5, label=f"B = {B}" if kd == 'dev' else None)
+                up = v[mm] < 2 * e[mm]; yy = np.where(up, v[mm] + 2 * e[mm], v[mm])   # not distinguished from zero: the 2-sigma upper bound
+                ax1.errorbar(d[mm], yy, yerr=np.where(up, 0.4 * yy, np.minimum(e[mm], 0.999 * v[mm])), uplims=up, fmt=markers[B], mfc=face, mec=colors[B], ecolor=colors[B], ms=3.5, lw=0, elinewidth=0.8, capsize=1.5, label=f"B = {B}" if kd == 'dev' else None)
     ax1.set_yscale('log'); ax1.set_xlabel(r"$dr = r - r_c$"); ax1.set_ylabel(r"$v\, 2^{B-3}$")
-    ax1.set_xlim(-4.5, 8.5); ax1.set_ylim(2e-6, 4); ax1.axvline(0.5, color='0.6', lw=0.6, ls='--'); ax1.legend(frameon=False, loc='lower right')
+    ax1.set_xlim(-8.5, 8.5); ax1.set_ylim(2e-7, 4); ax1.axvline(0.5, color='0.6', lw=0.6, ls='--'); ax1.legend(frameon=False, loc='lower right')
     # (b) chains
-    styles = {"e1=0.3263 (r = 95, 190, 380)": ('o-', '#4477aa', r"$e_1 = 0.3263$"), "e1=0.3298 (r = 191, 382, 764)": ('s-', '#cc6677', r"$e_1 = 0.3298$"),
+    styles = {"e1=0.3263 (r = 95, 190, 380, 760)": ('o-', '#4477aa', r"$e_1 = 0.3263$"), "e1=0.3298 (r = 191, 382, 764)": ('s-', '#cc6677', r"$e_1 = 0.3298$"),
               "e1=0.3316 (r = 383, 766)": ('^-', '#228833', r"$e_1 = 0.3316$"), "e1=1/3 (dr=0)": ('v--', '0.4', r"$e_1 = 1/3$"),
               "e1=1/3+2^-B (dr=+1)": ('D--', '0.1', r"$dr = +1$")}
     for name, (fmt, col, lab) in styles.items():
         pts = chains[name]
         Bs = [p['B'] for p in pts]; sc = [p['scaled'] for p in pts]; er = [p['err'] * (1 << (p['B'] - 3)) for p in pts]
-        ax2.errorbar(Bs, sc, yerr=np.minimum(er, 0.999 * np.array(sc)), fmt=fmt, color=col, ms=3.5, lw=0.8, capsize=1.5, label=lab)
+        sc = np.array(sc); er = np.array(er); up = sc < 2 * er          # a point not distinguished from zero: shown as its 2-sigma upper bound
+        yy = np.where(up, sc + 2 * er, sc)
+        ax2.errorbar(Bs, yy, yerr=np.where(up, 0.4 * yy, np.minimum(er, 0.999 * sc)), uplims=up, fmt=fmt, color=col, ms=3.5, lw=0.8, capsize=1.5, label=lab)
     ax2.set_yscale('log'); ax2.set_xlabel(r"$B$"); ax2.set_ylabel(r"$v\, 2^{B-3}$"); ax2.set_xticks([8, 9, 10, 11, 12]); ax2.set_ylim(2e-7, 1.5)
     ax2.legend(frameon=False, fontsize=5.5, loc='lower left', ncol=2, columnspacing=0.6, handlelength=1.4, borderaxespad=0.2)
     # (c) v / v_tau against e_1 (random-block fronts)

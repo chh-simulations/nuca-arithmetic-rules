@@ -61,7 +61,7 @@ def table_velocity():
     print("          'rb': random-block fronts (front.py, four fronts, mean and half the spread).  Scaled: v 2^(B-3).")
     for B in (8, 9, 10, 11, 12):
         rc = 3 * (1 << (B - 3))
-        for dr in ([-16, -14, -12, -10, -8, -7] if B == 8 else ([-8, -7] if B == 10 else [])) + [-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 8]:
+        for dr in ([-16, -14, -12, -10] if B == 8 else []) + [-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 8]:
             r = rc + dr
             if (B, r) in D:
                 v = D[(B, r)]['v']; m = v.mean(); s = v.std(ddof=1) / np.sqrt(len(v))
@@ -94,7 +94,7 @@ def table_velocity():
                 print(f"  dr={dr:+d} B={B}: rb {x['rb_mean']:.3e} [{x['rb_min']:.2e}, {x['rb_max']:.2e}], dev {x['dev_mean']:.3e} [{x['dev_min']:.2e}, {x['dev_max']:.2e}], ratio {x['ratio']:.2f}, ranges overlap {x['ranges_overlap']}")
     OUT['two_preparations'] = tp
     # ratios and collapse
-    print("\nRATIOS per B (random-block values at dr >= 1, developed at dr <= 0 where available):")
+    print("\nRATIOS per B (developed-phase values at dr <= 1 where available, random-block above):")
     for B in (8, 9, 10, 11, 12):
         g = lambda dr: rows[(B, dr)]['v']
         print(f"  B={B}: v(+1)/v(0) = {g(1)/g(0):.1f}, v(0)/v(-1) = {g(0)/g(-1):.2f}, v(+2)/v(+1) = {g(2)/g(1):.2f}" + (f", v(-1)/v(-2) = {g(-1)/g(-2):.1f}" if (B, -2) in rows else '') + (f", v(-2)/v(-3) = {g(-2)/g(-3):.2f}, v(-3)/v(-4) = {g(-3)/g(-4):.2f}" if (B, -3) in rows and (B, -4) in rows else ''))
@@ -106,7 +106,7 @@ def table_velocity():
         coll[str(dr)] = dict(B=Bs, scaled=vals)
         print(f"  dr={str(dr):>3}: " + ", ".join(f"B{B}: {v:.4f}" if v >= 0.01 else f"B{B}: {v:.2e}" for B, v in zip(Bs, vals)) + f"   max/min {max(vals)/min(vals):.2f}")
     OUT['collapse'] = coll
-    print("\nv/v_tau with v_tau = 1/((1-e_1) 2^(B-3) + 1/2):")
+    print("\nv/v_tau with v_tau = 1/((1-e_1)(2^(B-3) + 1/2)):")
     for dr in (1, 2, 3, 4, 8, 'u7', 'u8'):
         print(f"  dr={str(dr):>3}: " + ", ".join(f"B{B}: {rows[(B, dr)]['v']/vtau(B, rows[(B, dr)].get('r', 3*(1<<(B-3))+dr) if isinstance(dr, int) else rows[(B, dr)]['r']):.3f}" for B in (8, 9, 10, 11, 12) if (B, dr) in rows))
     # kink at u = 7
@@ -153,7 +153,7 @@ def creep_chains(rows):
     print("\nCREEP CHAINS (developed-phase fronts; scaled v 2^(B-3)):")
     D = load_developed(); V = load_random_block()
     chains = {}
-    for name, pts in (("e1=0.3263 (r = 95, 190, 380)", [(8, 95), (9, 190), (10, 380)]),
+    for name, pts in (("e1=0.3263 (r = 95, 190, 380, 760)", [(8, 95), (9, 190), (10, 380), (11, 760)]),
                       ("e1=0.3298 (r = 191, 382, 764)", [(9, 191), (10, 382), (11, 764)]),
                       ("e1=0.3316 (r = 383, 766)", [(10, 383), (11, 766)]),
                       ("e1=1/3 (dr=0)", [(B, 3 * (1 << (B - 3))) for B in (8, 9, 10, 11, 12)]),
@@ -426,8 +426,50 @@ def seeds():
     OUT['seeds'] = out
 
 
+# ---------------------------------------------------------------- paired blocks: the same prepared blocks at two residues
+def paired_blocks(pairs=(((10, 379), (10, 378)),)):
+    """front_dev_long records: per-seed sums of the two front slopes (t >= T/10) at two residues run from the same prepared blocks."""
+    import glob as _g
+    print("\nPAIRED BLOCKS (same prepared blocks, same seeds, two residues): per-seed sum of the two front slopes, t >= T/10")
+    out = {}
+    for (B1, r1), (B2, r2) in pairs:
+        vals = {}
+        for (B, r) in ((B1, r1), (B2, r2)):
+            for fn in sorted(_g.glob(f'front_dev_long_B{B}.jsonl')):
+                for l in open(fn):
+                    x = json.loads(l)
+                    if x['r'] != r: continue
+                    T = x['T']
+                    for run in x['runs']:
+                        h = run['hist']; sl = 0.0
+                        for col in (1, 2):
+                            pts = np.array([(e[0], e[col]) for e in h if e[col] is not None and e[0] >= T / 10], dtype=float)
+                            sl += float(np.polyfit(pts[:, 0], pts[:, 1], 1)[0])
+                        vals.setdefault((B, r), {})[run['seed']] = sl
+        a, b = vals.get((B1, r1), {}), vals.get((B2, r2), {})
+        seeds = sorted(set(a) & set(b))
+        ratios = [b[sd] / a[sd] for sd in seeds]
+        out[f"{B1},{r1} vs {B2},{r2}"] = dict(seeds=seeds, sums_a=[a[sd] for sd in seeds], sums_b=[b[sd] for sd in seeds], ratios=ratios)
+        print(f"  B={B1} r={r1} (dr{r1-3*(1<<(B1-3)):+d}) vs r={r2} (dr{r2-3*(1<<(B2-3)):+d}): seeds {seeds}: sums " +
+              ", ".join(f"{a[sd]:.2e} -> {b[sd]:.2e} (x{b[sd]/a[sd]:.1f})" for sd in seeds) + f"; ratios {min(ratios):.1f} to {max(ratios):.1f}")
+    OUT['paired_blocks'] = out
+
+
+# ---------------------------------------------------------------- alternation statistics of the developed phase
+def alternation():
+    """alternation.jsonl: P(a bulk cell changed state at each of the last m steps) against p^m."""
+    if not os.path.exists('alternation.jsonl'): return
+    print("\nALTERNATION IN THE DEVELOPED PHASE (alternation.jsonl): P(changed at each of the last m steps) vs random p^m")
+    out = []
+    for rec in (json.loads(l) for l in open('alternation.jsonl')):
+        out.append(rec)
+        print(f"  B={rec['B']} r={rec['r']} N={rec['N']} T={rec['T']}: on {rec['on']:.3f}, change rate {rec['change_rate']:.3f}; " +
+              ", ".join(f"m={x['m']}: {x['prob']:.3g} ({x['random']:.3g})" for x in rec['alternation']))
+    OUT['alternation'] = out
+
+
 if __name__ == '__main__':
-    rows = table_velocity(); fixed_e1(); creep_chains(rows); word_fronts(rows); floor_table(); floor_models(); edge_model(); islands(); bulk(); domain_density(); quench(); phase(); natural(); seeds()
+    rows = table_velocity(); fixed_e1(); creep_chains(rows); paired_blocks(); word_fronts(rows); floor_table(); floor_models(); edge_model(); islands(); bulk(); domain_density(); quench(); phase(); natural(); seeds(); alternation()
     if 'json' in sys.argv:
         json.dump(OUT, open('paper_numbers.json', 'w'), indent=1, default=float)
         print("\nwritten paper_numbers.json")
