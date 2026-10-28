@@ -61,7 +61,7 @@ def table_velocity():
     print("          'rb': random-block fronts (front.py, four fronts, mean and half the spread).  Scaled: v 2^(B-3).")
     for B in (8, 9, 10, 11, 12):
         rc = 3 * (1 << (B - 3))
-        for dr in ([-16, -14, -12, -10, -8, -7, -6, -5] if B == 8 else []) + [-4, -3, -2, -1, 0, 1, 2, 3, 4, 8]:
+        for dr in ([-16, -14, -12, -10, -8, -7] if B == 8 else ([-8, -7] if B == 10 else [])) + [-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 8]:
             r = rc + dr
             if (B, r) in D:
                 v = D[(B, r)]['v']; m = v.mean(); s = v.std(ddof=1) / np.sqrt(len(v))
