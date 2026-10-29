@@ -126,21 +126,25 @@ lifetimes at B = 8 (1e7); island lifetimes at B = 10 (4e6).
 
 The quick form of `verify_pre.py` (190 checks after the fifth campaign
 of 27-28 October, the runner gate counted as one; 70 to 100 minutes on
-two cores) has passed with zero failures on Linux (Python 3.13, numpy
-2.5.3, numba 0.68.0, 28 October 2026),
-`results/verify_pre_results_quick_linux.txt`; the Windows run of this
-form is pending. Its 168-check form of 25 October passed with zero
-failures on two machines: Linux (`results/verify_pre_results_quick_linux_25Oct.txt`)
-and Windows 10 (Python 3.13.15, numpy 2.5.3, numba 0.68.0, 26 October
-2026, `results/verify_pre_results_quick_windows_26Oct.txt`). The 323
-lines of those two files are identical apart from the timings in
-parentheses and one line, the S4b slopes at B = 8, r = 96: those slopes are exact
+two cores) has passed with zero failures on two machines: Linux
+(Python 3.13, numpy 2.5.3, numba 0.68.0, 28 October 2026,
+`results/verify_pre_results_quick_linux.txt`) and Windows 10 (the
+machine of 26 October, Python 3.13.15, numpy 2.5.3, numba 0.68.0 as
+recorded then; 29 October 2026,
+`results/verify_pre_results_quick_windows.txt`). The 364 lines of the
+two files are identical apart from the timings in parentheses and one
+line, the S4b slopes at B = 8, r = 96: those slopes are exact
 rationals n / (2 x 10^6), six of the eight end in 5 at the seventh
 decimal, and the sixth printed digit rounds the tie one way or the
 other depending on the last bits of the floating-point fit (the
 BLAS of the machine); the compared values agree to 1e-9, as the
 check requires, and the integer front positions behind them are the
-same on both machines. The earlier form of the suite (71 checks,
+same on both machines. The 168-check form of 25 October had passed
+with zero failures on the same two machines
+(`results/verify_pre_results_quick_linux_25Oct.txt`, 25 October;
+`results/verify_pre_results_quick_windows_26Oct.txt`, 26 October),
+each machine printing on that one line the same digits as in its
+190-check run. The earlier form of the suite (71 checks,
 17 October) passed with digit-identical lines on the same two
 machines: `results/verify_pre_results_quick_linux_17Oct.txt` and
 `results/verify_pre_results_quick_windows_17Oct.txt`. To run the

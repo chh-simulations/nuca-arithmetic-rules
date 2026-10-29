@@ -1,0 +1,364 @@
+S1  the compiled runner against the canonical loop (gate_fast.py)
+PASS gate_fast.py: 118 PASS, 0 FAIL
+S2  the readable bits of an ignited word, exact, B = 6..14
+PASS bit B-3 present iff u > 6 (e_1 > 1/3); bit B-4 iff u > 5 (e_1 > 1/5); both iff u > 7 (e_1 > 3/7)
+PASS e_1(r_c) = 1/3 exactly, B = 6..14
+PASS the trap at 2^(B-1): below it bits B-2..B-4 set and B-1 clear, above it the reverse (min(8, 2^(B-4)) words each side)
+S2b the pinning floor by exact reachability (floor_exact.py): the largest word a sea cell can ever reach, every residue
+PASS B=6: max reachable word at every r in [2^(B-2), 2^(B-1)) as recorded (16 residues, 0s)
+PASS B=6: r <= 20: reachable words exactly [0, r) (except r = 2^(B-2), 2^(B-2)+1: up to 2^(B-2)+1); r > 20: 2^(B-1)+1 reached
+PASS B=7: max reachable word at every r in [2^(B-2), 2^(B-1)) as recorded (32 residues, 0s)
+PASS B=7: r <= 40: reachable words exactly [0, r) (except r = 2^(B-2), 2^(B-2)+1: up to 2^(B-2)+1); r > 40: 2^(B-1)+1 reached
+PASS B=8: max reachable word at every r in [2^(B-2), 2^(B-1)) as recorded (64 residues, 0s)
+PASS B=8: r <= 80: reachable words exactly [0, r) (except r = 2^(B-2), 2^(B-2)+1: up to 2^(B-2)+1); r > 80: 2^(B-1)+1 reached
+PASS B=9: max reachable word at every r in [2^(B-2), 2^(B-1)) as recorded (128 residues, 1s)
+PASS B=9: r <= 160: reachable words exactly [0, r) (except r = 2^(B-2), 2^(B-2)+1: up to 2^(B-2)+1); r > 160: 2^(B-1)+1 reached
+PASS B=10: max reachable word at every r in [2^(B-2), 2^(B-1)) as recorded (256 residues, 3s)
+PASS B=10: r <= 320: reachable words exactly [0, r) (except r = 2^(B-2), 2^(B-2)+1: up to 2^(B-2)+1); r > 320: 2^(B-1)+1 reached
+S2c the pinning floor in the two- and three-cell exact models (floor_models.py): largest reachable word at floor-1, floor, floor+1
+PASS 2 cells, B=8 r=79 (floor-1): largest reachable word (0s): 78 vs 78
+PASS 2 cells, B=8 r=80 (floor+0): largest reachable word (0s): 79 vs 79
+PASS 2 cells, B=8 r=81 (floor+1): largest reachable word (0s): 129 vs 129
+PASS 3 cells, B=8 r=79 (floor-1): largest reachable word (2s): 78 vs 78
+PASS 3 cells, B=8 r=80 (floor+0): largest reachable word (2s): 79 vs 79
+PASS 3 cells, B=8 r=81 (floor+1): largest reachable word (14s): 129 vs 129
+PASS 2 cells, B=10 r=319 (floor-1): largest reachable word (13s): 318 vs 318
+PASS 2 cells, B=10 r=320 (floor+0): largest reachable word (13s): 319 vs 319
+PASS 2 cells, B=10 r=321 (floor+1): largest reachable word (55s): 513 vs 513
+S3  islands at B = 10, r = 376
+PASS number of islands (N = 2424, 2e5 steps, seed 1): 13 vs 13
+PASS island widths (changed cells within 4000 steps): [18. 18. 13. 14. 14. 15. 12. 16. 26. 14. 12. 15. 14.] vs [18. 18. 13. 14. 14. 15. 12. 16. 26. 14. 12. 15. 14.]
+PASS core sizes: [ 5.  5.  5.  6.  6.  6.  6.  7.  7.  7.  8.  9. 10.] vs [ 5.  5.  5.  6.  6.  6.  6.  7.  7.  7.  8.  9. 10.]
+PASS core words in the band at 512 / at 768: [61. 26.] vs [61. 26.]
+PASS largest offset of a core word from its band centre: 20 vs 20
+PASS transplant: alive at 2e6 in three seas (tdead = 0): [0. 0. 0.] vs [0. 0. 0.]
+PASS transplant: cells changing per step, late: [2.53 2.53 2.53] vs [2.53 2.53 2.53]
+PASS transplant: cells on per step, late: [4.16 4.16 4.16] vs [4.16 4.16 4.16]
+PASS transplant: extreme offsets of changed cells (max right, min left), sea 100: [30.  4.] vs [30.  4.]
+PASS sensitivity: (cells, words) differing at t = 10, 100, 1000, 3000 after a +1 word perturbation: [ 0.  1.  1. 13.  3. 17.  8. 18.] vs [ 0.  1.  1. 13.  3. 17.  8. 18.]
+S3b island cores at B = 9, 11 (r = r_c - 8*2^(B-10), 200*2^B steps)
+PASS B=9 r=184: number of islands: 8 vs 8
+PASS B=9 r=184: core sizes: [5. 5. 5. 5. 5. 6. 7. 9.] vs [5. 5. 5. 5. 5. 6. 7. 9.]
+PASS B=9 r=184: core words in the lower / upper band: [38.  9.] vs [38.  9.]
+PASS B=11 r=752: number of islands: 49 vs 49
+PASS B=11 r=752: mode of the core size: 5 vs 5
+PASS B=11 r=752: core words in the lower / upper band: [247.  99.] vs [247.  99.]
+S4  front velocities (front.py geometry, two seeds, four fronts)
+PASS B=8 r=94 (r_c-2) four front velocities (11s): [ 5.043413e-06  3.846148e-06 -4.160839e-05 -2.290210e-05] vs [ 5.043413e-06  3.846148e-06 -4.160839e-05 -2.290210e-05]
+PASS B=8 r=95 (r_c-1) four front velocities (20s): [0.000129 0.000165 0.000141 0.000101] vs [0.000129 0.000165 0.000141 0.000101]
+PASS B=8 r=96 (r_c+0) four front velocities (21s): [0.000307 0.000263 0.000255 0.000296] vs [0.000307 0.000263 0.000255 0.000296]
+PASS B=8 r=97 (r_c+1) four front velocities (20s): [0.002703 0.002248 0.002806 0.002327] vs [0.002703 0.002248 0.002806 0.002327]
+PASS B=8 r=98 (r_c+2) four front velocities (20s): [0.023068 0.020985 0.021962 0.025264] vs [0.023068 0.020985 0.021962 0.025264]
+PASS B=8 r=99 (r_c+3) four front velocities (21s): [0.024394 0.024768 0.034384 0.031534] vs [0.024394 0.024768 0.034384 0.031534]
+PASS B=8 r=100 (r_c+4) four front velocities (21s): [0.027753 0.027747 0.030328 0.028959] vs [0.027753 0.027747 0.030328 0.028959]
+PASS B=8 r=102 (r_c+6) four front velocities (21s): [0.035799 0.024001 0.038534 0.034053] vs [0.035799 0.024001 0.038534 0.034053]
+PASS B=8 r=104 (r_c+8) four front velocities (21s): [0.03647  0.035224 0.040228 0.04009 ] vs [0.03647  0.035224 0.040228 0.04009 ]
+PASS B=8 r=108 (r_c+12) four front velocities (21s): [0.04391  0.038799 0.042685 0.042306] vs [0.04391  0.038799 0.042685 0.042306]
+PASS B=8 r=110 (r_c+14) four front velocities (21s): [0.047647 0.041436 0.049848 0.044307] vs [0.047647 0.041436 0.049848 0.044307]
+PASS B=8 r=111 (r_c+15) four front velocities (21s): [0.045735 0.041509 0.045187 0.047889] vs [0.045735 0.041509 0.045187 0.047889]
+PASS B=8 r=112 (r_c+16) four front velocities (20s): [0.049509 0.047787 0.053545 0.052408] vs [0.049509 0.047787 0.053545 0.052408]
+PASS B=8 r=113 (r_c+17) four front velocities (21s): [0.054503 0.052446 0.055598 0.055626] vs [0.054503 0.052446 0.055598 0.055626]
+PASS B=8 r=114 (r_c+18) four front velocities (21s): [0.05379  0.055053 0.060099 0.05583 ] vs [0.05379  0.055053 0.060099 0.05583 ]
+PASS B=8 r=116 (r_c+20) four front velocities (21s): [0.061604 0.056034 0.059243 0.059078] vs [0.061604 0.056034 0.059243 0.059078]
+PASS B=8 r=118 (r_c+22) four front velocities (21s): [0.062645 0.05424  0.059316 0.057015] vs [0.062645 0.05424  0.059316 0.057015]
+PASS B=8 r=120 (r_c+24) four front velocities (21s): [0.064993 0.055079 0.059005 0.058641] vs [0.064993 0.055079 0.059005 0.058641]
+PASS B=8 r=124 (r_c+28) four front velocities (21s): [0.062526 0.055091 0.065957 0.058829] vs [0.062526 0.055091 0.065957 0.058829]
+PASS B=8 r=128 (r_c+32) four front velocities (20s): [0.062995 0.056751 0.066414 0.05236 ] vs [0.062995 0.056751 0.066414 0.05236 ]
+PASS B=9 r=190 (r_c-2) four front velocities (82s): [-2.655778e-03  1.057533e-05 -3.086019e-06 -1.037830e-04] vs [-2.655778e-03  1.057533e-05 -3.086019e-06 -1.037830e-04]
+PASS B=9 r=191 (r_c-1) four front velocities (81s): [6.242867e-05 7.712264e-05 7.042460e-05 4.836077e-05] vs [6.242867e-05 7.712264e-05 7.042460e-05 4.836077e-05]
+PASS B=9 r=192 (r_c+0) four front velocities (82s): [0.000135 0.000108 0.000107 0.000111] vs [0.000135 0.000108 0.000107 0.000111]
+PASS B=9 r=193 (r_c+1) four front velocities (82s): [0.001094 0.0011   0.001018 0.001295] vs [0.001094 0.0011   0.001018 0.001295]
+PASS B=9 r=194 (r_c+2) four front velocities (81s): [0.009451 0.01061  0.01121  0.010864] vs [0.009451 0.01061  0.01121  0.010864]
+PASS B=9 r=195 (r_c+3) four front velocities (82s): [0.012628 0.013218 0.010999 0.01105 ] vs [0.012628 0.013218 0.010999 0.01105 ]
+PASS B=9 r=256 (r_c+64) four front velocities (82s): [0.031449 0.030479 0.030701 0.02961 ] vs [0.031449 0.030479 0.030701 0.02961 ]
+S4b developed-phase fronts at B = 8 (front_dev_long.py, four seeds): the least-squares slope of each front over t >= T/10
+PASS B=8 r=94 (r_c-2), k=4, T=4e+06: front slopes (65s): [7.5e-06 3.4e-06 3.9e-06 8.3e-06 5.5e-06 3.3e-06 5.7e-06 3.8e-06] vs [7.5e-06 3.4e-06 3.9e-06 8.3e-06 5.5e-06 3.3e-06 5.7e-06 3.8e-06]
+PASS B=8 r=95 (r_c-1), k=24, T=4e+06: front slopes (342s): [0.000152 0.000143 0.000147 0.000156 0.000133 0.000133 0.000129 0.000137] vs [0.000152 0.000143 0.000147 0.000156 0.000133 0.000133 0.000129 0.000137]
+PASS B=8 r=96 (r_c+0), k=24, T=4e+06: front slopes (342s): [0.000293 0.0003   0.000302 0.000281 0.000309 0.000286 0.000302 0.000299] vs [0.000293 0.0003   0.000302 0.00028  0.000309 0.000286 0.000302 0.0003  ]
+PASS B=8 r=97 (r_c+1), k=24, T=4e+05: front slopes (49s): [0.002596 0.002414 0.003027 0.002642 0.002632 0.002888 0.002957 0.002529] vs [0.002596 0.002414 0.003027 0.002642 0.002632 0.002888 0.002957 0.002529]
+S5  random start at B = 10: collapse to islands, creep at 383-384, invasion at 385; domain density
+PASS r=382: tail activity at 4e5 = 1.70% in [1.2, 1.8]; domains 49, inside density 25.8%
+PASS r=383: tail activity at 4e5 = 6.93% in [3.0, 25.0]; domains 56, inside density 38.3%
+PASS r=384: tail activity at 4e5 = 12.97% in [5.0, 40.0]; domains 51, inside density 42.3%
+PASS r=385: tail activity at 4e5 = 45.93% in [44.0, 47.0]; domains 1, inside density 45.9%
+S5b domain density at r_c - 1 and bulk density at r_c + 1 (domain_density.py)
+PASS B=8 r=95 (r_c-1): domains, covered fraction, activity inside (%), ones inside (%): [ 2.      0.9818 46.94   72.23  ] vs [ 2.      0.9818 46.94   72.23  ]
+PASS B=8 r=97 (r_c+1): domains, covered fraction, activity inside (%), ones inside (%): [ 1.    1.   46.7  72.42] vs [ 1.    1.   46.7  72.42]
+PASS B=9 r=191 (r_c-1): domains, covered fraction, activity inside (%), ones inside (%): [12.      0.5286 44.76   68.89  ] vs [12.      0.5286 44.76   68.89  ]
+PASS B=9 r=193 (r_c+1): domains, covered fraction, activity inside (%), ones inside (%): [ 1.    1.   45.63 70.56] vs [ 1.    1.   45.63 70.56]
+S6  the developed active phase below threshold (quench.py)
+PASS B=8 r=80 seed 1: covered fraction at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=80 seed 1: number of active domains at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=80 seed 2: covered fraction at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=80 seed 2: number of active domains at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=94 seed 1: covered fraction at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=94 seed 1: number of active domains at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=94 seed 2: covered fraction at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=94 seed 2: number of active domains at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=96 seed 1: covered fraction at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=96 seed 1: number of active domains at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=96 seed 2: covered fraction at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+PASS B=8 r=96 seed 2: number of active domains at the six checkpoints: [1. 1. 1. 1. 1. 1.] vs [1. 1. 1. 1. 1. 1.]
+S8  the reduced edge model (edge_model.py), B = 10, p = 0.5, seed 1, 4e6 steps
+PASS edge model table B=10 r=376 p=0.5 T=4e+06: successes of seeds [1, 2, 3] (2s): [1. 5. 3.] vs [1. 5. 3.]
+PASS edge model table B=10 r=378 p=0.5 T=4e+06: successes of seeds [1, 2, 3] (2s): [ 2. 10.  4.] vs [ 2. 10.  4.]
+PASS edge model table B=10 r=380 p=0.5 T=4e+06: successes of seeds [1, 2, 3] (2s): [16. 18.  9.] vs [16. 18.  9.]
+PASS edge model table B=10 r=381 p=0.5 T=4e+06: successes of seeds [1, 2, 3] (1s): [27. 24. 34.] vs [27. 24. 34.]
+PASS edge model table B=10 r=382 p=0.5 T=4e+06: successes of seeds [1, 2, 3] (2s): [60. 62. 36.] vs [60. 62. 36.]
+PASS edge model table B=10 r=383 p=0.5 T=4e+06: successes of seeds [1, 2, 3] (2s): [180. 173. 173.] vs [180. 173. 173.]
+PASS edge model table B=10 r=384 p=0.5 T=4e+06: successes of seeds [1, 2, 3] (2s): [283. 297. 263.] vs [283. 297. 263.]
+PASS edge model table B=10 r=385 p=0.5 T=4e+06: successes of seeds [1, 2, 3] (2s): [3033. 2932. 2919.] vs [3033. 2932. 2919.]
+PASS edge model table B=10 r=386 p=0.5 T=4e+06: successes of seeds [1, 2, 3] (1s): [5786. 5835. 5756.] vs [5786. 5835. 5756.]
+PASS edge model table B=10 r=388 p=0.5 T=4e+06: successes of seeds [1, 2, 3] (2s): [7014. 7038. 7002.] vs [7014. 7038. 7002.]
+PASS edge model table B=10 r=392 p=0.5 T=4e+06: successes of seeds [1, 2, 3] (2s): [8036. 8068. 8058.] vs [8036. 8068. 8058.]
+PASS edge model table B=10 r=400 p=0.5 T=4e+06: successes of seeds [1, 2, 3] (2s): [9872. 9929. 9931.] vs [9872. 9929. 9931.]
+S9  the stored long runs (front_dev_long_B*.jsonl, long_survival_B*.jsonl): the paper's values regenerated from the records
+PASS B=9 r=184 (r_c-8), T=1e+08: eight front slopes from the stored histories: [3.363593e-08 6.209588e-08 9.552477e-08 7.789457e-08] vs [3.3636e-08 6.2096e-08 9.5525e-08 7.7895e-08]
+     scaled creep v 2^(B-3) = 4.306e-06 +- 8.4e-07
+PASS B=9 r=185 (r_c-7), T=1e+08: eight front slopes from the stored histories: [2.516643e-07 1.594999e-07 1.804427e-07 1.758242e-07] vs [2.51664e-07 1.59500e-07 1.80443e-07 1.75824e-07]
+     scaled creep v 2^(B-3) = 1.228e-05 +- 1.3e-06
+PASS B=9 r=186 (r_c-6), T=1e+08: eight front slopes from the stored histories: [1.781175e-07 2.949036e-07 2.033604e-07 1.481287e-07] vs [1.78118e-07 2.94904e-07 2.03360e-07 1.48129e-07]
+     scaled creep v 2^(B-3) = 1.319e-05 +- 2.0e-06
+PASS B=9 r=187 (r_c-5), T=1e+08: eight front slopes from the stored histories: [1.326804e-07 1.947603e-07 1.951744e-07 1.241440e-07] vs [1.32680e-07 1.94760e-07 1.95174e-07 1.24144e-07]
+     scaled creep v 2^(B-3) = 1.035e-05 +- 1.2e-06
+PASS B=9 r=188 (r_c-4), T=1e+08: eight front slopes from the stored histories: [2.094442e-07 3.743590e-07 2.926103e-07 3.737697e-07] vs [2.09444e-07 3.74359e-07 2.92610e-07 3.73770e-07]
+     scaled creep v 2^(B-3) = 2.000e-05 +- 2.5e-06
+PASS B=9 r=189 (r_c-3), T=1e+08: eight front slopes from the stored histories: [6.956044e-07 6.035356e-07 6.092212e-07 6.400223e-07] vs [6.95604e-07 6.03536e-07 6.09221e-07 6.40022e-07]
+     scaled creep v 2^(B-3) = 4.077e-05 +- 1.3e-06
+PASS B=9 r=190 (r_c-2), T=5e+07: eight front slopes from the stored histories: [9.893309e-07 1.109097e-06 1.236448e-06 8.440950e-07 1.207709e-06
+ 1.085600e-06 1.340487e-06 1.032809e-06] vs [9.893310e-07 1.109097e-06 1.236448e-06 8.440950e-07 1.207709e-06
+ 1.085600e-06 1.340487e-06 1.032809e-06]
+     scaled creep v 2^(B-3) = 7.076e-05 +- 3.5e-06
+PASS B=9 r=191 (r_c-1), T=4e+06: eight front slopes from the stored histories: [5.10e-05 5.61e-05 5.44e-05 5.96e-05 5.14e-05 5.68e-05 6.06e-05 5.60e-05] vs [5.10e-05 5.61e-05 5.44e-05 5.96e-05 5.14e-05 5.68e-05 6.06e-05 5.60e-05]
+     scaled creep v 2^(B-3) = 3.567e-03 +- 7.8e-05
+PASS B=9 r=192 (r_c+0), T=4e+06: eight front slopes from the stored histories: [0.000106 0.000114 0.000111 0.000106 0.000115 0.000129 0.000119 0.000111] vs [0.000106 0.000114 0.000111 0.000106 0.000115 0.000129 0.000119 0.000111]
+     scaled creep v 2^(B-3) = 7.300e-03 +- 1.7e-04
+PASS B=9 r=193 (r_c+1), T=4e+05: eight front slopes from the stored histories: [0.001248 0.001208 0.00117  0.001123 0.001199 0.00102  0.001048 0.001228] vs [0.001248 0.001208 0.00117  0.001123 0.001199 0.00102  0.001048 0.001228]
+     scaled creep v 2^(B-3) = 7.395e-02 +- 1.9e-03
+PASS B=10 r=320 (r_c-64), T=1e+08: eight front slopes from the stored histories: [-2.213728e-09  4.156713e-09  6.848224e-09  6.529702e-10  6.386367e-09
+ -1.672241e-09 -1.449275e-09 -4.586718e-09] vs [-2.214e-09  4.157e-09  6.848e-09  6.530e-10  6.386e-09 -1.672e-09
+ -1.449e-09 -4.587e-09]
+     scaled creep v 2^(B-3) = 1.300e-07 +- 1.9e-07
+PASS B=10 r=376 (r_c-8), T=2e+08: eight front slopes from the stored histories: [3.073280e-08 1.287718e-08 1.112460e-08 3.932771e-08] vs [3.0733e-08 1.2877e-08 1.1125e-08 3.9328e-08]
+     scaled creep v 2^(B-3) = 3.010e-06 +- 8.8e-07
+PASS B=10 r=377 (r_c-7), T=2e+08: eight front slopes from the stored histories: [3.701657e-08 4.641693e-08 5.403436e-08 6.807116e-08] vs [3.7017e-08 4.6417e-08 5.4034e-08 6.8071e-08]
+     scaled creep v 2^(B-3) = 6.577e-06 +- 8.4e-07
+PASS B=10 r=378 (r_c-6), T=2e+08: eight front slopes from the stored histories: [6.507599e-08 5.446542e-08 8.171129e-08 7.883351e-08 9.510655e-08
+ 4.830105e-08 6.665048e-08 8.278995e-08] vs [6.5076e-08 5.4465e-08 8.1711e-08 7.8834e-08 9.5107e-08 4.8301e-08
+ 6.6650e-08 8.2790e-08]
+     scaled creep v 2^(B-3) = 9.167e-06 +- 7.1e-07
+PASS B=10 r=379 (r_c-5), T=2e+08: eight front slopes from the stored histories: [2.530306e-08 4.770000e-08 3.598243e-08 3.875903e-08 8.125392e-09
+ 2.665291e-08 2.089126e-08 2.730658e-08] vs [2.5303e-08 4.7700e-08 3.5982e-08 3.8759e-08 8.1250e-09 2.6653e-08
+ 2.0891e-08 2.7307e-08]
+     scaled creep v 2^(B-3) = 3.692e-06 +- 5.5e-07
+PASS B=10 r=380 (r_c-4), T=1e+08: eight front slopes from the stored histories: [1.088390e-07 2.638955e-08 4.470457e-08 7.655678e-08 7.324415e-08
+ 9.050804e-08 1.015289e-07 1.283485e-07] vs [1.08839e-07 2.63900e-08 4.47050e-08 7.65570e-08 7.32440e-08 9.05080e-08
+ 1.01529e-07 1.28348e-07]
+     scaled creep v 2^(B-3) = 1.040e-05 +- 1.5e-06
+PASS B=10 r=381 (r_c-3), T=1e+08: eight front slopes from the stored histories: [2.357063e-07 1.444975e-07 1.921962e-07 1.240166e-07 1.450549e-07
+ 1.747571e-07 7.232043e-08 2.815735e-07] vs [2.35706e-07 1.44498e-07 1.92196e-07 1.24017e-07 1.45055e-07 1.74757e-07
+ 7.23200e-08 2.81573e-07]
+     scaled creep v 2^(B-3) = 2.192e-05 +- 3.0e-06
+PASS B=10 r=382 (r_c-2), T=1e+08: eight front slopes from the stored histories: [4.459627e-07 2.788342e-07 3.705526e-07 5.114827e-07 5.153687e-07
+ 3.428412e-07 4.123109e-07 4.103838e-07] vs [4.45963e-07 2.78834e-07 3.70553e-07 5.11483e-07 5.15369e-07 3.42841e-07
+ 4.12311e-07 4.10384e-07]
+     scaled creep v 2^(B-3) = 5.260e-05 +- 3.7e-06
+PASS B=10 r=383 (r_c-1), T=4e+06: eight front slopes from the stored histories: [3.05e-05 2.51e-05 2.35e-05 3.06e-05 2.31e-05 2.40e-05 1.94e-05 2.32e-05] vs [3.05e-05 2.51e-05 2.35e-05 3.06e-05 2.31e-05 2.40e-05 1.94e-05 2.32e-05]
+     scaled creep v 2^(B-3) = 3.190e-03 +- 1.7e-04
+PASS B=10 r=384 (r_c+0), T=4e+06: eight front slopes from the stored histories: [5.28e-05 5.04e-05 5.27e-05 4.54e-05 5.10e-05 4.59e-05 5.96e-05 5.38e-05] vs [5.28e-05 5.04e-05 5.27e-05 4.54e-05 5.10e-05 4.59e-05 5.96e-05 5.38e-05]
+     scaled creep v 2^(B-3) = 6.586e-03 +- 2.1e-04
+PASS B=10 r=385 (r_c+1), T=4e+05: eight front slopes from the stored histories: [0.000526 0.00053  0.000613 0.000579 0.000628 0.000614 0.000543 0.00052 ] vs [0.000526 0.00053  0.000613 0.000579 0.000628 0.000614 0.000543 0.00052 ]
+     scaled creep v 2^(B-3) = 7.285e-02 +- 2.0e-03
+PASS B=11 r=760 (r_c-8), T=2e+08: eight front slopes from the stored histories: [-3.893712e-09  5.437840e-09  8.232651e-09  1.295206e-10  8.866088e-09
+ -3.399915e-09  1.821383e-10  3.756097e-09] vs [-3.894e-09  5.438e-09  8.233e-09  1.300e-10  8.866e-09 -3.400e-09
+  1.820e-10  3.756e-09]
+     scaled creep v 2^(B-3) = 6.179e-07 +- 4.5e-07
+PASS B=11 r=764 (r_c-4), T=1e+08: eight front slopes from the stored histories: [5.026278e-08 4.672719e-08 1.756649e-08 2.259914e-08 3.502150e-08
+ 5.542284e-08 1.635611e-08 5.840102e-08] vs [5.0263e-08 4.6727e-08 1.7566e-08 2.2599e-08 3.5022e-08 5.5423e-08
+ 1.6356e-08 5.8401e-08]
+     scaled creep v 2^(B-3) = 9.675e-06 +- 1.6e-06
+PASS B=11 r=766 (r_c-2), T=1e+08: eight front slopes from the stored histories: [1.133301e-07 1.773531e-07 1.438764e-07 1.152731e-07 1.331581e-07
+ 7.475713e-08 1.860487e-07 1.585603e-07] vs [1.13330e-07 1.77353e-07 1.43876e-07 1.15273e-07 1.33158e-07 7.47570e-08
+ 1.86049e-07 1.58560e-07]
+     scaled creep v 2^(B-3) = 3.528e-05 +- 3.3e-06
+PASS B=11 r=767 (r_c-1), T=8e+06: eight front slopes from the stored histories: [1.203571e-05 8.059524e-06 1.021429e-05 1.204762e-05 1.290476e-05
+ 9.488095e-06 1.409524e-05 9.785714e-06] vs [1.203571e-05 8.059524e-06 1.021429e-05 1.204762e-05 1.290476e-05
+ 9.488095e-06 1.409524e-05 9.785714e-06]
+     scaled creep v 2^(B-3) = 2.836e-03 +- 1.8e-04
+PASS B=11 r=768 (r_c+0), T=8e+06: eight front slopes from the stored histories: [2.379762e-05 2.734524e-05 2.419048e-05 2.554762e-05 2.370238e-05
+ 2.879762e-05 2.402381e-05 2.890476e-05] vs [2.379762e-05 2.734524e-05 2.419048e-05 2.554762e-05 2.370238e-05
+ 2.879762e-05 2.402381e-05 2.890476e-05]
+     scaled creep v 2^(B-3) = 6.602e-03 +- 2.0e-04
+PASS B=11 r=769 (r_c+1), T=2e+06: eight front slopes from the stored histories: [0.000341 0.000306 0.000297 0.000307 0.000299 0.000322 0.000271 0.000304] vs [0.000341 0.000306 0.000297 0.000307 0.000299 0.000322 0.000271 0.000304]
+     scaled creep v 2^(B-3) = 7.836e-02 +- 1.8e-03
+PASS B=12 r=1535 (r_c-1), T=8e+06: eight front slopes from the stored histories: [5.488095e-06 4.345238e-06 6.571429e-06 5.809524e-06 4.916667e-06
+ 5.416667e-06 4.761905e-06 4.750000e-06] vs [5.488095e-06 4.345238e-06 6.571429e-06 5.809524e-06 4.916667e-06
+ 5.416667e-06 4.761905e-06 4.750000e-06]
+     scaled creep v 2^(B-3) = 2.692e-03 +- 1.3e-04
+PASS B=12 r=1536 (r_c+0), T=8e+06: eight front slopes from the stored histories: [1.254762e-05 1.327381e-05 1.158333e-05 1.495238e-05 1.052381e-05
+ 1.057143e-05 1.341667e-05 1.175000e-05] vs [1.254762e-05 1.327381e-05 1.158333e-05 1.495238e-05 1.052381e-05
+ 1.057143e-05 1.341667e-05 1.175000e-05]
+     scaled creep v 2^(B-3) = 6.312e-03 +- 2.8e-04
+PASS B=12 r=1537 (r_c+1), T=2e+06: eight front slopes from the stored histories: [0.000151 0.000154 0.00016  0.000167 0.000155 0.000158 0.000143 0.000137] vs [0.000151 0.000154 0.00016  0.000167 0.000155 0.000158 0.000143 0.000137]
+     scaled creep v 2^(B-3) = 7.842e-02 +- 1.7e-03
+PASS long_survival_B10_r382.jsonl: seeds, alive at T, latest death: [2.000000e+02 2.800000e+01 3.377751e+06] vs [2.000000e+02 2.800000e+01 3.377751e+06]
+PASS long_survival_B10_r382.jsonl: extents of the survivors at T: [22. 22. 23. 24. 24. 25. 26. 26. 27. 27. 27. 27. 28. 28. 29. 29. 29. 29.
+ 30. 31. 33. 33. 33. 33. 40. 41. 43. 44.] vs [22. 22. 23. 24. 24. 25. 26. 26. 27. 27. 27. 27. 28. 28. 29. 29. 29. 29.
+ 30. 31. 33. 33. 33. 33. 40. 41. 43. 44.]
+PASS long_survival_B10_r382_cont.jsonl: seeds, alive at T, latest death: [28. 28.  0.] vs [28. 28.  0.]
+PASS long_survival_B10_r382_cont.jsonl: extents of the survivors at T: [ 73.  75.  76.  78.  78.  80.  81.  82.  83.  85.  86.  86.  87.  87.
+  87.  89.  90.  91.  91.  94.  95.  95.  96.  98. 102. 104. 105. 109.] vs [ 73.  75.  76.  78.  78.  80.  81.  82.  83.  85.  86.  86.  87.  87.
+  87.  89.  90.  91.  91.  94.  95.  95.  96.  98. 102. 104. 105. 109.]
+PASS long_survival_B8_r94.jsonl: seeds, alive at T, latest death: [1.00000e+03 7.00000e+00 5.17534e+05] vs [1.00000e+03 7.00000e+00 5.17534e+05]
+PASS long_survival_B8_r94.jsonl: extents of the survivors at T: [791. 792. 819. 828. 832. 836. 840.] vs [791. 792. 819. 828. 832. 836. 840.]
+PASS B=10 r=376 seed 1, T=1e+08: long quench, covered fraction at every tenth checkpoint, final coverage and holes: [98.9073   97.3531   97.4567   97.532    97.2777   97.4567   97.1552
+ 97.4378   97.419    97.4378   97.626225 32.      ] vs [98.9073   97.3531   97.4567   97.532    97.2777   97.4567   97.1552
+ 97.4378   97.419    97.4378   97.626225 32.      ]
+PASS B=10 r=378 seed 1, T=1e+08: long quench, covered fraction at every tenth checkpoint, final coverage and holes: [98.7851   98.2859   98.625    98.5402   98.7568   99.0394   99.077
+ 99.2842   99.5479   99.5197   99.632699  6.      ] vs [98.7851   98.2859   98.625    98.5402   98.7568   99.0394   99.077
+ 99.2842   99.5479   99.5197   99.632699  6.      ]
+PASS B=10 r=380 seed 1, T=1e+08: long quench, covered fraction at every tenth checkpoint, final coverage and holes: [99.096    97.8154   98.2015   98.5499   99.0207   99.3409   99.4727
+ 99.6328   99.7458   99.7834   99.858757  3.      ] vs [99.096    97.8154   98.2015   98.5499   99.0207   99.3409   99.4727
+ 99.6328   99.7458   99.7834   99.858757  3.      ]
+PASS B=10 r=382 seed 1, T=1e+08: long quench, covered fraction at every tenth checkpoint, final coverage and holes: [ 99.1715    99.2374    99.7929   100.        99.9623    99.9718
+  99.9435    99.8964   100.        99.84      99.962342   2.      ] vs [ 99.1715    99.2374    99.7929   100.        99.9623    99.9718
+  99.9435    99.8964   100.        99.84      99.962342   2.      ]
+PASS spread_B10_r382_w32_a.npz: runs, T, alive at 1e3, 1e5 and T, latest death, extents of the survivors at T: [1.000000e+02 2.000000e+06 6.800000e+01 1.800000e+01 1.500000e+01
+ 1.674107e+06 2.000000e+00 3.000000e+00 4.000000e+00 9.000000e+00
+ 1.000000e+01 1.100000e+01 1.300000e+01 1.300000e+01 1.300000e+01
+ 1.400000e+01 1.400000e+01 1.500000e+01 1.500000e+01 1.600000e+01
+ 1.600000e+01] vs [1.000000e+02 2.000000e+06 6.800000e+01 1.800000e+01 1.500000e+01
+ 1.674107e+06 2.000000e+00 3.000000e+00 4.000000e+00 9.000000e+00
+ 1.000000e+01 1.100000e+01 1.300000e+01 1.300000e+01 1.300000e+01
+ 1.400000e+01 1.400000e+01 1.500000e+01 1.500000e+01 1.600000e+01
+ 1.600000e+01]
+PASS spread_B10_r383_w32_a.npz: runs, T, alive at 1e3, 1e5 and T, latest death, extents of the survivors at T: [1.0000e+02 2.0000e+06 6.3000e+01 2.1000e+01 2.1000e+01 2.1374e+04
+ 3.9000e+01 4.3000e+01 4.4000e+01 5.1000e+01 5.2000e+01 5.3000e+01
+ 5.4000e+01 5.4000e+01 5.8000e+01 5.9000e+01 6.0000e+01 6.1000e+01
+ 6.2000e+01 6.3000e+01 6.4000e+01 6.5000e+01 6.6000e+01 6.8000e+01
+ 7.0000e+01 7.2000e+01 7.2000e+01] vs [1.0000e+02 2.0000e+06 6.3000e+01 2.1000e+01 2.1000e+01 2.1374e+04
+ 3.9000e+01 4.3000e+01 4.4000e+01 5.1000e+01 5.2000e+01 5.3000e+01
+ 5.4000e+01 5.4000e+01 5.8000e+01 5.9000e+01 6.0000e+01 6.1000e+01
+ 6.2000e+01 6.3000e+01 6.4000e+01 6.5000e+01 6.6000e+01 6.8000e+01
+ 7.0000e+01 7.2000e+01 7.2000e+01]
+PASS spread_B10_r384_w32_a.npz: runs, T, alive at 1e3, 1e5 and T, latest death, extents of the survivors at T: [1.0000e+02 2.0000e+06 6.9000e+01 2.2000e+01 2.2000e+01 4.0152e+04
+ 9.5000e+01 9.9000e+01 1.0600e+02 1.0700e+02 1.1000e+02 1.1100e+02
+ 1.1200e+02 1.1200e+02 1.1300e+02 1.1300e+02 1.1300e+02 1.1500e+02
+ 1.1500e+02 1.1600e+02 1.1800e+02 1.2000e+02 1.2000e+02 1.2000e+02
+ 1.2100e+02 1.2400e+02 1.2900e+02 1.3600e+02] vs [1.0000e+02 2.0000e+06 6.9000e+01 2.2000e+01 2.2000e+01 4.0152e+04
+ 9.5000e+01 9.9000e+01 1.0600e+02 1.0700e+02 1.1000e+02 1.1100e+02
+ 1.1200e+02 1.1200e+02 1.1300e+02 1.1300e+02 1.1300e+02 1.1500e+02
+ 1.1500e+02 1.1600e+02 1.1800e+02 1.2000e+02 1.2000e+02 1.2000e+02
+ 1.2100e+02 1.2400e+02 1.2900e+02 1.3600e+02]
+PASS spread_B8_r80_w32_a.npz: runs, T, alive at 1e3, 1e5 and T, latest death, extents of the survivors at T: [2.000e+02 1.000e+06 4.200e+01 0.000e+00 0.000e+00 5.731e+04] vs [2.000e+02 1.000e+06 4.200e+01 0.000e+00 0.000e+00 5.731e+04]
+PASS spread_B8_r84_w32_a.npz: runs, T, alive at 1e3, 1e5 and T, latest death, extents of the survivors at T: [2.0000e+02 1.0000e+06 4.4000e+01 0.0000e+00 0.0000e+00 2.4562e+04] vs [2.0000e+02 1.0000e+06 4.4000e+01 0.0000e+00 0.0000e+00 2.4562e+04]
+PASS spread_B8_r86_w32_a.npz: runs, T, alive at 1e3, 1e5 and T, latest death, extents of the survivors at T: [2.00000e+02 1.00000e+06 4.60000e+01 1.00000e+00 0.00000e+00 8.33452e+05] vs [2.00000e+02 1.00000e+06 4.60000e+01 1.00000e+00 0.00000e+00 8.33452e+05]
+PASS spread_B8_r88_w32_a.npz: runs, T, alive at 1e3, 1e5 and T, latest death, extents of the survivors at T: [2.0000e+02 1.0000e+06 5.0000e+01 1.0000e+00 0.0000e+00 1.8053e+05] vs [2.0000e+02 1.0000e+06 5.0000e+01 1.0000e+00 0.0000e+00 1.8053e+05]
+PASS spread_B8_r90_w32_a.npz: runs, T, alive at 1e3, 1e5 and T, latest death, extents of the survivors at T: [2.0000e+02 1.0000e+06 4.8000e+01 0.0000e+00 0.0000e+00 6.6032e+04] vs [2.0000e+02 1.0000e+06 4.8000e+01 0.0000e+00 0.0000e+00 6.6032e+04]
+PASS spread_B8_r91_w32_a.npz: runs, T, alive at 1e3, 1e5 and T, latest death, extents of the survivors at T: [2.00000e+02 1.00000e+06 6.10000e+01 2.00000e+00 0.00000e+00 1.80329e+05] vs [2.00000e+02 1.00000e+06 6.10000e+01 2.00000e+00 0.00000e+00 1.80329e+05]
+PASS spread_B8_r92_w32_a.npz: runs, T, alive at 1e3, 1e5 and T, latest death, extents of the survivors at T: [2.00000e+02 1.00000e+06 5.80000e+01 1.00000e+00 0.00000e+00 1.60539e+05] vs [2.00000e+02 1.00000e+06 5.80000e+01 1.00000e+00 0.00000e+00 1.60539e+05]
+PASS spread_B8_r93_w32_a.npz: runs, T, alive at 1e3, 1e5 and T, latest death, extents of the survivors at T: [2.00000e+02 1.00000e+06 5.40000e+01 1.00000e+00 0.00000e+00 1.31861e+05] vs [2.00000e+02 1.00000e+06 5.40000e+01 1.00000e+00 0.00000e+00 1.31861e+05]
+PASS spread_B8_r94_w32_a.npz: runs, T, alive at 1e3, 1e5 and T, latest death, extents of the survivors at T: [2.00000e+02 1.00000e+06 6.20000e+01 2.00000e+00 1.00000e+00 5.17534e+05
+ 1.70000e+01] vs [2.00000e+02 1.00000e+06 6.20000e+01 2.00000e+00 1.00000e+00 5.17534e+05
+ 1.70000e+01]
+PASS spread_B8_r95_w32_a.npz: runs, T, alive at 1e3, 1e5 and T, latest death, extents of the survivors at T: [2.0000e+02 1.0000e+06 5.9000e+01 2.1000e+01 2.1000e+01 1.6791e+04
+ 1.3800e+02 1.4200e+02 1.4300e+02 1.4400e+02 1.4500e+02 1.4600e+02
+ 1.4700e+02 1.4800e+02 1.5100e+02 1.5400e+02 1.5500e+02 1.5600e+02
+ 1.5800e+02 1.5800e+02 1.6100e+02 1.6300e+02 1.6400e+02 1.6500e+02
+ 1.6600e+02 1.6700e+02 1.7300e+02] vs [2.0000e+02 1.0000e+06 5.9000e+01 2.1000e+01 2.1000e+01 1.6791e+04
+ 1.3800e+02 1.4200e+02 1.4300e+02 1.4400e+02 1.4500e+02 1.4600e+02
+ 1.4700e+02 1.4800e+02 1.5100e+02 1.5400e+02 1.5500e+02 1.5600e+02
+ 1.5800e+02 1.5800e+02 1.6100e+02 1.6300e+02 1.6400e+02 1.6500e+02
+ 1.6600e+02 1.6700e+02 1.7300e+02]
+PASS spread_B8_r96_w32_a.npz: runs, T, alive at 1e3, 1e5 and T, latest death, extents of the survivors at T: [2.00e+02 1.00e+06 6.30e+01 4.00e+01 4.00e+01 8.44e+03 2.85e+02 2.92e+02
+ 2.92e+02 2.92e+02 2.93e+02 2.95e+02 2.97e+02 2.97e+02 2.98e+02 2.99e+02
+ 2.99e+02 2.99e+02 3.00e+02 3.03e+02 3.04e+02 3.05e+02 3.05e+02 3.06e+02
+ 3.06e+02 3.07e+02 3.07e+02 3.09e+02 3.10e+02 3.12e+02 3.14e+02 3.14e+02
+ 3.15e+02 3.16e+02 3.17e+02 3.17e+02 3.18e+02 3.20e+02 3.21e+02 3.22e+02
+ 3.22e+02 3.27e+02 3.28e+02 3.30e+02 3.36e+02 3.51e+02] vs [2.00e+02 1.00e+06 6.30e+01 4.00e+01 4.00e+01 8.44e+03 2.85e+02 2.92e+02
+ 2.92e+02 2.92e+02 2.93e+02 2.95e+02 2.97e+02 2.97e+02 2.98e+02 2.99e+02
+ 2.99e+02 2.99e+02 3.00e+02 3.03e+02 3.04e+02 3.05e+02 3.05e+02 3.06e+02
+ 3.06e+02 3.07e+02 3.07e+02 3.09e+02 3.10e+02 3.12e+02 3.14e+02 3.14e+02
+ 3.15e+02 3.16e+02 3.17e+02 3.17e+02 3.18e+02 3.20e+02 3.21e+02 3.22e+02
+ 3.22e+02 3.27e+02 3.28e+02 3.30e+02 3.36e+02 3.51e+02]
+PASS spread_B9_r190_w32_a.npz: runs, T, alive at 1e3, 1e5 and T, latest death, extents of the survivors at T: [2.000000e+02 2.000000e+06 7.300000e+01 2.000000e+01 2.000000e+00
+ 1.926621e+06 4.000000e+00 2.100000e+01] vs [2.000000e+02 2.000000e+06 7.300000e+01 2.000000e+01 2.000000e+00
+ 1.926621e+06 4.000000e+00 2.100000e+01]
+PASS spread_B9_r191_w32_a.npz: runs, T, alive at 1e3, 1e5 and T, latest death, extents of the survivors at T: [2.0000e+02 2.0000e+06 8.5000e+01 3.1000e+01 3.1000e+01 4.5796e+04
+ 1.0600e+02 1.0900e+02 1.1000e+02 1.1400e+02 1.1600e+02 1.1700e+02
+ 1.1800e+02 1.1900e+02 1.1900e+02 1.2100e+02 1.2100e+02 1.2300e+02
+ 1.2300e+02 1.2300e+02 1.2400e+02 1.2400e+02 1.2400e+02 1.2500e+02
+ 1.2500e+02 1.2500e+02 1.2600e+02 1.2600e+02 1.2800e+02 1.2900e+02
+ 1.3100e+02 1.3100e+02 1.3200e+02 1.3300e+02 1.3400e+02 1.4600e+02
+ 1.4700e+02] vs [2.0000e+02 2.0000e+06 8.5000e+01 3.1000e+01 3.1000e+01 4.5796e+04
+ 1.0600e+02 1.0900e+02 1.1000e+02 1.1400e+02 1.1600e+02 1.1700e+02
+ 1.1800e+02 1.1900e+02 1.1900e+02 1.2100e+02 1.2100e+02 1.2300e+02
+ 1.2300e+02 1.2300e+02 1.2400e+02 1.2400e+02 1.2400e+02 1.2500e+02
+ 1.2500e+02 1.2500e+02 1.2600e+02 1.2600e+02 1.2800e+02 1.2900e+02
+ 1.3100e+02 1.3100e+02 1.3200e+02 1.3300e+02 1.3400e+02 1.4600e+02
+ 1.4700e+02]
+PASS spread_B9_r192_w32_a.npz: runs, T, alive at 1e3, 1e5 and T, latest death, extents of the survivors at T: [2.0000e+02 2.0000e+06 9.3000e+01 5.1000e+01 5.1000e+01 3.5214e+04
+ 2.0700e+02 2.1300e+02 2.1700e+02 2.2100e+02 2.2200e+02 2.2300e+02
+ 2.2300e+02 2.2600e+02 2.2600e+02 2.2700e+02 2.2700e+02 2.2900e+02
+ 2.3000e+02 2.3000e+02 2.3100e+02 2.3200e+02 2.3300e+02 2.3400e+02
+ 2.3500e+02 2.3700e+02 2.3700e+02 2.4000e+02 2.4000e+02 2.4000e+02
+ 2.4100e+02 2.4100e+02 2.4100e+02 2.4200e+02 2.4200e+02 2.4200e+02
+ 2.4300e+02 2.4400e+02 2.4500e+02 2.4500e+02 2.4600e+02 2.4600e+02
+ 2.4700e+02 2.4700e+02 2.4700e+02 2.4800e+02 2.4900e+02 2.4900e+02
+ 2.5000e+02 2.5100e+02 2.5100e+02 2.5100e+02 2.5500e+02 2.5600e+02
+ 2.5800e+02 2.7000e+02 2.7500e+02] vs [2.0000e+02 2.0000e+06 9.3000e+01 5.1000e+01 5.1000e+01 3.5214e+04
+ 2.0700e+02 2.1300e+02 2.1700e+02 2.2100e+02 2.2200e+02 2.2300e+02
+ 2.2300e+02 2.2600e+02 2.2600e+02 2.2700e+02 2.2700e+02 2.2900e+02
+ 2.3000e+02 2.3000e+02 2.3100e+02 2.3200e+02 2.3300e+02 2.3400e+02
+ 2.3500e+02 2.3700e+02 2.3700e+02 2.4000e+02 2.4000e+02 2.4000e+02
+ 2.4100e+02 2.4100e+02 2.4100e+02 2.4200e+02 2.4200e+02 2.4200e+02
+ 2.4300e+02 2.4400e+02 2.4500e+02 2.4500e+02 2.4600e+02 2.4600e+02
+ 2.4700e+02 2.4700e+02 2.4700e+02 2.4800e+02 2.4900e+02 2.4900e+02
+ 2.5000e+02 2.5100e+02 2.5100e+02 2.5100e+02 2.5500e+02 2.5600e+02
+ 2.5800e+02 2.7000e+02 2.7500e+02]
+PASS B=8 r=94 k=4: word front and changed-cell front of every final state (t=4e+06): [19. 14. 25. 20. 16. 22. 23. 28. 20. 18. 26. 23. 20. 14. 26. 18.] vs [19. 14. 25. 20. 16. 22. 23. 28. 20. 18. 26. 23. 20. 14. 26. 18.]
+PASS B=9 r=184 k=4: word front and changed-cell front of every final state (t=1e+08): [ 5.  8.  8. 13.  9.  1. 14.  5.] vs [ 5.  8.  8. 13.  9.  1. 14.  5.]
+PASS B=9 r=185 k=4: word front and changed-cell front of every final state (t=1e+08): [24. 15. 27. 19. 19. 11. 25. 14.] vs [24. 15. 27. 19. 19. 11. 25. 14.]
+PASS B=9 r=186 k=4: word front and changed-cell front of every final state (t=1e+08): [18. 27. 23. 30. 22. 10. 25. 15.] vs [18. 27. 23. 30. 22. 10. 25. 15.]
+PASS B=9 r=187 k=4: word front and changed-cell front of every final state (t=1e+08): [15. 18. 19. 20. 18.  3. 22. 10.] vs [15. 18. 19. 20. 18.  3. 22. 10.]
+PASS B=9 r=188 k=4: word front and changed-cell front of every final state (t=1e+08): [20. 35. 24. 39. 34. 28. 38. 32.] vs [20. 35. 24. 39. 34. 28. 38. 32.]
+PASS B=9 r=189 k=4: word front and changed-cell front of every final state (t=1e+08): [64. 57. 71. 61. 68. 57. 71. 64.] vs [64. 57. 71. 61. 68. 57. 71. 64.]
+PASS B=9 r=190 k=4: word front and changed-cell front of every final state (t=5e+07): [54. 51. 57. 55. 67. 33. 70. 38. 64. 50. 69. 54. 65. 54. 68. 58.] vs [54. 51. 57. 55. 67. 33. 70. 38. 64. 50. 69. 54. 65. 54. 68. 58.]
+PASS B=10 r=320 k=4: word front and changed-cell front of every final state (t=1e+08): [ 0.  0.  2.  2.  0.  0.  3.  4.  0. -1.  3.  3.  0.  0.  2.  1.] vs [ 0.  0.  2.  2.  0.  0.  3.  4.  0. -1.  3.  3.  0.  0.  2.  1.]
+PASS B=10 r=376 k=4: word front and changed-cell front of every final state (t=2e+08): [ 6.  3. 11.  5.  2.  8.  5. 10.] vs [ 6.  3. 11.  5.  2.  8.  5. 10.]
+PASS B=10 r=377 k=4: word front and changed-cell front of every final state (t=2e+08): [ 8.  9. 11. 13. 10. 10. 13. 14.] vs [ 8.  9. 11. 13. 10. 10. 13. 14.]
+PASS B=10 r=378 k=4: word front and changed-cell front of every final state (t=2e+08): [14. 13. 17. 19. 14. 17. 16. 19. 20.  0. 23. -5. 13. 12. 15. 15.] vs [14. 13. 17. 19. 14. 17. 16. 19. 20.  0. 23. -5. 13. 12. 15. 15.]
+PASS B=10 r=379 k=4: word front and changed-cell front of every final state (t=2e+08): [  7.  10.  10.  12.   6.   5.  11.  10.   2.   0.   5. -10.   6.   4.
+   9.   7.] vs [  7.  10.  10.  12.   6.   5.  11.  10.   2.   0.   5. -10.   6.   4.
+   9.   7.]
+PASS B=10 r=380 k=4: word front and changed-cell front of every final state (t=1e+08): [10.  3. 14.  8.  0.  7. -1. 11. 11.  0. 16. -3. 11.  6. 14. 12.] vs [10.  3. 14.  8.  0.  7. -1. 11. 11.  0. 16. -3. 11.  6. 14. 12.]
+PASS B=10 r=381 k=4: word front and changed-cell front of every final state (t=1e+08): [21. 17. 25. 21. 11. 13. 13. 18. 16.  0. 19.  1. 12. 25. 16. 27.] vs [21. 17. 25. 21. 11. 13. 13. 18. 16.  0. 19.  1. 12. 25. 16. 27.]
+PASS B=10 r=382 k=4: word front and changed-cell front of every final state (t=1e+08): [38. 33. 41. 39. 34. 39. 38. 42. 51. 15. 55. 19. 39. 35. 44. 38.] vs [38. 33. 41. 39. 34. 39. 38. 42. 51. 15. 55. 19. 39. 35. 44. 38.]
+PASS B=11 r=760 k=4: word front and changed-cell front of every final state (t=2e+08): [-1.  1.  3.  5. -1.  0.  4.  3.  1.  0.  4.  3.  0.  0. -5.  3.] vs [-1.  1.  3.  5. -1.  0.  4.  3.  1.  0.  4.  3.  0.  0. -5.  3.]
+PASS B=11 r=764 k=4: word front and changed-cell front of every final state (t=1e+08): [ 5.  2.  7.  5.  2.  2.  6.  5.  3.  4.  6.  7.  0.  3. -1.  7.] vs [ 5.  2.  7.  5.  2.  2.  6.  5.  3.  4.  6.  7.  0.  3. -1.  7.]
+PASS B=11 r=766 k=4: word front and changed-cell front of every final state (t=1e+08): [12. 18. 14. 20. 13. 14. 16. 17. 14. 10. 17. 14. 12. 15. 14. 19.] vs [12. 18. 14. 20. 13. 14. 16. 17. 14. 10. 17. 14. 12. 15. 14. 19.]
+PASS B=10 r=376 seed 1: holes of the final state at t=1e+08 (count, cells, cells with words in [0,r), in the bands, on; openings and closings of the count) and the hole lengths: [ 27. 240. 240.   0.   0. 116.  99.   4.   4.   4.   4.   4.   5.   5.
+   5.   5.   6.   6.   7.   7.   7.   8.   9.  10.  10.  11.  12.  12.
+  13.  13.  15.  15.  18.  21.] vs [ 27. 240. 240.   0.   0. 116.  99.   4.   4.   4.   4.   4.   5.   5.
+   5.   5.   6.   6.   7.   7.   7.   8.   9.  10.  10.  11.  12.  12.
+  13.  13.  15.  15.  18.  21.]
+PASS B=10 r=378 seed 1: holes of the final state at t=1e+08 (count, cells, cells with words in [0,r), in the bands, on; openings and closings of the count) and the hole lengths: [  7.  53.  53.   0.   0.  95. 104.   4.   4.   4.   7.   9.  12.  13.] vs [  7.  53.  53.   0.   0.  95. 104.   4.   4.   4.   7.   9.  12.  13.]
+PASS B=10 r=380 seed 1: holes of the final state at t=1e+08 (count, cells, cells with words in [0,r), in the bands, on; openings and closings of the count) and the hole lengths: [ 2. 17. 17.  0.  0. 63. 76.  6. 11.] vs [ 2. 17. 17.  0.  0. 63. 76.  6. 11.]
+PASS B=10 r=382 seed 1: holes of the final state at t=1e+08 (count, cells, cells with words in [0,r), in the bands, on; openings and closings of the count) and the hole lengths: [ 1.  5.  5.  0.  0. 22. 36.  5.] vs [ 1.  5.  5.  0.  0. 22. 36.  5.]
+S10 island cores (island_cores.py) and the word statistics of the active phase (phase_words.py)
+PASS B=8 seed=1: islands, core sizes, band counts, largest offset: [ 1. 23. 23.  0.  5.] vs [ 1. 23. 23.  0.  5.]
+PASS B=8 seed=2: islands, core sizes, band counts, largest offset: [ 2.  8. 11. 19.  0.  5.] vs [ 2.  8. 11. 19.  0.  5.]
+PASS B=10 seed=1: islands, core sizes, band counts, largest offset: [ 24.   5.   5.   5.   5.   5.   5.   5.   5.   5.   6.   6.   6.   6.
+   7.   8.   8.   8.   9.  10.  10.  11.  12.  13.  13. 124.  54.  15.] vs [ 24.   5.   5.   5.   5.   5.   5.   5.   5.   5.   6.   6.   6.   6.
+   7.   8.   8.   8.   9.  10.  10.  11.  12.  13.  13. 124.  54.  15.]
+PASS B=10 seed=2: islands, core sizes, band counts, largest offset: [16.  5.  5.  5.  5.  5.  5.  6.  6.  6.  6.  6.  7.  8.  9. 10. 10. 74.
+ 30. 17.] vs [16.  5.  5.  5.  5.  5.  5.  6.  6.  6.  6.  6.  7.  8.  9. 10. 10. 74.
+ 30. 17.]
+PASS B=10 seed=3: islands, core sizes, band counts, largest offset: [ 20.   5.   5.   5.   5.   5.   5.   6.   6.   6.   7.   7.   7.   8.
+   9.   9.   9.  10.  10.  11.  12. 105.  42.  17.] vs [ 20.   5.   5.   5.   5.   5.   5.   6.   6.   6.   7.   7.   7.   8.
+   9.   9.   9.  10.  10.  11.  12. 105.  42.  17.]
+PASS B=10 r=385: changing %, on %, within 32 of 2^(B-1) %, of 3 2^(B-2) %: [45.53 70.63 92.7   2.7 ] vs [45.53 70.63 92.7   2.7 ]
+PASS B=10 r=400: changing %, on %, within 32 of 2^(B-1) %, of 3 2^(B-2) %: [44.31 68.97 87.5   3.3 ] vs [44.31 68.97 87.5   3.3 ]
+PASS B=10 r=512: changing %, on %, within 32 of 2^(B-1) %, of 3 2^(B-2) %: [45.08 71.91 85.   11.4 ] vs [45.08 71.91 85.   11.4 ]
+
+SUMMARY quick: 190 PASS, 0 FAIL
