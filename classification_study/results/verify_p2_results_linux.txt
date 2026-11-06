@@ -1,0 +1,224 @@
+verify_p2.py -- the paper's computational claims regenerated (numpy 2.5.3)
+
+==============================================================================
+1. Theorem 1 (Sec. 3.1): finite core of Rule 110 at N = 8, 10, 12
+==============================================================================
+PASS 1 rule table of Wolfram number 110 for neighbourhoods 111..000: 01101110 vs 01101110
+PASS 1a N=8 f restricted to E is a bijection: True vs True
+    N=8: |E| = 45, 6 cycles, lengths [1, 2, 2, 8, 16, 16]; transient depth (nilpotency index) = 7, |X\E| = 211
+PASS 1 N=8 f^j(X) stabilises at E exactly at j = transient depth: 7 vs 7
+PASS 1c N=8 core fraction |E|/2^N (|E| = 45): 17.578% vs 17.6%
+PASS 1 N=8 f(E) subset of E (lower-left block of S vanishes, E first): True vs True
+PASS 1 N=8 transient block nilpotent: T^k = 0 at k = 7 <= |X\E| = 211, T^(k-1) != 0: [True, True, True] vs [True, True, True]
+PASS 1 N=8 dense check: S block-triangular with E first, P a permutation, T^7 = 0, T^6 != 0: True vs True
+PASS 1b N=8 core size |E|: 45 vs 45
+PASS 1b N=8 eigenvalue 0 has multiplicity |X\E| exactly (nilpotency, T^7 = 0): 211 vs 211
+PASS 1b N=8 number of computed eigenvalues on the unit circle (|lambda| > 1/2): 45 vs 45
+    max deviation 1.3379e-15 at the computed eigenvalue (-1.000000000000001+0j) (nearest root (-1+1.22e-16j))
+PASS 1b N=8 max deviation of on-circle eigenvalues from the cycle roots of unity (paper: 2e-15): 1.3379e-15 vs <= 2e-15
+    distinct roots exp(2 pi i q), q = ['0', '1/16', '1/8', '3/16', '1/4', '5/16', '3/8', '7/16', '1/2', '9/16', '5/8', '11/16', '3/4', '13/16', '7/8', '15/16']
+PASS 1b N=8 multiplicities of the on-circle eigenvalues = multiplicities of the cycle roots: [6, 2, 3, 2, 3, 2, 3, 2, 5, 2, 3, 2, 3, 2, 3, 2] vs [6, 2, 3, 2, 3, 2, 3, 2, 5, 2, 3, 2, 3, 2, 3, 2]
+PASS 1b N=8 number of remaining eigenvalues: 211 vs 211
+    remaining eigenvalues: max modulus 0.000e+00, 211 of them below 1e-12, 211 below 1e-6
+PASS 1b N=8 max modulus of the 211 remaining eigenvalues (paper: 'vanish to machine zero', taken as <= 1e-12): 0 vs <= 1e-12
+PASS 1b diagnostic: eigenvalues of the permutation block P alone vs cycle roots (max deviation, machine level): 1.3379e-15 vs <= 1e-14
+    diagnostic: 102 Garden-of-Eden states (zero rows of S); after a random orthogonal similarity the
+                211 transient eigenvalues spread to max modulus 5.83e-03, compare eps^(1/7) = 5.80e-03
+PASS 1a N=10 f restricted to E is a bijection: True vs True
+    N=10: |E| = 131, 15 cycles, lengths [1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 15, 15, 25, 25]; transient depth (nilpotency index) = 9, |X\E| = 893
+PASS 1 N=10 f^j(X) stabilises at E exactly at j = transient depth: 9 vs 9
+PASS 1c N=10 core fraction |E|/2^N (|E| = 131): 12.793% vs 12.8%
+PASS 1 N=10 f(E) subset of E (lower-left block of S vanishes, E first): True vs True
+PASS 1 N=10 transient block nilpotent: T^k = 0 at k = 9 <= |X\E| = 893, T^(k-1) != 0: [True, True, True] vs [True, True, True]
+PASS 1 N=10 dense check: S block-triangular with E first, P a permutation, T^9 = 0, T^8 != 0: True vs True
+PASS 1a N=12 f restricted to E is a bijection: True vs True
+    N=12: |E| = 95, 11 cycles, lengths [1, 2, 2, 9, 9, 9, 9, 9, 9, 18, 18]; transient depth (nilpotency index) = 35, |X\E| = 4001
+PASS 1 N=12 f^j(X) stabilises at E exactly at j = transient depth: 35 vs 35
+PASS 1c N=12 core fraction |E|/2^N (|E| = 95): 2.319% vs 2.3%
+PASS 1 N=12 f(E) subset of E (lower-left block of S vanishes, E first): True vs True
+PASS 1 N=12 transient block nilpotent: T^k = 0 at k = 35 <= |X\E| = 4001, T^(k-1) != 0: [True, True, True] vs [True, True, True]
+
+==============================================================================
+2. Theorem 2 (Sec. 3.2): clock and shift generate M_n(C), n = 2..8
+==============================================================================
+PASS 2 n=2 Weyl relation CS = wSC (max |CS - wSC|): 2.449e-16 vs <= 1e-12
+PASS 2 n=2 rank of the n^2 monomials C^a S^b: 4 vs 4
+PASS 2 n=2 Hilbert-Schmidt Gram matrix = n * delta_(a=c) delta_(b=d) (max deviation): 1.225e-16 vs <= 1e-10
+PASS 2 n=3 Weyl relation CS = wSC (max |CS - wSC|): 6.740e-16 vs <= 1e-12
+PASS 2 n=3 rank of the n^2 monomials C^a S^b: 9 vs 9
+PASS 2 n=3 Hilbert-Schmidt Gram matrix = n * delta_(a=c) delta_(b=d) (max deviation): 7.109e-16 vs <= 1e-10
+PASS 2 n=4 Weyl relation CS = wSC (max |CS - wSC|): 2.449e-16 vs <= 1e-12
+PASS 2 n=4 rank of the n^2 monomials C^a S^b: 16 vs 16
+PASS 2 n=4 Hilbert-Schmidt Gram matrix = n * delta_(a=c) delta_(b=d) (max deviation): 5.551e-16 vs <= 1e-10
+PASS 2 n=5 Weyl relation CS = wSC (max |CS - wSC|): 1.637e-16 vs <= 1e-12
+PASS 2 n=5 rank of the n^2 monomials C^a S^b: 25 vs 25
+PASS 2 n=5 Hilbert-Schmidt Gram matrix = n * delta_(a=c) delta_(b=d) (max deviation): 1.776e-15 vs <= 1e-10
+PASS 2 n=6 Weyl relation CS = wSC (max |CS - wSC|): 9.011e-16 vs <= 1e-12
+PASS 2 n=6 rank of the n^2 monomials C^a S^b: 36 vs 36
+PASS 2 n=6 Hilbert-Schmidt Gram matrix = n * delta_(a=c) delta_(b=d) (max deviation): 4.958e-15 vs <= 1e-10
+PASS 2 n=7 Weyl relation CS = wSC (max |CS - wSC|): 6.670e-16 vs <= 1e-12
+PASS 2 n=7 rank of the n^2 monomials C^a S^b: 49 vs 49
+PASS 2 n=7 Hilbert-Schmidt Gram matrix = n * delta_(a=c) delta_(b=d) (max deviation): 1.332e-14 vs <= 1e-10
+PASS 2 n=8 Weyl relation CS = wSC (max |CS - wSC|): 7.216e-16 vs <= 1e-12
+PASS 2 n=8 rank of the n^2 monomials C^a S^b: 64 vs 64
+PASS 2 n=8 Hilbert-Schmidt Gram matrix = n * delta_(a=c) delta_(b=d) (max deviation): 8.226e-15 vs <= 1e-10
+
+==============================================================================
+3. Natural extension (Sec. 3.3): backward chains in Rule 110, N = 8
+==============================================================================
+PASS 3 states admitting a backward chain of length 20 = the core E (|E| = 45): 45 states, equal to E: True vs 45 states, equal to E
+    the chain-admitting set first coincides with E at length 7 (transient depth)
+PASS 3 every core state has exactly one preimage inside E (min, max count): [1, 1] vs [1, 1]
+    preimages counted in all of X: core states have between 1 and 3 preimages (extra ones are transient)
+PASS 3 Sec. 3.3: operator norm of S (Rule 110, N = 8) = sqrt(largest fibre), fibre = 10: 3.162278 vs 3.162278
+PASS 3 Sec. 3.3: largest fibre of Rule 110 at N = 8 (paper: sqrt 10): 10 vs 10
+
+==============================================================================
+4. Walsh system and O_2 (Sec. 3.4), dyadic grid of 256 points
+==============================================================================
+PASS 4 sanity of the construction: the 256 sampled Walsh functions are orthogonal (W W^T = 256 I): True vs True
+PASS 4a S_0 W_m = W_{2m} for all m with 2m+1 < 256 (m = 0..127): True vs True
+PASS 4a S_1 W_m = W_{2m+1} for all m with 2m+1 < 256 (m = 0..127): True vs True
+PASS 4b all 256 words of length 8 in S_0, S_1 applied to 1 are Walsh functions: True vs True
+PASS 4b every W_m, m = 0..255, is obtained exactly once: True vs True
+PASS 4b word S_{e_1}...S_{e_8} 1 = W_m with m = sum_i e_i 2^(i-1) (first applied letter = top bit): True vs True
+PASS 4c index maps m -> 2m + eps injective, disjoint images, union = {0..2^K-1}, K = 2..12: True vs True
+PASS 4d filter values of (S_0, S_1) on [0,1/2), [1/2,1) (constant on each half: True): [[1, 1], [1, -1]] vs [[1, 1], [1, -1]]
+PASS 4d filter block = sqrt(2) * Hadamard block (1/sqrt2)[[1,1],[1,-1]], the latter orthogonal: True vs True
+PASS 4 extra: operator-level Cuntz relations S_e^* S_e = 1, S_0^* S_1 = 0, sum S_e S_e^* = 1 on V_128 -> V_256: True vs True
+
+==============================================================================
+5. Theorem 3 (Sec. 3.4): bit reversal intertwines S_eps and P_eps, K = 2..12
+==============================================================================
+PASS 5 R_K is an involution on K-bit integers, K = 2..12: True vs True
+PASS 5 R_K(2 R_{K-1}(m) + eps) = m + eps 2^{K-1} for all (K-1)-bit m, eps in {0,1}, K = 2..12: True vs True
+PASS 5 P_eps: m -> m + eps 2^{K-1} have disjoint images covering {0..2^K-1}, K = 2..12: True vs True
+
+==============================================================================
+6. Proposition 4 (Sec. 3.5): histories on a time circle, Rule 110, N = 8, T = 1..16
+==============================================================================
+    cycle lengths of f|E: [1, 2, 2, 8, 16, 16]
+    T = 1..16, (i)   tr(S^T)            : [1, 5, 1, 5, 1, 5, 1, 13, 1, 5, 1, 5, 1, 5, 1, 45]
+    T = 1..16, (ii)  #{x : f^T(x) = x}  : [1, 5, 1, 5, 1, 5, 1, 13, 1, 5, 1, 5, 1, 5, 1, 45]
+    T = 1..16, (iii) sum_{L_c | T} L_c  : [1, 5, 1, 5, 1, 5, 1, 13, 1, 5, 1, 5, 1, 5, 1, 45]
+PASS 6 the three counts agree for all T = 1..16: True vs True
+PASS 6 tr(S^T), T = 1..16: [1, 5, 1, 5, 1, 5, 1, 13, 1, 5, 1, 5, 1, 5, 1, 45] vs [1, 5, 1, 5, 1, 5, 1, 13, 1, 5, 1, 5, 1, 5, 1, 45]
+
+==============================================================================
+7. Proposition 5 (Sec. 4.5): principal-branch generators, (L1, L2) = (3, 4)
+==============================================================================
+PASS 7 Fourier modes are an orthonormal eigenbasis of U_1, U_2 with phases 2 pi a/L in [0, 2 pi): True vs True
+PASS 7 v_a (x) u_b are eigenvectors of U with eigenphase (phi_a + psi_b) mod 2 pi: True vs True
+    wrapped joint states (a, b): [(1, 3), (2, 2), (2, 3)]
+PASS 7 number of joint eigenstates whose phase sum wraps: 3 vs 3
+PASS 7 H_add - H_pr is diagonal in the joint eigenbasis with entries 2 pi * [wrapped]: True vs True
+PASS 7 eigenvalues of H_add - H_pr: three equal to 2 pi, nine equal to 0 (max deviation): 2.665e-15 vs <= 1e-12
+PASS 7 H_pr(U) != H_pr(U_1)(x)1 + 1(x)H_pr(U_2) (max |difference| = 2 pi): True vs True
+PASS 7 exp(i H_pr) = U to machine precision (max deviation): 2.702e-15 vs <= 1e-12
+PASS 7 exp(i H_add) = U to machine precision (max deviation): 3.398e-15 vs <= 1e-12
+PASS 7 spectrum of H_pr(U) = {2 pi k/12 : k = 0..11} in [0, 2 pi) (max deviation): 2.665e-15 vs <= 1e-12
+    spectrum of H_add / (2 pi/12): [0, 3, 4, 6, 7, 8, 9, 10, 11, 13, 14, 17] (three values >= 12 are the wrapped ones)
+PASS 7 cross-check: H_pr from numpy eig of U (snapped principal phases) agrees (max deviation): 2.559e-15 vs <= 1e-10
+PASS 7 (L1-1)/L1 + (L2-1)/L2 >= 1 for all 2 <= L1, L2 <= 12: True vs True
+PASS 7 H_add = H_pr(U_1)(x)1 + 1(x)H_pr(U_2) is positive for all 2 <= L1, L2 <= 12: True vs True
+PASS 7 exp(i H_add) = U for all 2 <= L1, L2 <= 12 (on the joint eigenbasis): True vs True
+PASS 7 no choice of integer branch shifts for the two factors gives H_pr(U) at (3, 4) (shifts in -2..2): False vs False
+PASS 7 the row a = 0 and the column b = 0 never wrap, all 2 <= L1, L2 <= 12 (premise of the branch argument): True vs True
+PASS 7 wrapped set non-empty for all 2 <= L1, L2 <= 12 (min count): 1 vs >= 1
+PASS 7 wrapped count at (L1, L2) = (3, 4) from the general formula: 3 vs 3
+    wrapped counts, rows L1 = 2..12, columns L2 = 2..12:
+    L1= 2: [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6]
+    L1= 3: [1, 3, 3, 4, 6, 6, 7, 9, 9, 10, 12]
+    L1= 4: [2, 3, 6, 6, 8, 9, 12, 12, 14, 15, 18]
+    L1= 5: [2, 4, 6, 10, 10, 12, 14, 16, 20, 20, 22]
+    L1= 6: [3, 6, 8, 10, 15, 15, 18, 21, 23, 25, 30]
+    L1= 7: [3, 6, 9, 12, 15, 21, 21, 24, 27, 30, 33]
+    L1= 8: [4, 7, 12, 14, 18, 21, 28, 28, 32, 35, 40]
+    L1= 9: [4, 9, 12, 16, 21, 24, 28, 36, 36, 40, 45]
+    L1=10: [5, 9, 14, 20, 23, 27, 32, 36, 45, 45, 50]
+    L1=11: [5, 10, 15, 20, 25, 30, 35, 40, 45, 55, 55]
+    L1=12: [6, 12, 18, 22, 30, 33, 40, 45, 50, 55, 66]
+
+==============================================================================
+8. Wetterich's automaton (Sec. 5): three sites, 4096 states
+==============================================================================
+PASS 8 number of states at three sites (four bits per site): 4096 vs 4096
+PASS 8 free step is a permutation: True vs True
+PASS 8 interaction step is a permutation: True vs True
+PASS 8 interaction step is an involution: True vs True
+PASS 8 combined step S = S_int o S_free is a permutation: True vs True
+PASS 8 number of right-movers conserved: True vs True
+PASS 8 number of left-movers conserved: True vs True
+PASS 8 norm of a unit vector preserved by the step (|S q|): 1 vs 1
+PASS 8 p = q^2 transported to the image configuration: (Sq)[S(s)]^2 = q[s]^2 for all s: True vs True
+PASS 8 max |[S, n_R1(0)]|: 1 vs 1
+PASS 8 one-particle sector is invariant under S: True vs True
+PASS 8 one-particle sector of S = 3 x 3 cyclic shift: True vs True
+PASS 8 clock and shift span M_3(C): dimension of span{C^a S^b}: 9 vs 9
+PASS 8 CS = wSC in the one-particle sector: True vs True
+
+==============================================================================
+9. The Clifford line: permutations of the computational basis
+==============================================================================
+PASS 9 sanity: the 64 Pauli strings on 3 qubits are HS-orthogonal, unitary, X_i Z_i = -Z_i X_i: True vs True
+PASS 9a number of permutations of 8 elements: 40320 vs 40320
+PASS 9a permutations conjugating every X_i, Z_i to a phase times a Pauli string: 1344 vs 1344
+PASS 9a affine bijections x -> Ax + b among the 40320 permutations: 1344 vs 1344
+PASS 9a the Clifford permutations are exactly the affine ones (sets coincide): True vs True
+PASS 9a the linear part A is invertible over GF(2) for every affine permutation: True vs True
+PASS 9a |AGL(3,2)| = 2^3 * |GL(3,2)| with |GL(3,2)| counted by enumeration (168): 1344 vs 1344
+PASS 9a literal comparison with all 256 phase*Pauli matrices agrees with the HS test on 200 sampled permutations: True vs True
+PASS 9a structural Pauli test (conjugates in closed form) agrees with the matrix test on all 40320: True vs True
+PASS 9b x -> x XOR c is affine for every c in 0..255: True vs True
+PASS 9b x -> x + 1 mod 256 is affine: False vs False
+PASS 9b x -> x - 1 mod 256 is affine: False vs False
+PASS 9b x -> x + 1 on the low two bits (map on 2 bits) is affine: True vs True
+PASS 9b x -> x + 1 on the low three bits (map on 3 bits) is affine: False vs False
+PASS 9b Pauli test on 2 and 3 qubits confirms: +1 on 2 bits Clifford, +1 on 3 bits not: True vs True
+PASS 9c C^7X(0..6->7) first, ..., CNOT(0->1), X_0 last equals x -> x + 1 mod 256: True vs True
+PASS 9c affinity of the pieces C^k X, k = 0..7: [True, True, False, False, False, False, False, False] vs [True, True, False, False, False, False, False, False]
+PASS 9c number of non-affine (non-Clifford) carries: 6 vs 6
+PASS 9c Pauli test (closed-form conjugates) on 8 bits agrees with the affine test for the pieces, XOR, +1, -1: True vs True
+
+==============================================================================
+10. Other regenerable statements
+==============================================================================
+PASS 10 Sec. 2: R_8 is an involution: True vs True
+PASS 10 Sec. 2: R commutes with XOR and relabels bit lookups p -> 7-p (reading-independent), all 256 words: True vs True
+PASS 10 Sec. 2: R(x+1) = R(x)+1 holds for only 1 of 256 words (reading-dependent): True vs True
+PASS 10 Sec. 4.2: 2*2^n - 2 = dim_R CP^(2^n - 1) = 2(2^n - 1), n = 1..10 (identity only): True vs True
+
+==============================================================================
+11. The affine boundaries of the lifted automaton (Sec. 6)
+==============================================================================
+PASS 11 affine elementary rule tables among the 256: 16 vs 16
+    affine rules: [0, 15, 51, 60, 85, 90, 102, 105, 150, 153, 165, 170, 195, 204, 240, 255]
+PASS 11 Rule 110 is affine: False vs False
+PASS 11 affine totalistic cell rules (top four bits of the word): [0000, 0101, 1010, 1111] vs [0000, 0101, 1010, 1111]
+PASS 11 translation by d = -4: affine on the low b bits iff b <= v + 2 = 4 (first non-affine b): 5 vs 5
+PASS 11 translation by d = -3: affine on the low b bits iff b <= v + 2 = 2 (first non-affine b): 3 vs 3
+PASS 11 translation by d = -2: affine on the low b bits iff b <= v + 2 = 3 (first non-affine b): 4 vs 4
+PASS 11 translation by d = -1: affine on the low b bits iff b <= v + 2 = 2 (first non-affine b): 3 vs 3
+PASS 11 translation by d = 1: affine on the low b bits iff b <= v + 2 = 2 (first non-affine b): 3 vs 3
+PASS 11 translation by d = 2: affine on the low b bits iff b <= v + 2 = 3 (first non-affine b): 4 vs 4
+PASS 11 d = +-1: first non-affine carry is the one into the third bit: [3, 3] vs [3, 3]
+PASS 11 d = +-2: into the fourth bit: [4, 4] vs [4, 4]
+PASS 11 d = -4: into the fifth bit: 5 vs 5
+PASS 11 full rule-layer step at B = 8 (r = 80, 95, 96, 112): affine iff (h, c') = (1, 1): True vs True
+PASS 11 the multiplexer (h, n) -> n_{B-1-h} on 2 + 8 bits is affine: False vs False
+
+==============================================================================
+12. The companion automaton's word map and the residue (Secs. 3.1, 3.4, 6)
+==============================================================================
+PASS 12 d < 0: core of the word map = [0, r), r = 32, 96, d = -1..-4 (B = 8): True vs True
+PASS 12 d < 0: nilpotency index of the transient = ceil((2^B - r)/|d|): True vs True
+PASS 12 d < 0: the word map is not injective (image size 2^B - |d|): True vs True
+PASS 12 d < 0: cycles of the core rotation have length r/gcd(|d|, r): True vs True
+PASS 12 d > 0: the word map is the rotation of Z_{2^B} by d (bijective, cycles 2^B/gcd(d, 2^B)): True vs True
+PASS 12 affine rotations of Z_256 (multiples of 2^(B-2)): [0, 64, 128, 192] vs [0, 64, 128, 192]
+PASS 12 chi_{2^(B-1)} = +1 on [0, r) for every r <= 2^(B-1): True vs True
+PASS 12 e_1 = (r - 2^(B-2))/r = density of chi_{2^(B-2)} = -1 on [0, r), all 2^(B-2) <= r < 2^(B-1): True vs True
+PASS 12 lookup: bit_{B-1-h}(n) = (1 - chi_{2^(B-1-h)}(n))/2, all 256 words, h = 0..3: True vs True
+
+SUMMARY: 143 PASS, 0 FAIL
+    elapsed 6.2 s

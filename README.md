@@ -58,6 +58,11 @@ responsible for any errors in these ports.
   number quoted in that paper from the stored results, and
   `verify_pre.py`, which regenerates the numbers and compares them
   with the recorded values. Requires numba. See its README.
+- `classification_study/` - the verification script of the
+  classification paper ("From automata to operator algebras: possible,
+  impossible, and open"): `verify_p2.py` (143 checks, numpy only,
+  seconds), the Wetterich reconstruction `wetterich_mx3.py`, and the
+  recorded outputs. See its README.
 
 ## Verification discipline
 
