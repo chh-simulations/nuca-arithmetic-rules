@@ -75,9 +75,10 @@ for `transition_study/`).
 See `CITATION.cff`. Release v1.0.0 is archived at Zenodo,
 doi:10.5281/zenodo.23322969, release v1.1.0 (the interface velocity
 re-measured, the transition study added) at doi:10.5281/zenodo.23434888,
-and release v1.2.0 (the transition study complete: the campaigns of
-18-20 October, the exact pinning floor, the sectioned verification
-suite) under the same concept DOI; the concept DOI
+and release v1.2.0 (the transition study complete: five campaigns,
+the exact pinning floor, the sectioned verification suite with its
+190-check runs on two machines, the dated predictions record) at
+doi:10.5281/zenodo.24015703; the concept DOI
 10.5281/zenodo.23322968 always resolves to the latest version. The paper's preprint is
 deposited at doi:10.5281/zenodo.23323144 (all versions); version 2 of
 17 October 2026, doi:10.5281/zenodo.23434750, carries the re-measured

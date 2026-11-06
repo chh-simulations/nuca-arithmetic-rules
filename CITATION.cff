@@ -7,10 +7,13 @@ authors:
     orcid: "https://orcid.org/0009-0006-7994-1816"
     affiliation: "Information Physics Institute, Sofia, Bulgaria"
 version: "1.2.0"
-date-released: "2026-10-29"
+date-released: "2026-11-06"
 license: MIT
 doi: "10.5281/zenodo.23322968"
 identifiers:
+  - type: doi
+    value: "10.5281/zenodo.24015703"
+    description: "Zenodo archive of release v1.2.0"
   - type: doi
     value: "10.5281/zenodo.23434888"
     description: "Zenodo archive of release v1.1.0"
