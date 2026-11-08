@@ -23,6 +23,25 @@ identifiers:
   - type: doi
     value: "10.5281/zenodo.23322968"
     description: "Zenodo concept DOI (all versions)"
+references:
+  - type: software
+    title: "hca.m, ruleupdate.m, cfilter.m: the original MATLAB programs of the non-uniform cellular automaton with arithmetic rule words"
+    authors:
+      - family-names: Raptis
+        given-names: Theophanes E.
+    year: 2026
+    notes: "Private communication; the reference implementation in this repository is a port of these programs. Not included here."
+  - type: article
+    title: "Spectral representations and global maps of cellular automata dynamics"
+    authors:
+      - family-names: Raptis
+        given-names: Theophanes E.
+    journal: "Chaos, Solitons & Fractals"
+    volume: 91
+    start: 503
+    end: 510
+    year: 2016
+    doi: "10.1016/j.chaos.2016.07.010"
 repository-code: "https://github.com/chh-simulations/nuca-arithmetic-rules"
 preferred-citation:
   type: article

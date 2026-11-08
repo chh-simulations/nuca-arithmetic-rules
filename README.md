@@ -12,10 +12,43 @@ The system implemented here is due to T. E. Raptis
 ([github.com/rtheo](https://github.com/rtheo)), who introduced it in
 a private communication of 2026, building on his spectral framework
 for cellular automata (Chaos, Solitons & Fractals 91, 503 (2016)), and
-whose
-original MATLAB implementation precedes this repository; his account
-is listed here, at his request, as a sideways contribution. He is not
-responsible for any errors in these ports.
+whose original MATLAB implementation precedes this repository; his
+account is listed here, at his request, as a sideways contribution.
+He is not responsible for any errors in these ports.
+
+## Origin
+
+The automaton implemented here, and every simulator of it in this
+repository, descends from three MATLAB programs that T. E. Raptis wrote
+and sent in 2026: `hca.m` (the automaton),
+`ruleupdate.m` (the rule-word update) and `cfilter.m` (the
+neighbourhood kernel). Specifically:
+
+- The neighbourhood sum of every cell, h = c(j-1) + c(j) + c(j+1), is
+  in his programs the product K c of the configuration with the
+  circulant kernel matrix built by `cfilter.m`, the construction of his
+  spectral framework for cellular automata (Chaos, Solitons & Fractals
+  91, 503 (2016)), which realises an arbitrary neighbourhood as one
+  matrix. `python/hca_canonical.py` keeps that form (its `kernel`
+  builds the same circulant matrix and computes h = K @ c); the
+  MATLAB port `matlab/hca_canonical.m` computes the same sum with
+  `circshift`, which is numerically identical for the radius-1
+  neighbourhood but hides the construction.
+- The rule-word update, n <- mod(n + sgn*h - 1, N) kept to its low
+  eight bits, with sgn = 2c - 1 (and its quadratic variant), is his
+  `ruleupdate.m`, the number-theoretic function on which the whole
+  phase structure rests; the derivation of its form is his (private
+  communication), as the paper states.
+- The lookup of the new state as the bit of the rule word at the
+  position given by h is his `hca.m`.
+
+`python/hca_canonical.py` is a line-by-line port of these three
+programs and says so in its header; `matlab/hca_canonical.m` is a
+second port, made from the Python reference so that the checks could
+be run in a second language, and carries checksums that tie it to the
+reference. His original programs are not included here because they
+are his to publish; they will be added under his name and the license
+of his choice if he wishes, or linked where he places them.
 
 ## Layout
 
@@ -35,10 +68,11 @@ responsible for any errors in these ports.
 - `python/toroid_check.py` - the exact content behind the
   time-periodic remark of Section 9.
 - `matlab/hca_canonical.m` - MATLAB/Octave port of the canonical
-  simulator with an embedded self-test whose checksums come from the
-  Python reference on deterministic initial data. Run the file; it
-  errors on any disagreement. Self-test passed under GNU Octave
-  (2026-10-11).
+  simulator (made from the Python reference, not from the original
+  programs; see Origin) with an embedded self-test whose checksums
+  come from the Python reference on deterministic initial data. Run
+  the file; it errors on any disagreement. Self-test passed under GNU
+  Octave (2026-10-11).
 - `results/` - the recorded output of the full verification run:
   version 1 of the script (399 checks) on two independent machines
   (Linux and Windows, numpy 2.4.4), digit-identical; version 2 (407

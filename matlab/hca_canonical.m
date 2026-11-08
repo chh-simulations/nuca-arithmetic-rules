@@ -4,6 +4,15 @@
 % reference (deterministic initialization, no RNG): run this file; it
 % errors if the port disagrees with the reference.
 %
+% Origin: the automaton and its programs are due to T. E. Raptis
+% (hca.m, ruleupdate.m, cfilter.m, 2026). This file is a port of the
+% Python reference, which is itself a port of those three programs.
+% Where his cfilter.m builds the circulant neighbourhood kernel of his
+% spectral framework (Chaos, Solitons & Fractals 91, 503 (2016)) and
+% computes the neighbourhood sum as a matrix product, this file uses
+% circshift; the two are identical for the radius-1 neighbourhood. The
+% rule-word update below is his ruleupdate.m.
+%
 % State: N cells on a ring; c(j) in {0,1}; rule word w(j) = 8 bits.
 % Reading e in {lsb, msb} fixes the integer value of a word. One step:
 %   h(j) = c(j-1)+c(j)+c(j+1)           (periodic)
