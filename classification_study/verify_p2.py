@@ -5,11 +5,15 @@ verify_p2.py -- verification script for the paper
     P. Stoychev, "From automata to operator algebras: possible,
     impossible, and open".
 
-Written independently of the author's code, from the statements of the
-paper and standard definitions.  The only
-reused code is the pair of step functions of Wetterich's automaton taken
-verbatim from wetterich_mx3.py (Section 8 below, marked as such); the
-checks built on them are new.
+Sections 1 to 10 were written independently of the author's code, from
+the statements of the paper and standard definitions.  Sections 11 to
+14, and the extensions of Sections 8, 11 and 12 (the four one-particle
+copies and the algebra they generate, the reversible embedding of the
+rule tables, the range of the excitability identity), were written
+together with the statements they check, in the revisions of 7 and 13
+November 2026.  The only reused code is the pair of step functions of
+Wetterich's automaton taken verbatim from wetterich_mx3.py (Section 8
+below, marked as such); the checks built on them are new.
 
 Requirements: Python 3 and numpy only.  Deterministic (fixed seeds).
 Runs in well under a minute on two cores.
@@ -374,7 +378,7 @@ def section_1b(f, E, lengths, k):
     maxsmall = float(np.abs(small).max()) if len(small) else 0.0
     info("remaining eigenvalues: max modulus %.3e, %d of them below 1e-12, %d below 1e-6"
          % (maxsmall, int((np.abs(small) < 1e-12).sum()), int((np.abs(small) < 1e-6).sum())))
-    check("1b N=8 max modulus of the 211 remaining eigenvalues (paper: 'vanish to machine zero', taken as <= 1e-12)",
+    check("1b N=8 max modulus of the 211 remaining eigenvalues as the solver returns them (<= 1e-12; the fact is T^7 = 0)",
           maxsmall, "<= 1e-12", maxsmall <= 1e-12)
     # Diagnostics for the referee (not claims of the paper).
     # (i) The on-circle accuracy is that of the eigenvalue solver on the
@@ -580,10 +584,10 @@ def section_4():
 
 
 # ===========================================================================
-# 5. Theorem 3 (intertwining), K = 2..12
+# 5. Proposition 3 (the reversal identity), K = 2..12
 # ===========================================================================
 def section_5():
-    section("5. Theorem 3 (Sec. 3.4): bit reversal intertwines S_eps and P_eps, K = 2..12")
+    section("5. Proposition 3 (Sec. 3.4): bit reversal intertwines S_eps and P_eps, K = 2..12")
     ok_all = True
     ok_inv = True
     ok_P = True
@@ -631,7 +635,7 @@ def section_6():
 
 
 # ===========================================================================
-# 7. Proposition 5 (Sec. 4.5): positivity versus additivity, (L1, L2) = (3, 4)
+# 7. Proposition 5 (Sec. 4.5): the branches of the logarithm do not compose, (L1, L2) = (3, 4)
 # ===========================================================================
 def shift_eigenbasis(L):
     """Eigenvectors of the cyclic shift S (S e_k = e_{k+1}) on C^L:
@@ -861,6 +865,42 @@ def section_8():
     check("8 clock and shift span M_3(C): dimension of span{C^a S^b}", dim, 9, dim == 9)
     weyl = bool(np.allclose(Ck @ sub, w * sub @ Ck))
     check("8 CS = wSC in the one-particle sector", weyl, True, weyl)
+    # all four copies: right-movers shift forward (CS = w SC), left-movers backward (CS = w^-1 SC); each pair spans M_3(C)
+    ok4 = True
+    dims = []
+    for g in range(4):
+        st = [1 << (4 * x + g) for x in range(Mx)]
+        inv_g = all(int(S[c]) in st for c in st)
+        sub_g = np.array([[1.0 if S[c] == r_ else 0.0 for c in st] for r_ in st])
+        fwd = np.array_equal(sub_g, shift3)
+        bwd = np.array_equal(sub_g, shift3.T)
+        ok4 &= inv_g and ((fwd and g in (0, 1)) or (bwd and g in (2, 3)))
+        ww = w if g in (0, 1) else 1 / w
+        ok4 &= bool(np.allclose(Ck @ sub_g, ww * sub_g @ Ck))
+        span_g = np.array([(np.linalg.matrix_power(Ck, a) @ np.linalg.matrix_power(sub_g, b)).flatten()
+                           for a in range(Mx) for b in range(Mx)])
+        dims.append(int(np.linalg.matrix_rank(span_g)))
+    check("8 the four one-particle copies: forward shift with CS = wSC (right-movers), backward with CS = w^-1 SC (left-movers)", ok4, True, ok4)
+    check("8 clock and shift span M_3(C) in each of the four copies", dims, [9, 9, 9, 9], dims == [9, 9, 9, 9])
+    # the algebra generated on the whole one-particle sector (12 states) by the step and the twelve occupation numbers
+    st12 = [1 << (4 * x + g) for g in range(4) for x in range(Mx)]
+    idx = {c: i for i, c in enumerate(st12)}
+    S12 = np.zeros((12, 12))
+    for c in st12:
+        S12[idx[int(S[c])], idx[c]] = 1.0
+    gens = [S12] + [np.diag([1.0 if i == j else 0.0 for i in range(12)]) for j in range(12)]
+    basis = [np.eye(12)]
+    rank = 1
+    while True:
+        new = basis + [a @ g_ for a in basis for g_ in gens]
+        M_ = np.array([m.flatten() for m in new])
+        u_, sv, vt = np.linalg.svd(M_, full_matrices=False)
+        r_new = int((sv > 1e-9).sum())
+        basis = [vt[i].reshape(12, 12) for i in range(r_new)]
+        if r_new == rank:
+            break
+        rank = r_new
+    check("8 algebra generated on the one-particle sector by the step and the occupation numbers: dimension (four copies of M_3, not M_12)", rank, 36, rank == 36)
 
 
 # ===========================================================================
@@ -1087,6 +1127,38 @@ def section_11():
     check("11 affine elementary rule tables among the 256", len(aff_rules), 16, len(aff_rules) == 16)
     info("affine rules: %s" % aff_rules)
     check("11 Rule 110 is affine", 110 in aff_rules, False, 110 not in aff_rules)
+    # (a') A rule table g is not a bijection; its lift is the reversible
+    #     embedding (x, y) -> (x, y XOR g(x)) on 3 + 1 bits (x in bits 0..2,
+    #     y in bit 3), a permutation of the 16 basis states.  Honest Pauli
+    #     test on four qubits (every generator X_i, Z_i conjugated to a
+    #     phase times one of the 256 Pauli strings) for all 256 rules: the
+    #     embedding is Clifford exactly for the 16 affine rules.
+    k4, P4 = pauli_strings(4)
+    k4_idx = {k: i for i, k in enumerate(k4)}
+    PB4 = P4.reshape(len(k4), 16 * 16)
+    phases = np.array([1, -1, 1j, -1j])
+    z4 = np.arange(16)
+    cl_rules, emb_affine_ok, emb_bij_ok = [], True, True
+    for rule in range(256):
+        g = np.array([(rule >> x) & 1 for x in range(8)])
+        emb = (z4 & 7) | ((((z4 >> 3) & 1) ^ g[z4 & 7]) << 3)
+        emb_bij_ok &= sorted(emb.tolist()) == list(range(16))
+        emb_affine_ok &= (is_affine_gf2(emb, 4) == (rule in aff_rules))
+        U4 = np.zeros((16, 16))
+        U4[emb, z4] = 1.0
+        res = True
+        for i in range(4):
+            for G in (P4[k4_idx[(1 << i, 0)]], P4[k4_idx[(0, 1 << i)]]):
+                M = U4 @ G @ U4.T
+                coef = PB4.conj() @ M.flatten() / 16
+                nz = np.abs(coef) > 1e-9
+                res &= int(nz.sum()) == 1 and bool(np.abs(coef[nz][0] - phases).min() < 1e-9)
+        if res:
+            cl_rules.append(rule)
+    check("11 the reversible embedding (x, y) -> (x, y XOR g(x)) of each of the 256 rule tables is a bijection of 4 bits, affine iff g is",
+          emb_bij_ok and emb_affine_ok, True, emb_bij_ok and emb_affine_ok)
+    check("11 Pauli test on four qubits: the embeddings that are Clifford are exactly those of the 16 affine rules",
+          cl_rules, aff_rules, cl_rules == aff_rules)
     # (b) The cell rule of a word: the lookup reads bit B-1-h of the word
     #     for neighbourhood sum h = 0..3, so a fixed word runs the
     #     totalistic rule with outputs (o_0, o_1, o_2, o_3) = its top four
@@ -1214,8 +1286,12 @@ def section_12():
     top_ok = all(all(((n >> (B - 1)) & 1) == 0 for n in range(r)) for r in range(1, (1 << (B - 1)) + 1))
     check("12 chi_{2^(B-1)} = +1 on [0, r) for every r <= 2^(B-1)", top_ok, True, top_ok)
     e1_ok = all(abs(sum(1 for n in range(r) if (n >> (B - 2)) & 1) / r - (r - 2 ** (B - 2)) / r) < 1e-12
-                for r in range(2 ** (B - 2), 2 ** (B - 1)))
-    check("12 e_1 = (r - 2^(B-2))/r = density of chi_{2^(B-2)} = -1 on [0, r), all 2^(B-2) <= r < 2^(B-1)", e1_ok, True, e1_ok)
+                for r in range(2 ** (B - 2), 2 ** (B - 1) + 1))
+    check("12 e_1 = (r - 2^(B-2))/r = density of chi_{2^(B-2)} = -1 on [0, r), all 2^(B-2) <= r <= 2^(B-1)", e1_ok, True, e1_ok)
+    # outside that range the identity fails: below 2^(B-2) the density is 0 and the formula negative; above 2^(B-1) the bit clears again
+    e1_out = [r for r in range(1, 1 << B) if abs(sum(1 for n in range(r) if (n >> (B - 2)) & 1) / r - (r - 2 ** (B - 2)) / r) < 1e-12]
+    check("12 the residues 1 <= r < 2^B at which the identity holds are exactly 2^(B-2) .. 2^(B-1)", [e1_out[0], e1_out[-1], len(e1_out)],
+          [64, 128, 65], [e1_out[0], e1_out[-1], len(e1_out)] == [64, 128, 65])
     # (d) Sec. 3.4: the lookup, bit B-1-h of the word, equals
     #     (1 - chi_{2^(B-1-h)}(n))/2, chi_m(n) = (-1)^{m.n}, for h = 0..3.
     look_ok = all(((n >> (B - 1 - h)) & 1) == (1 - (-1) ** bin((1 << (B - 1 - h)) & n).count("1")) // 2
@@ -1224,11 +1300,204 @@ def section_12():
 
 
 # ===========================================================================
+# 13. The two readings of the companion automaton are two dynamics
+#     (Secs. 2 and 3.4): exact counts of periodic states
+# ===========================================================================
+def nuca_weights(N, B, T, msb):
+    """w[a, b, c] = number of words n0 of a cell whose own state history is b
+    and whose neighbours' histories are a and c (T-periodic binary histories,
+    coded as T-bit integers) such that the lookup reproduces b at every step
+    and the word returns to n0 after T steps.  Rule of Sec. 2; msb: the lookup
+    reads the bit of significance B-1-h, lsb: of significance h."""
+    H = 1 << T
+    M = 1 << B
+    mask = M - 1
+    hist = np.array([[(x >> t) & 1 for t in range(T)] for x in range(H)], dtype=np.int64)
+    a = hist[:, None, None, :]
+    b = hist[None, :, None, :]
+    c = hist[None, None, :, :]
+    h = a + b + c
+    bnext = np.roll(hist, -1, axis=1)[None, :, None, :] + 0 * h
+    w = np.zeros((H, H, H), dtype=np.int64)
+    for n0 in range(M):
+        n = np.full((H, H, H), n0, dtype=np.int64)
+        ok = np.ones((H, H, H), dtype=bool)
+        for t in range(T):
+            ht = h[..., t]
+            pos = (B - 1 - ht) if msb else ht
+            bit = (n >> pos) & 1
+            ok &= bit == bnext[..., t]
+            n = ((n + (2 * bit - 1) * ht - 1) % N) & mask
+        ok &= n == n0
+        w += ok
+    return w
+
+
+def periodic_states(N, B, T, msb):
+    """Exact number of states (c, n) of the ring of N cells with f^T = identity
+    on them: the trace of the N-th power of the transfer matrix
+    M[(a, b), (b, c)] = w[a, b, c] over pairs of adjacent histories."""
+    w = nuca_weights(N, B, T, msb)
+    H = w.shape[0]
+    Mx_ = np.zeros((H * H, H * H), dtype=object)
+    for a_ in range(H):
+        for b_ in range(H):
+            for c_ in range(H):
+                Mx_[a_ * H + b_, b_ * H + c_] = int(w[a_, b_, c_])
+    P = None
+    base = Mx_
+    e = N
+    while e:
+        if e & 1:
+            P = base if P is None else P.dot(base)
+        e >>= 1
+        if e:
+            base = base.dot(base)
+    return int(sum(P[i, i] for i in range(H * H)))
+
+
+def nuca_global_map(N, B, msb):
+    """The global map of the ring on all (2 * 2^B)^N states, by enumeration."""
+    M = 1 << B
+    S_ = (2 * M) ** N
+    x = np.arange(S_, dtype=np.int64)
+    codes = np.empty((N, S_), dtype=np.int64)
+    for j in range(N):
+        codes[j] = x % (2 * M)
+        x //= (2 * M)
+    c = codes // M
+    n = codes % M
+    h = np.roll(c, 1, axis=0) + c + np.roll(c, -1, axis=0)
+    pos = (B - 1 - h) if msb else h
+    c2 = (n >> pos) & 1
+    n2 = ((n + (2 * c2 - 1) * h - 1) % N) & (M - 1)
+    out_ = np.zeros(S_, dtype=np.int64)
+    for j in reversed(range(N)):
+        out_ = out_ * (2 * M) + (c2[j] * M + n2[j])
+    return out_
+
+
+def frozen_states(N, w0, w1, gap):
+    """Number of states with a frozen configuration of the kind of [P1, Prop. 2]:
+    binary rings of N cells with at least `gap` zeros between consecutive ones,
+    w0 words per zero and w1 per one (exact, by a transfer matrix on the number
+    of zeros since the last one)."""
+    m = gap + 1
+    Tm = [[0] * m for _ in range(m)]
+    for z in range(m):
+        Tm[min(z + 1, gap)][z] += w0
+        if z == gap:
+            Tm[0][z] += w1
+    P = [[int(i == j) for j in range(m)] for i in range(m)]
+    for _ in range(N):
+        P = [[sum(P[i][k] * Tm[k][j] for k in range(m)) for j in range(m)] for i in range(m)]
+    return sum(P[i][i] for i in range(m))
+
+
+def section_13():
+    section("13. The two readings are two dynamics (Secs. 2, 3.4): exact counts of periodic states")
+    # (a) the transfer-matrix count against enumeration of all states, rings of 3 and 4 cells, B = 4
+    agree = True
+    cases = 0
+    for N in (3, 4):
+        for msb in (True, False):
+            f = nuca_global_map(N, 4, msb)
+            ident = np.arange(len(f))
+            g = ident.copy()
+            for T in range(1, 5):
+                g = f[g]
+                agree &= int((g == ident).sum()) == periodic_states(N, 4, T, msb)
+                cases += 1
+    check("13 transfer-matrix count of the states with f^T = id equals enumeration (B = 4; N = 3, 4; T = 1..4; both readings)",
+          (agree, cases), (True, 16), agree and cases == 16)
+    # (b) a ring inside the regime of the papers: B = 4, N = 2^B + 4 = 20, T = r = 4
+    B, N, T = 4, 20, 4
+    n_msb = periodic_states(N, B, T, True)
+    n_lsb = periodic_states(N, B, T, False)
+    check("13 B = 4, N = 20: states of period dividing 4, reading of Sec. 2 (bit B-1-h)", n_msb, 4 ** 20 * 38609, n_msb == 4 ** 20 * 38609)
+    check("13 B = 4, N = 20: states of period dividing 4, other reading (bit h)", n_lsb, 2 ** 51 + 2560, n_lsb == 2 ** 51 + 2560)
+    check("13 the two readings have different numbers of periodic states (not conjugate)", n_msb != n_lsb, True, n_msb != n_lsb)
+    # (c) the first number is the number of frozen states of [P1, Prop. 2] at r = 4, B = 4:
+    #     ones at mutual distance >= 3 (two zeros between), 8 static words per one (bit B-2 set), 4 sea words per zero
+    fz = frozen_states(N, 4, 8, 2)
+    check("13 B = 4, N = 20: frozen states of [P1, Prop. 2] (ones at distance >= 3, 8 words per one, 4 per zero)", fz, n_msb, fz == n_msb)
+    #     and such states do return after four steps with their cells unchanged throughout, so that the
+    #     equality of the two counts makes the two sets equal: 2000 states drawn at random
+    rng = np.random.default_rng(4)
+    ret, drawn = 0, 0
+    static8 = np.array([w for w in range(1 << B) if (w >> (B - 2)) & 1])
+    while drawn < 2000:
+        c0 = (rng.random(N) < 0.3).astype(np.int64)
+        ones = np.flatnonzero(c0)
+        if any(c0[(i + 1) % N] or c0[(i + 2) % N] for i in ones):
+            continue                                     # two ones closer than three cells
+        n0 = np.where(c0 == 1, static8[rng.integers(0, 8, N)], rng.integers(0, 4, N))
+        c_, n_ = c0.copy(), n0.copy()
+        frozen = True
+        for _ in range(T):
+            h = np.roll(c_, 1) + c_ + np.roll(c_, -1)
+            c2 = (n_ >> (B - 1 - h)) & 1
+            n_ = ((n_ + (2 * c2 - 1) * h - 1) % N) & ((1 << B) - 1)
+            frozen &= bool(np.array_equal(c2, c0))
+            c_ = c2
+        ret += int(frozen and np.array_equal(n_, n0))
+        drawn += 1
+    check("13 states of that kind drawn at random keep their cells and return after 4 steps (of 2000)", ret, 2000, ret == 2000)
+    # (d) the bit reversal R, applied to the words of every cell, does not carry one reading into the other:
+    #     R o M_msb o R against M_lsb on a random state of a ring of 800 cells, B = 8
+    B, N = 8, 800
+    rng = np.random.default_rng(1)
+    c = rng.integers(0, 2, N)
+    n = rng.integers(0, 1 << B, N)
+    rev = np.array([bitrev(m, B) for m in range(1 << B)])
+
+    def one(c_, n_, msb):
+        h = np.roll(c_, 1) + c_ + np.roll(c_, -1)
+        c2 = (n_ >> ((B - 1 - h) if msb else h)) & 1
+        return c2, ((n_ + (2 * c2 - 1) * h - 1) % N) & ((1 << B) - 1)
+    c_a, n_a = one(c, rev[n], True)
+    n_a = rev[n_a]                                   # R M_msb R
+    c_b, n_b = one(c, n, False)                      # M_lsb
+    same_c = bool(np.array_equal(c_a, c_b))
+    differ = int((n_a != n_b).sum())
+    check("13 R M_msb R and M_lsb agree on the new cell states (the lookup is carried along)", same_c, True, same_c)
+    check("13 R M_msb R and M_lsb differ on the new words (cells of 800 that differ > 0)", differ > 0, True, differ > 0)
+    info("cells whose new word differs between R M_msb R and M_lsb: %d of %d" % (differ, N))
+
+
+# ===========================================================================
+# 14. Equivalence classes of states with a common future and the core
+#     (Sec. 4.5, the remark on [tH99])
+# ===========================================================================
+def section_14():
+    section("14. States with the same eventual future: the classes are in bijection with the core (Sec. 4.5)")
+    rng = np.random.default_rng(7)
+    ok = True
+    nmaps = 0
+    for _ in range(300):
+        n = int(rng.integers(2, 41))
+        f = rng.integers(0, n, n)
+        E, _stab = eventual_image(f)
+        g = np.arange(n)
+        for _k in range(n):                          # f^n(x): two states are equivalent iff these agree
+            g = f[g]
+        classes = {}
+        for x in range(n):
+            classes.setdefault(int(g[x]), []).append(x)
+        inE = set(E.tolist())
+        ok &= len(classes) == len(E)
+        ok &= all(sum(1 for x in cl if x in inE) == 1 for cl in classes.values())
+        nmaps += 1
+    check("14 on %d random maps: number of classes = |E|, and each class contains exactly one core state" % nmaps, ok, True, ok)
+
+
+# ===========================================================================
 def main():
     t0 = time.time()
     out("verify_p2.py -- the paper's computational claims regenerated (numpy %s)" % np.__version__)
     for sec in (section_1, section_2, section_3, section_3_norm, section_4, section_5,
-                section_6, section_7, section_8, section_9, section_10, section_11, section_12):
+                section_6, section_7, section_8, section_9, section_10, section_11, section_12,
+                section_13, section_14):
         try:
             sec()
         except Exception:      # a crash is a finding too; report and go on

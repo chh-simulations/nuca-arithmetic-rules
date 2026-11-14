@@ -56,9 +56,12 @@ nch, n1, lo, hi, td = nf.run(c, n, 384, 10, 50)
 check(f"one word 519 >= 512 in a zero ring ignites at step 1 (cell 100), flickers, dies at step {td} with the word below 512",
       nch[0] == 1 and lo[0] == 100 and hi[0] == 100 and td > 1 and n1[td-1] == 0 and n.max() < 512)
 c, n = nf.ic_sea(2048 + 384, 384, 3); n[100] = 400
-nch, n1, lo, hi, td = nf.run(c, n, 384, 50, 50)
-check("one word 400 in [r, 2^(B-1)) in a zero ring: dead at step 1 (doomed), word drifts to r-1 and cycles",
-      td == 1)
+drift = n.copy()
+for _ in range(50):
+    drift = ((drift - 1) % (2048 + 384)) & 1023          # the dead ring: every word steps down by one, 0 wraps to r-1
+nch, n1, lo, hi, td = nf.run(c, n, 384, 10, 50, stop_dead=False)
+check("one word 400 in [r, 2^(B-1)) in a zero ring: no cell ever changes (dead from step 1); the words only drift, the word 400 is at 350 after 50 steps and all words are below r",
+      td == 1 and nch.sum() == 0 and n1.sum() == 0 and int(n[100]) == 350 and bool((n == drift).all()) and n.max() < 384)
 
 # 3. P1 numbers (S9 of verify_p1.py), same initial condition as run_B
 print("3. P1 Table 2 entries reproduced: B=10, N=2^B+r, T=12000, tail activity over the last 100 steps")

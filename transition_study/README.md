@@ -64,13 +64,32 @@ Scripts, in the order of use:
   378, 380, 382).
 - `hole_words.py`: the holes of the quenched developed phase in the
   final states of `quench_long.py` (sizes, words, activity). Results:
-  `hole_words.jsonl`. `word_front.py`: the word-defined front of the
-  final states of the developed-phase runs against the changed-cell
-  front. Results: `word_front.jsonl`.
+  `hole_words.jsonl`. `word_front.py`: the word-defined front in the
+  final states of the developed-phase runs: on each side the outermost
+  cell whose word lies outside the sea range, as a displacement from
+  its position in the prepared state (one convention for both sides,
+  retreats included), the number of cells of the prepared sea that
+  hold such a word (the converted cells), and the changed-cell front
+  in the same convention. Results: `word_front.jsonl`.
 - `floor_models.py`: the two- and three-cell models of the pinning
   floor at B = 8 and 10 (largest reachable word one residue below, at
   and above the floor). Results: `floor_models.jsonl`. The reduced
   edge model's record is `edge_model.jsonl`.
+- `sea_range_dies.py`: rings of random cells with words uniform in the
+  sea range, at five residues from 2^(B-2) + 2 to the floor at B = 8
+  and 10: every configuration is dead within 105 steps (B = 8) and 304
+  steps (B = 10). Plain numpy, independent of the runner. Results:
+  `sea_range_dies.txt`.
+- `island_sensitivity.py`: the transplanted island of the suite's S3
+  and a copy with one core word raised by one, followed to 2e6 steps:
+  the two runs differ on at most 29 words, all inside the island and
+  its halo. Results: `island_sensitivity.txt`.
+- `companion_front_geometry.py`: the companion paper's front
+  measurement repeated at B = 10, r = 376 to 384 (a random half ring
+  against the prepared sea, 2e5 steps): the distance of the nearest
+  changing cell from the sea at each of the twenty boundaries (7 to
+  193 cells at eighteen, within one cell at two) and the converted sea
+  cells (none). Results: `companion_front_geometry.txt`.
 - `paper_numbers.py`: every number quoted in the paper from the stored
   results (writes `paper_numbers.json`); `make_tables.py` writes the
   rows of Tables II-IV into the manuscript from it;
@@ -93,6 +112,34 @@ Scripts, in the order of use:
   look for them in their own folder, so copy or link them there before
   running `analyze.py`, `figures.py`, `make_expected.py` or
   `verify_pre.py` (or run the measurement drivers to regenerate them).
+
+Correction of 13 November 2026. An audit of the paper found an error
+in the first form of `word_front.py`: it measured the right-hand front
+one cell short of the left-hand one, and for a front with no converted
+sea cell it returned the initial offset of the block edge in place of
+the final position, so that a front that had retreated into the block
+was entered as if it had not moved. The script now uses one convention
+for both sides, takes the displacement from the prepared state and
+counts the converted cells of the prepared sea; `word_front.jsonl` was
+regenerated from the stored final states, and `paper_numbers.py`,
+`expected_pre.py` and the suite's check of the word fronts (S9) follow
+the new records. What changed in the paper: the check of the front
+velocities against the words is stated with the converted cells
+(36.0(34), 14.8(27) and 6.4(16) per front at B = 10, r = 382, 381 and
+380; 14.0(9) and 3.1(6) at B = 11, r = 766 and 764; 55.3(38) at B = 9,
+r = 190); the run at B = 11, r = 760 has four converted cells on three
+of its eight fronts and one front seven cells inside its block, where
+the earlier text said that no sea cell was converted; and the loss of
+block-edge cells to the sea early in the runs is reported (12 of 48
+fronts, 2 to 17 cells). The velocities of the tables, which are fitted
+to the changed-cell front, did not change, and the three figures
+regenerate pixel for pixel. The same audit corrected the third
+dead-ring check of `gate_fast.py`, which had been called with a word
+length of 50 and passed without testing anything (it now compares
+every word with the explicit drift), the hole counts printed by
+`paper_numbers.py` (the stored counts are domains on the unwrapped
+ring, one more than the holes), and added the three small scripts
+above for statements of the paper that had no script.
 
 Fifth campaign, 27-28 October 2026: the developed-phase creep at B = 10,
 dr = -5 to -8 (2e8 steps), at B = 9, dr = -3 to -8 (1e8), and at B = 11,
@@ -124,13 +171,25 @@ B = 8 (5e5 steps), 9 (1e6), 10 (2e6), 11 (2-4e6), 12 (4-8e6) on rings of
 (4e6 to 1.6e7 steps); quench at B = 8, 10 (4e6); creep and island
 lifetimes at B = 8 (1e7); island lifetimes at B = 10 (4e6).
 
-The quick form of `verify_pre.py` (190 checks after the fifth campaign
-of 27-28 October, the runner gate counted as one; 70 to 100 minutes on
-two cores) has passed with zero failures on two machines: Linux
-(Python 3.13, numpy 2.5.3, numba 0.68.0, 28 October 2026,
-`results/verify_pre_results_quick_linux.txt`) and Windows 10 (the
-machine of 26 October, Python 3.13.15, numpy 2.5.3, numba 0.68.0 as
-recorded then; 29 October 2026,
+The quick form of `verify_pre.py` after the correction of 13 November
+2026 (190 checks, the runner gate counted as one; 70 to 100 minutes on
+two cores) has passed with zero failures on Linux (Python 3.13.16,
+numpy 2.5.3, numba 0.68.0, 13 November 2026,
+`results/verify_pre_results_quick_linux.txt`). Against the form of
+28 October, twenty of the 190 checks changed in content: the runner
+gate (its third dead-ring check; the line of the suite reads the same)
+and the nineteen checks of the word fronts in S9, which now compare
+displacements, converted cells, initial positions and changed-cell
+fronts with the regenerated records; the other 170 print the same
+values as on 28 October, timings apart. The corrected suite has not
+yet been run on Windows.
+
+The form of 28 October (190 checks after the fifth campaign of 27-28
+October) passed with zero failures on two machines: Linux (Python
+3.13, numpy 2.5.3, numba 0.68.0, 28 October 2026,
+`results/verify_pre_results_quick_linux_28Oct.txt`) and Windows 10
+(the machine of 26 October, Python 3.13.15, numpy 2.5.3, numba 0.68.0
+as recorded then; 29 October 2026,
 `results/verify_pre_results_quick_windows.txt`). The 364 lines of the
 two files are identical apart from the timings in parentheses and one
 line, the S4b slopes at B = 8, r = 96: those slopes are exact

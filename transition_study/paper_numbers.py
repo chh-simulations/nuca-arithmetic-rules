@@ -158,7 +158,7 @@ def creep_chains(rows):
                       ("e1=0.3298 (r = 191, 382, 764)", [(9, 191), (10, 382), (11, 764)]),
                       ("e1=0.3316 (r = 383, 766)", [(10, 383), (11, 766)]),
                       ("e1=1/3 (dr=0)", [(B, 3 * (1 << (B - 3))) for B in (8, 9, 10, 11, 12)]),
-                      ("e1=1/3+2^-B (dr=+1)", [(B, 3 * (1 << (B - 3)) + 1) for B in (8, 9, 10, 11, 12)])):
+                      ("e1~1/3+2^(4-B)/9 (dr=+1)", [(B, 3 * (1 << (B - 3)) + 1) for B in (8, 9, 10, 11, 12)])):
         vals = []
         for B, r in pts:
             if (B, r) in D:
@@ -168,7 +168,11 @@ def creep_chains(rows):
         chains[name] = [dict(B=B, r=r, v=m, err=s, kind=k, fronts=n, scaled=m * (1 << (B - 3))) for B, r, m, s, k, n in vals]
         print(f"  {name}: " + "  ->  ".join(f"B{B} r{r}: {m*(1<<(B-3)):.2e} +- {s*(1<<(B-3)):.1e} ({k})" for B, r, m, s, k, n in vals))
         if len(vals) > 1:
-            print("      ratios: " + ", ".join(f"{vals[i+1][2]*(1<<(vals[i+1][0]-3))/(vals[i][2]*(1<<(vals[i][0]-3))):.3f}" for i in range(len(vals) - 1)))
+            def _ratio(i):
+                a, b = vals[i], vals[i + 1]
+                f = b[2] * (1 << (b[0] - 3)) / (a[2] * (1 << (a[0] - 3)))
+                return f, abs(f) * float(np.sqrt((a[3] / a[2]) ** 2 + (b[3] / b[2]) ** 2))
+            print("      ratios: " + ", ".join("%.4f +- %.4f" % _ratio(i) for i in range(len(vals) - 1)))
     OUT['chains'] = chains
 
 
@@ -245,14 +249,16 @@ def quench():
             cps = [(c['t'], c['domains'], 100 * c['cover']) for c in rec['checkpoints']]
             N = rec['N']
             key = f"{B},{r},{seed}"
-            # holes = domains (ring: number of gaps equals number of domains); nucleation rate from the rise of the count
+            # the stored count is that of the active domains on the unwrapped ring (nf.islands: separated by three or more quiet cells);
+            # with the ring's origin inside a domain, as almost always here, the quiet runs of three or more cells are one fewer.
+            # The nucleation rate is taken from the rise of the count.
             t0, d0 = cps[0][0], cps[0][1]; t1, d1 = cps[-1][0], cps[-1][1]
             nuc = (d1 - d0) / ((t1 - t0) * N) if t1 > t0 else float('nan')
             out[key] = dict(N=N, T=rec['T'], cps=cps, nucleation_per_cell_step=nuc, v_retreat=rec.get('v_retreat'))
-            print(f"  B={B} r={r} (dr{r-3*(1<<(B-3)):+d}) seed {seed} N={N}: " + ", ".join(f"{c[2]:.1f}% ({c[1]} dom.) at {c[0]:.0e}" for c in cps) + f"; holes {d0} -> {d1}: {nuc:.1e} per cell-step; v_retreat {rec.get('v_retreat'):.1e}")
+            print(f"  B={B} r={r} (dr{r-3*(1<<(B-3)):+d}) seed {seed} N={N}: " + ", ".join(f"{c[2]:.1f}% ({c[1]} dom.) at {c[0]:.0e}" for c in cps) + f"; holes (domains - 1) {d0 - 1} -> {d1 - 1}: {nuc:.1e} per cell-step; v_retreat {rec.get('v_retreat'):.1e}")
     OUT['quench'] = out
     if glob.glob('quench_long_B*.jsonl'):
-        print("\nQUENCH LONG (quench_long_B*.jsonl): minimum coverage and when, coverage and holes at the end, holes after the relaxation (t >= 2e7)")
+        print("\nQUENCH LONG (quench_long_B*.jsonl): minimum coverage and when, coverage and holes at the end, holes after the relaxation (t >= 2e7); holes = stored domain count - 1")
         ql = {}
         for fn in sorted(glob.glob('quench_long_B*.jsonl')):
             for rec in (json.loads(l) for l in open(fn)):
@@ -260,8 +266,8 @@ def quench():
                 j = int(cov.argmin()); late = tt >= 2e7
                 back = tt[(tt > tt[j]) & (cov >= 99.95)]
                 i7 = int(np.searchsorted(tt, 1e7))
-                d = dict(N=rec['N'], T=rec['T'], min_cover=float(cov[j]), t_min=float(tt[j]), cover_1e7=float(cov[i7]), holes_1e7=int(dom[i7]), final_cover=float(cov[-1]), final_holes=int(dom[-1]),
-                         holes_late=[int(dom[late].min()), int(dom[late].max())], cover_late=[float(cov[late].min()), float(cov[late].max())],
+                d = dict(N=rec['N'], T=rec['T'], min_cover=float(cov[j]), t_min=float(tt[j]), cover_1e7=float(cov[i7]), holes_1e7=int(dom[i7]) - 1, final_cover=float(cov[-1]), final_holes=int(dom[-1]) - 1,
+                         holes_late=[int(dom[late].min()) - 1, int(dom[late].max()) - 1], cover_late=[float(cov[late].min()), float(cov[late].max())],
                          t_back_to_100=float(back[0]) if back.size else None)
                 ql[f"{rec['B']},{rec['r']},{rec['seed']}"] = d
                 print(f"  B={rec['B']} r={rec['r']} (dr{rec['r']-3*(1<<(rec['B']-3)):+d}, e1={e1_of(rec['B'], rec['r']):.3f}) N={rec['N']} T={rec['T']:.0e}: min {d['min_cover']:.2f}% at {d['t_min']:.0e}; at 1e7 {d['cover_1e7']:.2f}% ({d['holes_1e7']} holes); "
@@ -352,23 +358,112 @@ def natural():
 
 
 def word_fronts(rows):
-    """word_front.jsonl: the word-defined front at T against the changed-cell front at T and the slope-based displacement."""
+    """word_front.jsonl (word_front.py, corrected form of 13 November 2026): the word-defined front at T, one convention for both
+    sides (position = cells beyond the block boundary), against the changed-cell front at T and the slope-based displacement."""
     if not os.path.exists('word_front.jsonl'): return
-    print("\nWORD FRONT at T (word_front.jsonl): mean over eight fronts of the displacement of the outermost cell with a word outside [0, r); the changed-cell front at T; the halo; slope x T from Table II")
+    print("\nWORD FRONT at T (word_front.jsonl): per front, the cells of the prepared sea that hold a word outside [0, r) (converted cells) and the displacement p(T) - p(0) of the outermost such word;"
+          " the changed-cell front at T, same convention; the halo (changed-cell front minus word front); slope x T from Table II")
     out = {}
     for rec in (json.loads(l) for l in open('word_front.jsonl')):
         B, r = rec['B'], rec['r']; dr = r - 3 * (1 << (B - 3))
         wf = np.array([run['word_front'] for run in rec['runs']], dtype=float).ravel()
+        cv = np.array([run['converted_sea_cells'] for run in rec['runs']], dtype=float).ravel()
+        ps = np.array([run['position'] for run in rec['runs']], dtype=float).ravel()
         cf = np.array([run['changed_front'] for run in rec['runs']], dtype=float).ravel()
-        T = rec['runs'][0]['t']; row = rows.get((B, dr))
-        d = dict(T=T, fronts=int(wf.size), word_mean=float(wf.mean()), word_sem=float(wf.std(ddof=1) / np.sqrt(wf.size)), changed_mean=float(cf.mean()), changed_sem=float(cf.std(ddof=1) / np.sqrt(cf.size)),
-                 halo_mean=float((cf - wf).mean()), halo_min=float((cf - wf).min()), halo_max=float((cf - wf).max()),
-                 slope_x_T=float(row['v'] * T) if row else None, slope_x_T_err=float(row['err'] * T) if row else None, v_word=float(wf.mean() / T), v_word_sem=float(wf.std(ddof=1) / np.sqrt(wf.size) / T))
+        T = rec['runs'][0]['t']; row = rows.get((B, dr)); sem = lambda x: float(x.std(ddof=1) / np.sqrt(x.size))
+        d = dict(T=T, fronts=int(wf.size), converted_mean=float(cv.mean()), converted_sem=sem(cv), converted_total=int(cv.sum()), fronts_with_converted=int((cv > 0).sum()),
+                 word_mean=float(wf.mean()), word_sem=sem(wf), behind_start=[int(x) for x in wf if x < 0],
+                 changed_mean=float(cf.mean()), changed_sem=sem(cf), halo_mean=float((cf - ps).mean()), halo_min=float((cf - ps).min()), halo_max=float((cf - ps).max()),
+                 slope_x_T=float(row['v'] * T) if row else None, slope_x_T_err=float(row['err'] * T) if row else None,
+                 v_converted=float(cv.mean() / T), v_converted_sem=sem(cv) / T)
+        if row:
+            d['slope_minus_converted_in_se'] = float((d['slope_x_T'] - d['converted_mean']) / np.hypot(d['slope_x_T_err'], d['converted_sem']))
+        d['word_fronts'] = [run['word_front'] for run in rec['runs']]; d['converted'] = [run['converted_sea_cells'] for run in rec['runs']]
+        d['initial_positions'] = [run['initial_position'] for run in rec['runs']]; d['changed_fronts'] = [run['changed_front'] for run in rec['runs']]
         out[f"{B},{r}"] = d
-        d['word_fronts'] = [run['word_front'] for run in rec['runs']]; d['changed_fronts'] = [run['changed_front'] for run in rec['runs']]
-        print(f"  B={B} r={r} (dr{dr:+d}, e1={e1_of(B, r):.4f}) T={T:.0e}: word front {d['word_mean']:.1f} +- {d['word_sem']:.1f} cells (v_word {d['v_word']:.2e} +- {d['v_word_sem']:.1e}); changed-cell front {d['changed_mean']:.1f} +- {d['changed_sem']:.1f}; halo {d['halo_mean']:.1f} [{d['halo_min']:.0f}, {d['halo_max']:.0f}]"
-              + (f"; slope x T {d['slope_x_T']:.1f} +- {d['slope_x_T_err']:.1f}" if row else f"; per front: words {d['word_fronts']}, changed cells {d['changed_fronts']} (no Table II row: control run)"))
+        print(f"  B={B} r={r} (dr{dr:+d}, e1={e1_of(B, r):.4f}) T={T:.0e}: converted sea cells per front {d['converted_mean']:.2f} +- {d['converted_sem']:.2f} (total {d['converted_total']} on {d['fronts_with_converted']} of {d['fronts']} fronts; "
+              f"v {d['v_converted']:.2e} +- {d['v_converted_sem']:.1e}); displacement {d['word_mean']:.2f} +- {d['word_sem']:.2f}, fronts behind their start {d['behind_start']}; "
+              f"changed-cell front {d['changed_mean']:.1f} +- {d['changed_sem']:.1f}; halo {d['halo_mean']:.2f} [{d['halo_min']:.0f}, {d['halo_max']:.0f}]"
+              + (f"; slope x T {d['slope_x_T']:.1f} +- {d['slope_x_T_err']:.1f}, minus converted: {d['slope_x_T'] - d['converted_mean']:+.1f} = {d['slope_minus_converted_in_se']:+.2f} combined s.e." if row
+                 else f"; per front: displacements {d['word_fronts']}, converted {d['converted']}, initial positions {d['initial_positions']}, changed cells {d['changed_fronts']} (no Table II row: control run)"))
+        if r in (760, 320) or d['behind_start']:
+            print(f"        per front: displacements {d['word_fronts']}, converted {d['converted']}, initial positions {d['initial_positions']}")
     OUT['word_front'] = out
+    # the chains of fixed excitability with the counts of converted cells in place of the slopes
+    D = load_developed(); sc = lambda B, v: v * (1 << (B - 3))
+    print("  factors along the lines of fixed excitability, from the slopes and from the converted cells (scaled v 2^(B-3); the first point of each line from its slope):")
+    cf_out = {}
+    for name, pts in (("e1=0.3263", [(8, 95), (9, 190), (10, 380), (11, 760)]), ("e1=0.3298", [(9, 191), (10, 382), (11, 764)]), ("e1=0.3316", [(10, 383), (11, 766)])):
+        sl = []; cvv = []
+        for B, r in pts:
+            v = D[(B, r)]['v']; m, e = float(v.mean()), float(v.std(ddof=1) / np.sqrt(len(v))); sl.append((sc(B, m), sc(B, e)))
+            w = out.get(f"{B},{r}")
+            cvv.append((sc(B, w['v_converted']), sc(B, w['v_converted_sem'])) if w else (sc(B, m), sc(B, e)))
+        fac = lambda a, b: (b[0] / a[0], abs(b[0] / a[0]) * float(np.hypot(a[1] / a[0], b[1] / b[0])) if b[0] else float('nan'))
+        fs = [fac(sl[i], sl[i + 1]) for i in range(len(pts) - 1)]; fc = [fac(cvv[i], cvv[i + 1]) for i in range(len(pts) - 1)]
+        cf_out[name] = dict(slope_factors=fs, converted_factors=fc)
+        print(f"    {name}: slopes " + ", ".join(f"{f:.4f} +- {e:.4f}" for f, e in fs) + "; converted cells " + ", ".join(f"{f:.4f} +- {e:.4f}" for f, e in fc))
+    OUT['chain_factors'] = cf_out
+
+
+def early_loss(cases=((10, 382), (10, 381), (10, 380), (11, 766), (11, 764), (9, 190))):
+    """The long developed-phase runs whose words are checked in Sec. IV A: fronts whose changed-cell front stood inside the
+    prepared block at the first record (t = 1e6), in the convention of word_front.py, and their slopes against the others."""
+    print("\nEARLY LOSS OF EDGE CELLS (front_dev_long_B*.jsonl, word_front.jsonl): fronts with the changed-cell front inside the block at the first record; slope x T of those and of the others")
+    wf = {(x['B'], x['r']): x for x in (json.loads(l) for l in open('word_front.jsonl'))} if os.path.exists('word_front.jsonl') else {}
+    tot = lossy_tot = behind_tot = 0; depths = []; out = {}; higher = 0
+    for B, r in cases:
+        best = None
+        for l in open(f'front_dev_long_B{B}.jsonl'):
+            x = json.loads(l)
+            if x['r'] == r and (best is None or x['T'] > best['T']): best = x
+        T = best['T']; lossy = []; clean = []
+        for run in best['runs']:
+            H = np.array([(e[0], e[1], e[2]) for e in run['hist'] if e[1] is not None], dtype=float); m = H[:, 0] >= T / 10
+            for side, col, off in (('L', 1, 0), ('R', 2, 1)):
+                pos = H[:, col] + off; slope = float(np.polyfit(H[m, 0], pos[m], 1)[0])
+                (lossy if pos[0] <= -1 else clean).append((run['seed'], side, int(pos[0]), slope * T))
+        behind = [int(v) for run in wf[(B, r)]['runs'] for v in run['word_front'] if v < 0] if (B, r) in wf else []
+        ml = float(np.mean([v[3] for v in lossy])) if lossy else float('nan'); mc = float(np.mean([v[3] for v in clean]))
+        tot += len(lossy) + len(clean); lossy_tot += len(lossy); behind_tot += len(behind); depths += [-v[2] for v in lossy]; higher += int(ml > mc)
+        out[f"{B},{r}"] = dict(inside_at_first_record=[(v[0], v[1], v[2]) for v in lossy], slope_x_T_those=ml, slope_x_T_others=mc, behind_start_at_T=behind)
+        print(f"  B={B} r={r}: inside at t = {best['runs'][0]['hist'][0][0]:.0e}: {[(v[0], v[1], v[2]) for v in lossy]}; slope x T of those {ml:.1f}, of the other {len(clean)} fronts {mc:.1f}; behind their start at T: {behind}")
+    print(f"  total: {lossy_tot} of {tot} fronts inside the block at the first record, by {min(depths)} to {max(depths)} cells; {behind_tot} behind their start at T ({min(abs(b) for v in out.values() for b in v['behind_start_at_T'])} to {max(abs(b) for v in out.values() for b in v['behind_start_at_T'])} cells); "
+          f"slopes of those higher than the others in {higher} of {len(cases)} cases")
+    OUT['early_loss'] = out
+    # the floor control: the changed-cell front over the whole run
+    best = None
+    for l in open('front_dev_long_B10.jsonl'):
+        x = json.loads(l)
+        if x['r'] == 320: best = x
+    if best:
+        allp = np.array([v for run in best['runs'] for e in run['hist'] if e[1] is not None for v in (e[1], e[2] + 1)])
+        print(f"  floor control B=10 r=320: changed-cell front over all {allp.size} records and sides: {allp.min()} to {allp.max()} cells into the sea, median {np.median(allp):.0f}")
+        OUT['floor_control_halo'] = dict(min=int(allp.min()), max=int(allp.max()), median=float(np.median(allp)))
+
+
+def derived(rows):
+    """Numbers quoted in the text that are derived from the tables."""
+    print("\nDERIVED (from Table II):")
+    sc = lambda B, dr: rows[(B, dr)]['v'] * (1 << (B - 3))
+    for B in (8, 9, 10, 11, 12):
+        print(f"  B={B}: scaled v(+1)/v(0) = {sc(B, 1)/sc(B, 0):.2f}, v(+2)/v(+1) = {sc(B, 2)/sc(B, 1):.2f}, v(+4)/v(+2) = {sc(B, 4)/sc(B, 2):.2f}")
+    v0 = [sc(B, 0) for B in (8, 9, 10, 11, 12)]
+    print(f"  dr = 0: scaled values {', '.join('%.5f' % v for v in v0)}; mean fall per bit {100 * (1 - (v0[-1] / v0[0]) ** 0.25):.1f}%, largest over one bit {100 * max(1 - v0[i + 1] / v0[i] for i in range(4)):.0f}%")
+    V = load_random_block()
+    for u, name in ((7, 'e1=3/7'), (8, 'e1=1/2')):
+        g = [V[(B, u * (1 << (B - 4)))].mean() / vtau(B, u * (1 << (B - 4))) for B in (8, 9, 10, 11, 12, 13) if (B, u * (1 << (B - 4))) in V]
+        Bs = [B for B in (8, 9, 10, 11, 12, 13) if (B, u * (1 << (B - 4))) in V]
+        print(f"  {name}: v/v_tau {', '.join('B%d %.3f' % (b, x) for b, x in zip(Bs, g))}; fall per bit from B = 9: {', '.join('%.1f%%' % (100 * (1 - g[i + 1] / g[i])) for i in range(1, len(g) - 1))}; B = 9 to {Bs[-1]}: {100 * (1 - g[-1] / g[1]):.0f}%")
+    # G at the excitabilities of dr = +1: the mean over the word lengths of the random-block v/v_tau at the same u = r / 2^(B-4)
+    g1 = []
+    for B in (8, 9, 10, 11, 12):
+        r1 = 3 * (1 << (B - 3)) + 1
+        vals = [V[(b, r1 << (b - B))].mean() / vtau(b, r1 << (b - B)) for b in range(B + 1, 14) if (b, r1 << (b - B)) in V]   # dr >= 2 at the longer words (the rows of Table IV)
+        g1.append((B, e1_of(B, r1) - 1 / 3, float(np.mean(vals)) if vals else None, len(vals)))
+    have = [x for x in g1 if x[2] is not None]
+    print("  G at the excitabilities of dr = +1 (mean v/v_tau of the random-block fronts at the same u): " + ", ".join(f"B{B}: e1-1/3 = {d:.5f}: " + (f"{g:.3f} ({n} word lengths)" if g is not None else "not measured") for B, d, g, n in g1)
+          + f"; first over last measured {have[0][2] / have[-1][2]:.2f}")
 
 
 def seeds():
@@ -428,13 +523,13 @@ def seeds():
 
 
 # ---------------------------------------------------------------- paired blocks: the same prepared blocks at two residues
-def paired_blocks(pairs=(((10, 379), (10, 378)),)):
+def paired_blocks(pairs=(((10, 379), (10, 378)), ((9, 187), (9, 186)))):
     """front_dev_long records: per-seed sums of the two front slopes (t >= T/10) at two residues run from the same prepared blocks."""
     import glob as _g
     print("\nPAIRED BLOCKS (same prepared blocks, same seeds, two residues): per-seed sum of the two front slopes, t >= T/10")
     out = {}
     for (B1, r1), (B2, r2) in pairs:
-        vals = {}
+        vals = {}; fronts = {}
         for (B, r) in ((B1, r1), (B2, r2)):
             for fn in sorted(_g.glob(f'front_dev_long_B{B}.jsonl')):
                 for l in open(fn):
@@ -445,14 +540,21 @@ def paired_blocks(pairs=(((10, 379), (10, 378)),)):
                         h = run['hist']; sl = 0.0
                         for col in (1, 2):
                             pts = np.array([(e[0], e[col]) for e in h if e[col] is not None and e[0] >= T / 10], dtype=float)
-                            sl += float(np.polyfit(pts[:, 0], pts[:, 1], 1)[0])
+                            one = float(np.polyfit(pts[:, 0], pts[:, 1], 1)[0]); sl += one
+                            fronts.setdefault((B, r), {})[(run['seed'], col)] = one
                         vals.setdefault((B, r), {})[run['seed']] = sl
         a, b = vals.get((B1, r1), {}), vals.get((B2, r2), {})
         seeds = sorted(set(a) & set(b))
         ratios = [b[sd] / a[sd] for sd in seeds]
         out[f"{B1},{r1} vs {B2},{r2}"] = dict(seeds=seeds, sums_a=[a[sd] for sd in seeds], sums_b=[b[sd] for sd in seeds], ratios=ratios)
+        fa, fb = fronts.get((B1, r1), {}), fronts.get((B2, r2), {}); keys = sorted(set(fa) & set(fb))
+        fr = [fb[k_] / fa[k_] for k_ in keys]
+        va = np.array([fa[k_] for k_ in keys]); vb = np.array([fb[k_] for k_ in keys])
+        diff = float((vb.mean() - va.mean()) / np.hypot(va.std(ddof=1) / np.sqrt(va.size), vb.std(ddof=1) / np.sqrt(vb.size)))
+        out[f"{B1},{r1} vs {B2},{r2}"].update(front_ratios=fr, means_differ_by_se=diff)
         print(f"  B={B1} r={r1} (dr{r1-3*(1<<(B1-3)):+d}) vs r={r2} (dr{r2-3*(1<<(B2-3)):+d}): seeds {seeds}: sums " +
-              ", ".join(f"{a[sd]:.2e} -> {b[sd]:.2e} (x{b[sd]/a[sd]:.1f})" for sd in seeds) + f"; ratios {min(ratios):.1f} to {max(ratios):.1f}")
+              ", ".join(f"{a[sd]:.2e} -> {b[sd]:.2e} (x{b[sd]/a[sd]:.1f})" for sd in seeds) + f"; ratios {min(ratios):.1f} to {max(ratios):.1f}; "
+              f"per front (same block, same side) {', '.join('%.2f' % x for x in fr)}; unpaired means differ by {diff:.1f} standard errors")
     OUT['paired_blocks'] = out
 
 
@@ -466,11 +568,14 @@ def alternation():
         out.append(rec)
         print(f"  B={rec['B']} r={rec['r']} N={rec['N']} T={rec['T']}: on {rec['on']:.3f}, change rate {rec['change_rate']:.3f}; " +
               ", ".join(f"m={x['m']}: {x['prob']:.3g} ({x['random']:.3g})" for x in rec['alternation']))
+        pr = {x['m']: x['prob'] for x in rec['alternation']}
+        print(f"        an alternation of 2n - 1 steps is m = 2n - 2 consecutive changes: n = 2, 3, 4, 5 -> m = 2, 4, 6, 8: {pr[2]:.3g}, {pr[4]:.3g}, {pr[6]:.3g}, {pr[8]:.3g}; "
+              f"factors per two residues {pr[4]/pr[2]:.3f}, {pr[6]/pr[4]:.4f}, {pr[8]/pr[6]:.3f}")
     OUT['alternation'] = out
 
 
 if __name__ == '__main__':
-    rows = table_velocity(); fixed_e1(); creep_chains(rows); paired_blocks(); word_fronts(rows); floor_table(); floor_models(); edge_model(); islands(); bulk(); domain_density(); quench(); phase(); natural(); seeds(); alternation()
+    rows = table_velocity(); derived(rows); fixed_e1(); creep_chains(rows); paired_blocks(); word_fronts(rows); early_loss(); floor_table(); floor_models(); edge_model(); islands(); bulk(); domain_density(); quench(); phase(); natural(); seeds(); alternation()
     if 'json' in sys.argv:
         json.dump(OUT, open('paper_numbers.json', 'w'), indent=1, default=float)
         print("\nwritten paper_numbers.json")

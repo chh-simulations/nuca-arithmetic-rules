@@ -352,8 +352,9 @@ def _sec_S9():
             rec = WF.measure(Bx, rx, kx)
             if not rec['runs']:
                 nfail += 1; emit(f"FAIL B={Bx} r={rx} k={kx}: no final states for the word front (ckpt/ or final_states/)"); continue
-            check(f"B={Bx} r={rx} k={kx}: word front and changed-cell front of every final state (t={rec['runs'][0]['t']:.0e})",
-                  [v_ for run in rec['runs'] for v_ in run['word_front'] + run['changed_front']], [v_ for wf, cf in zip(e['word_fronts'], e['changed_fronts']) for v_ in wf + cf])
+            check(f"B={Bx} r={rx} k={kx}: word-front displacement, converted sea cells, initial position and changed-cell front of every final state (t={rec['runs'][0]['t']:.0e})",
+                  [v_ for run in rec['runs'] for v_ in run['word_front'] + run['converted_sea_cells'] + run['initial_position'] + run['changed_front']],
+                  [v_ for wf, cv, ip, cf in zip(e['word_fronts'], e['converted'], e['initial_positions'], e['changed_fronts']) for v_ in wf + cv + ip + cf])
     if 'holes' in EXPECTED:
         import hole_words as HW
         for (Bx, rx, kx, seed), e in sorted(EXPECTED['holes'].items()):

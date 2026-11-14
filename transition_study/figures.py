@@ -56,7 +56,7 @@ def fig_velocity(fronts):
     # (b) chains
     styles = {"e1=0.3263 (r = 95, 190, 380, 760)": ('o-', '#4477aa', r"$e_1 = 0.3263$"), "e1=0.3298 (r = 191, 382, 764)": ('s-', '#cc6677', r"$e_1 = 0.3298$"),
               "e1=0.3316 (r = 383, 766)": ('^-', '#228833', r"$e_1 = 0.3316$"), "e1=1/3 (dr=0)": ('v--', '0.4', r"$e_1 = 1/3$"),
-              "e1=1/3+2^-B (dr=+1)": ('D--', '0.1', r"$dr = +1$")}
+              "e1~1/3+2^(4-B)/9 (dr=+1)": ('D--', '0.1', r"$dr = +1$")}
     for name, (fmt, col, lab) in styles.items():
         pts = chains[name]
         Bs = [p['B'] for p in pts]; sc = [p['scaled'] for p in pts]; er = [p['err'] * (1 << (p['B'] - 3)) for p in pts]

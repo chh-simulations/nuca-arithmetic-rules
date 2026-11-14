@@ -1,0 +1,11 @@
+r=376 seed 1: nearest changing cell of the random half:  32 and  45 cells from the two boundaries; sea cells that changed in the last 2000 steps: []; sea cells with a word outside [0, r): 0
+r=376 seed 2: nearest changing cell of the random half: 118 and  41 cells from the two boundaries; sea cells that changed in the last 2000 steps: []; sea cells with a word outside [0, r): 0
+r=380 seed 1: nearest changing cell of the random half:  52 and  42 cells from the two boundaries; sea cells that changed in the last 2000 steps: []; sea cells with a word outside [0, r): 0
+r=380 seed 2: nearest changing cell of the random half: 113 and  45 cells from the two boundaries; sea cells that changed in the last 2000 steps: []; sea cells with a word outside [0, r): 0
+r=382 seed 1: nearest changing cell of the random half:  50 and 114 cells from the two boundaries; sea cells that changed in the last 2000 steps: []; sea cells with a word outside [0, r): 0
+r=382 seed 2: nearest changing cell of the random half: 193 and   1 cells from the two boundaries; sea cells that changed in the last 2000 steps: []; sea cells with a word outside [0, r): 0
+r=383 seed 1: nearest changing cell of the random half:  46 and  38 cells from the two boundaries; sea cells that changed in the last 2000 steps: []; sea cells with a word outside [0, r): 0
+r=383 seed 2: nearest changing cell of the random half: 104 and   0 cells from the two boundaries; sea cells that changed in the last 2000 steps: [np.int64(0), np.int64(1)]; sea cells with a word outside [0, r): 0
+r=384 seed 1: nearest changing cell of the random half:   7 and  29 cells from the two boundaries; sea cells that changed in the last 2000 steps: []; sea cells with a word outside [0, r): 0
+r=384 seed 2: nearest changing cell of the random half:  98 and  39 cells from the two boundaries; sea cells that changed in the last 2000 steps: []; sea cells with a word outside [0, r): 0
+all twenty boundaries, sorted: [0, 1, 7, 29, 32, 38, 39, 41, 42, 45, 45, 46, 50, 52, 98, 104, 113, 114, 118, 193]

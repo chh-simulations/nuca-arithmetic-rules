@@ -101,7 +101,8 @@ if os.path.exists("edge_model.jsonl"):
     exp['edge'] = [dict(kind=x['kind'], B=x['B'], r=x['r'], L=x['L'], T=x['T'], p=x['p'], seeds=x['seeds'], successes=x['successes']) for x in (json.loads(l) for l in open("edge_model.jsonl"))]
 
 if os.path.exists("word_front.jsonl"):
-    exp['word_front'] = {(x['B'], x['r'], x['k']): dict(word_fronts=[run['word_front'] for run in x['runs']], changed_fronts=[run['changed_front'] for run in x['runs']], t=[run['t'] for run in x['runs']])
+    exp['word_front'] = {(x['B'], x['r'], x['k']): dict(word_fronts=[run['word_front'] for run in x['runs']], changed_fronts=[run['changed_front'] for run in x['runs']], t=[run['t'] for run in x['runs']],
+                                                        converted=[run['converted_sea_cells'] for run in x['runs']], initial_positions=[run['initial_position'] for run in x['runs']])
                          for x in (json.loads(l) for l in open("word_front.jsonl"))}
 
 sp = {}

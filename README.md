@@ -87,16 +87,19 @@ of his choice if he wishes, or linked where he places them.
   the exact reachability of the pinning floor, the measurement drivers
   (fronts of both preparations, bulk runs, quench of the developed
   phase, creep, island cores, lifetimes and seeds, a reduced edge
-  model), the stored results of the four campaigns of 16-20 October
-  2026 at word lengths 8 to 12, `paper_numbers.py`, which prints every
+  model), the stored results of the five campaigns of 16-28 October
+  2026 at word lengths 8 to 13, `paper_numbers.py`, which prints every
   number quoted in that paper from the stored results, and
-  `verify_pre.py`, which regenerates the numbers and compares them
-  with the recorded values. Requires numba. See its README.
+  `verify_pre.py`, which regenerates the numbers, or re-analyses the
+  stored records of the runs too long to repeat, and compares them
+  with the recorded values. Requires numba. See its README, which also
+  records the correction of 13 November 2026 to the word-front
+  analysis.
 - `classification_study/` - the verification script of the
   classification paper ("From automata to operator algebras: possible,
-  impossible, and open"): `verify_p2.py` (143 checks, numpy only,
-  seconds), the Wetterich reconstruction `wetterich_mx3.py`, and the
-  recorded outputs. See its README.
+  impossible, and open"): `verify_p2.py` (158 checks, numpy only,
+  about ten seconds), the Wetterich reconstruction `wetterich_mx3.py`,
+  and the recorded outputs. See its README.
 
 ## Verification discipline
 
@@ -117,7 +120,11 @@ re-measured, the transition study added) at doi:10.5281/zenodo.23434888,
 and release v1.2.0 (the transition study complete: five campaigns,
 the exact pinning floor, the sectioned verification suite with its
 190-check runs on two machines, the dated predictions record) at
-doi:10.5281/zenodo.24015703; the concept DOI
+doi:10.5281/zenodo.24015703. Release v1.3.0 (November 2026) is the
+version cited by the transition paper and the classification paper: it
+carries the corrected word-front analysis of the transition study with
+its three added scripts, the 190-check run on the corrected suite, and
+the classification study (158 checks). The concept DOI
 10.5281/zenodo.23322968 always resolves to the latest version. The paper's preprint is
 deposited at doi:10.5281/zenodo.23323144 (all versions); version 2 of
 17 October 2026, doi:10.5281/zenodo.23434750, carries the re-measured

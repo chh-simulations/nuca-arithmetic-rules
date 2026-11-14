@@ -1,0 +1,11 @@
+B= 8 r=  66 (e_1 = 0.0303): dead at step [64, 66, 36, 55, 46, 55, 54, 32]; all words below r afterwards: True
+B= 8 r=  67 (e_1 = 0.0448): dead at step [40, 71, 60, 64, 62, 46, 61, 57]; all words below r afterwards: True
+B= 8 r=  72 (e_1 = 0.1111): dead at step [74, 70, 67, 66, 67, 57, 50, 55]; all words below r afterwards: True
+B= 8 r=  79 (e_1 = 0.1899): dead at step [50, 105, 59, 77, 54, 76, 86, 55]; all words below r afterwards: True
+B= 8 r=  80 (e_1 = 0.2000): dead at step [47, 70, 72, 69, 77, 66, 63, 56]; all words below r afterwards: True
+B=10 r= 258 (e_1 = 0.0078): dead at step [112, 133, 199, 121, 117, 179, 108, 168]; all words below r afterwards: True
+B=10 r= 259 (e_1 = 0.0116): dead at step [304, 162, 185, 159, 219, 158, 123, 174]; all words below r afterwards: True
+B=10 r= 288 (e_1 = 0.1111): dead at step [216, 210, 207, 178, 214, 219, 197, 290]; all words below r afterwards: True
+B=10 r= 319 (e_1 = 0.1975): dead at step [256, 224, 243, 186, 240, 210, 226, 155]; all words below r afterwards: True
+B=10 r= 320 (e_1 = 0.2000): dead at step [201, 168, 168, 218, 231, 251, 263, 195]; all words below r afterwards: True
+latest death: 105 steps at B = 8, 304 steps at B = 10

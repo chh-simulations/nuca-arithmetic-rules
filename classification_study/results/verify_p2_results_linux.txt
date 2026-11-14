@@ -20,7 +20,7 @@ PASS 1b N=8 max deviation of on-circle eigenvalues from the cycle roots of unity
 PASS 1b N=8 multiplicities of the on-circle eigenvalues = multiplicities of the cycle roots: [6, 2, 3, 2, 3, 2, 3, 2, 5, 2, 3, 2, 3, 2, 3, 2] vs [6, 2, 3, 2, 3, 2, 3, 2, 5, 2, 3, 2, 3, 2, 3, 2]
 PASS 1b N=8 number of remaining eigenvalues: 211 vs 211
     remaining eigenvalues: max modulus 0.000e+00, 211 of them below 1e-12, 211 below 1e-6
-PASS 1b N=8 max modulus of the 211 remaining eigenvalues (paper: 'vanish to machine zero', taken as <= 1e-12): 0 vs <= 1e-12
+PASS 1b N=8 max modulus of the 211 remaining eigenvalues as the solver returns them (<= 1e-12; the fact is T^7 = 0): 0 vs <= 1e-12
 PASS 1b diagnostic: eigenvalues of the permutation block P alone vs cycle roots (max deviation, machine level): 1.3379e-15 vs <= 1e-14
     diagnostic: 102 Garden-of-Eden states (zero rows of S); after a random orthogonal similarity the
                 211 transient eigenvalues spread to max modulus 5.83e-03, compare eps^(1/7) = 5.80e-03
@@ -88,7 +88,7 @@ PASS 4d filter block = sqrt(2) * Hadamard block (1/sqrt2)[[1,1],[1,-1]], the lat
 PASS 4 extra: operator-level Cuntz relations S_e^* S_e = 1, S_0^* S_1 = 0, sum S_e S_e^* = 1 on V_128 -> V_256: True vs True
 
 ==============================================================================
-5. Theorem 3 (Sec. 3.4): bit reversal intertwines S_eps and P_eps, K = 2..12
+5. Proposition 3 (Sec. 3.4): bit reversal intertwines S_eps and P_eps, K = 2..12
 ==============================================================================
 PASS 5 R_K is an involution on K-bit integers, K = 2..12: True vs True
 PASS 5 R_K(2 R_{K-1}(m) + eps) = m + eps 2^{K-1} for all (K-1)-bit m, eps in {0,1}, K = 2..12: True vs True
@@ -156,6 +156,9 @@ PASS 8 one-particle sector is invariant under S: True vs True
 PASS 8 one-particle sector of S = 3 x 3 cyclic shift: True vs True
 PASS 8 clock and shift span M_3(C): dimension of span{C^a S^b}: 9 vs 9
 PASS 8 CS = wSC in the one-particle sector: True vs True
+PASS 8 the four one-particle copies: forward shift with CS = wSC (right-movers), backward with CS = w^-1 SC (left-movers): True vs True
+PASS 8 clock and shift span M_3(C) in each of the four copies: [9, 9, 9, 9] vs [9, 9, 9, 9]
+PASS 8 algebra generated on the one-particle sector by the step and the occupation numbers: dimension (four copies of M_3, not M_12): 36 vs 36
 
 ==============================================================================
 9. The Clifford line: permutations of the computational basis
@@ -194,6 +197,8 @@ PASS 10 Sec. 4.2: 2*2^n - 2 = dim_R CP^(2^n - 1) = 2(2^n - 1), n = 1..10 (identi
 PASS 11 affine elementary rule tables among the 256: 16 vs 16
     affine rules: [0, 15, 51, 60, 85, 90, 102, 105, 150, 153, 165, 170, 195, 204, 240, 255]
 PASS 11 Rule 110 is affine: False vs False
+PASS 11 the reversible embedding (x, y) -> (x, y XOR g(x)) of each of the 256 rule tables is a bijection of 4 bits, affine iff g is: True vs True
+PASS 11 Pauli test on four qubits: the embeddings that are Clifford are exactly those of the 16 affine rules: [0, 15, 51, 60, 85, 90, 102, 105, 150, 153, 165, 170, 195, 204, 240, 255] vs [0, 15, 51, 60, 85, 90, 102, 105, 150, 153, 165, 170, 195, 204, 240, 255]
 PASS 11 affine totalistic cell rules (top four bits of the word): [0000, 0101, 1010, 1111] vs [0000, 0101, 1010, 1111]
 PASS 11 translation by d = -4: affine on the low b bits iff b <= v + 2 = 4 (first non-affine b): 5 vs 5
 PASS 11 translation by d = -3: affine on the low b bits iff b <= v + 2 = 2 (first non-affine b): 3 vs 3
@@ -217,8 +222,27 @@ PASS 12 d < 0: cycles of the core rotation have length r/gcd(|d|, r): True vs Tr
 PASS 12 d > 0: the word map is the rotation of Z_{2^B} by d (bijective, cycles 2^B/gcd(d, 2^B)): True vs True
 PASS 12 affine rotations of Z_256 (multiples of 2^(B-2)): [0, 64, 128, 192] vs [0, 64, 128, 192]
 PASS 12 chi_{2^(B-1)} = +1 on [0, r) for every r <= 2^(B-1): True vs True
-PASS 12 e_1 = (r - 2^(B-2))/r = density of chi_{2^(B-2)} = -1 on [0, r), all 2^(B-2) <= r < 2^(B-1): True vs True
+PASS 12 e_1 = (r - 2^(B-2))/r = density of chi_{2^(B-2)} = -1 on [0, r), all 2^(B-2) <= r <= 2^(B-1): True vs True
+PASS 12 the residues 1 <= r < 2^B at which the identity holds are exactly 2^(B-2) .. 2^(B-1): [64, 128, 65] vs [64, 128, 65]
 PASS 12 lookup: bit_{B-1-h}(n) = (1 - chi_{2^(B-1-h)}(n))/2, all 256 words, h = 0..3: True vs True
 
-SUMMARY: 143 PASS, 0 FAIL
-    elapsed 6.2 s
+==============================================================================
+13. The two readings are two dynamics (Secs. 2, 3.4): exact counts of periodic states
+==============================================================================
+PASS 13 transfer-matrix count of the states with f^T = id equals enumeration (B = 4; N = 3, 4; T = 1..4; both readings): [True, 16] vs [True, 16]
+PASS 13 B = 4, N = 20: states of period dividing 4, reading of Sec. 2 (bit B-1-h): 42451044436803584 vs 42451044436803584
+PASS 13 B = 4, N = 20: states of period dividing 4, other reading (bit h): 2251799813687808 vs 2251799813687808
+PASS 13 the two readings have different numbers of periodic states (not conjugate): True vs True
+PASS 13 B = 4, N = 20: frozen states of [P1, Prop. 2] (ones at distance >= 3, 8 words per one, 4 per zero): 42451044436803584 vs 42451044436803584
+PASS 13 states of that kind drawn at random keep their cells and return after 4 steps (of 2000): 2000 vs 2000
+PASS 13 R M_msb R and M_lsb agree on the new cell states (the lookup is carried along): True vs True
+PASS 13 R M_msb R and M_lsb differ on the new words (cells of 800 that differ > 0): True vs True
+    cells whose new word differs between R M_msb R and M_lsb: 636 of 800
+
+==============================================================================
+14. States with the same eventual future: the classes are in bijection with the core (Sec. 4.5)
+==============================================================================
+PASS 14 on 300 random maps: number of classes = |E|, and each class contains exactly one core state: True vs True
+
+SUMMARY: 158 PASS, 0 FAIL
+    elapsed 9.8 s
