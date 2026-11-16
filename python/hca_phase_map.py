@@ -12,9 +12,12 @@ the increment (any map of h) and the lattice width.
              stored back as 8 bits (values >= 256 truncated to the low
              byte, matching a truncating de2bi).
   ordering : 'lsb' or 'msb' — the two bit-readings of the stored word.
-             They are conjugate under the reflector: the value of a word
-             read in one order is R_8 of its value read in the other
-             (verified for all 256 words; see section C below).
+             The two values of one stored word are mirror images under
+             the reflector: the value read in one order is R_8 of the
+             value read in the other (verified for all 256 words; see
+             section C below). The dynamics that the two readings
+             define are two different dynamics, not one in two
+             coordinate systems (Section 3 of the paper).
 
 Section A reproduces the increment sweep (Section 8 of the paper): order
 is not the boundary - h(1-h) fails in the active ordering, h(1-h)(2-h)

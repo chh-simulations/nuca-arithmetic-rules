@@ -1,11 +1,12 @@
 """
 verify_p1.py - regenerates every number of the paper
 "Phase structure and contraction timescales of a non-uniform cellular
-automaton with arithmetic rule dynamics" (P. Stoychev). Self-contained
-(numpy only). Every check prints measured against expected and PASS,
-WARN or FAIL; a copy of the output is written to verify_p1_results.txt.
+automaton with arithmetic rule dynamics" (P. Stoychev), version 3.
+Self-contained (numpy only). Every check prints measured against
+expected and PASS, WARN or FAIL; a copy of the output is written to
+verify_p1_results.txt.
 
-Run:   python verify_p1.py            (all sections, 30-50 min)
+Run:   python verify_p1.py            (all sections, about half an hour)
        python verify_p1.py --quick    (one seed where two are used)
        python verify_p1.py S8 S9      (chosen sections only)
 
@@ -13,7 +14,7 @@ Sections and the parts of the paper they cover:
   S1  canonical simulator against the reference run of Raptis
       (private communication, Fig. 2): width 800, 1000 steps          (Section 2)
   S2  exact identities: reflector, antihomomorphism, palindrome fixed
-      points, the conjugation identity of Theorem 2   (Section 3)
+      points, the partial conjugation of Theorem 1    (Section 3)
   S3  increment sweep, width 800, 600 steps            (Section 8)
   S4  width-class sweep, 800 steps, Table 1            (Section 4)
   S5  long-run convergence, width 800, 5000 steps      (Section 6)
@@ -24,12 +25,24 @@ Sections and the parts of the paper they cover:
   S9  the law across word lengths: regimes at B = 9, 10; threshold
       r_c = 3*2^(B-3) at B = 6..12; growth at r_c+1; the exact
       excitability crossing; interface velocity at B = 10, counted
-      in the prepared half of the ring (Section 5)
+      in the prepared half of the ring, and where the remnants of
+      the random half sit at the end of those runs (Section 5)
   S10 eight-seed ensembles for every cell of Table 1    (Section 4)
+  S11 statements added or corrected in version 3: the full
+      conjugation of Theorem 2; Propositions 1 and 2 and Corollary 2
+      at every residue and on every cycle, with simulations at the
+      exceptional residues; widths below the word modulus; Table 1
+      at 2 x 10^4 steps; the fine scan over eight seeds and the slow
+      invasion at and below r_c to 2 x 10^5 steps; the excitability
+      along single cycles; the frozen-phase rank over eight seeds;
+      the palindrome distance in time and the palindromic start;
+      the lsb activity at every residue; Rule 110 on 8 cells, the
+      toy widths and the resweep of Section 9   (Sections 3-7, 9)
 
-Tolerances: identities exact; counts +-1.5; percentages +-0.6 points in
-S1-S7 (numpy-version RNG nuances; PCG64 streams are normally identical),
-+-0.15 points in S8-S9 where the fast runner is used.
+Tolerances: identities exact; counts +-1.5; percentages +-0.6 to 0.8
+points and palindrome distances +-0.06 in S1-S7 (numpy-version RNG
+nuances; PCG64 streams are normally identical); +-0.15 points or tighter
+in S8-S11, where vectorized runners are used.
 """
 import sys, datetime
 import numpy as np
@@ -195,11 +208,11 @@ def S4(seeds):
 
 def S5():
     emit("\nS5. Long-run convergence, width 800, 5000 steps, seed 1 (rank% windows)")
-    windows = [(500, 600), (900, 1000), (2900, 3000), (4900, 5000)]
-    exp = {('lsb', 'h(1-h)'): (50.2, 35.5, 20.2, 14.4),
-           ('lsb', 'h^3'):    (76.2, 77.0, 76.0, 76.0),
-           ('lsb', 'h'):      (13.0, 13.0, 12.9, 13.0),
-           ('msb', 'h^3'):    (25.4, 24.9, 24.9, 24.9)}
+    windows = [(500, 600), (900, 1000), (1900, 2000), (2900, 3000), (4900, 5000)]
+    exp = {('lsb', 'h(1-h)'): (50.2, 35.5, 23.9, 20.2, 14.4),
+           ('lsb', 'h^3'):    (76.2, 77.0, 76.6, 76.0, 76.0),
+           ('lsb', 'h'):      (13.0, 13.0, 13.0, 12.9, 13.0),
+           ('msb', 'h^3'):    (25.4, 24.9, 24.9, 24.9, 24.9)}
     for (enc, name), evs in exp.items():
         r, m, _ = run(800, 5000, 1, enc, incr_fn=INCR[name])
         for (a, b), ev in zip(windows, evs):
@@ -568,21 +581,42 @@ def S9():
         A = np.array(out)
         m = (A[:, 0] >= t0) & (A[:, 1] < 0.8 * half)
         v = np.polyfit(A[m, 0], A[m, 1], 1)[0] / 2 if m.sum() >= 5 else float('nan')
-        return v, A
+        # the end state: cells of the random half that changed during the last 2000 steps, their distance
+        # (quiet cells in between) from the two boundaries with the prepared sea, the cells of the random
+        # half changed within the last `win` steps, and the sea words outside [0, r)
+        late = np.flatnonzero(recent[half:] < 2000) + half
+        geo = dict(dist=(int(late.min() - half), int(N - 1 - late.max())) if late.size else (None, None),
+                   active=int((recent[half:] < win).sum()), random_half=N - half,
+                   converted=int((n[:half] >= r).sum()),
+                   flickers=[int(x) for x in A[A[:, 0] >= t0, 1] if x > 0])
+        return v, A, geo
     exp_v = {376: (0.00, 0.00), 380: (0.00, 0.00), 382: (0.00, 0.00), 383: (0.00, 0.00),
              384: (0.00, 0.00), 385: (0.54, 0.64), 386: (4.97, 4.89), 388: (5.04, 5.39),
              391: (5.98, 6.04), 400: (7.77, 8.10), 416: (9.62, 8.31), 448: (13.27, 13.19),
              480: (14.61, 14.48), 512: (14.15, 14.35)}
-    v_ok = True
+    v_ok = True; dists = []; actives = []; converted = 0; flick = {}
     for r, exps in exp_v.items():
         for seed in (1, 2):
-            v, A = front(10, r, seed)
+            v, A, geo = front(10, r, seed)
             check(f"B=10 interface r={r} e={(r-256)/r:.4f} seed{seed} v (10^-3 cells/step, prepared half)",
                   1000 * v, exps[seed - 1], 0.05)
-            if r <= 384: v_ok &= abs(v) <= 0.0001
+            if r <= 384:
+                v_ok &= abs(v) <= 0.0001
+                dists += list(geo['dist']); actives.append(geo['active']); converted += geo['converted']
+                if geo['flickers']: flick[(r, seed)] = geo['flickers']
             elif r == 385: v_ok &= v >= 0.0002
             else: v_ok &= v >= 0.003
     checkbool("interface velocity: |v| <= 1e-4 for r <= 384; >= 2e-4 at 385; >= 3e-3 for r >= 386", v_ok)
+    # the ten runs with r <= 384: what the zero of the count rests on
+    checkbool("r <= 384: the count in the prepared half over t >= 40000 is zero in eight runs; nonzero samples (of 321 each) "
+              "only at (r, seed) = (382, 2): one, of 1 cell, and (383, 2): four, of 1, 1, 2 and 1 cells",
+              flick == {(382, 2): [1], (383, 2): [1, 1, 2, 1]})
+    checkbool("r <= 384: no word of the prepared half lies outside [0, r) at the end of any of the ten runs", converted == 0)
+    checkbool("r <= 384: cells of the random half (2236 to 2240 cells) changed within the last 50 steps, per run == "
+              "[140, 156, 86, 223, 83, 173, 222, 371, 529, 616]", actives == [140, 156, 86, 223, 83, 173, 222, 371, 529, 616])
+    checkbool("r <= 384: distance of the nearest changing cell from the sea at the twenty boundaries, sorted == "
+              "[0, 1, 7, 29, 32, 38, 39, 41, 42, 45, 45, 46, 50, 52, 98, 104, 113, 114, 118, 193]",
+              sorted(dists) == [0, 1, 7, 29, 32, 38, 39, 41, 42, 45, 45, 46, 50, 52, 98, 104, 113, 114, 118, 193])
 
 def S10():
     emit("\nS10. Ensembles for Table 1: eight seeds per cell, 800 steps; means,")
@@ -648,15 +682,458 @@ def S10():
     check("max sd of activity, quadratic increment (points)", sd_quad, 3.62, 0.02)
     check("max sd of rank (points of 256)", sd_rank, 3.21, 0.02)
 
+def S11():
+    emit("\nS11. Statements added or corrected in version 3: exhaustive forms of the")
+    emit("     propositions, the scope of the tables in time, the palindromic start,")
+    emit("     the reading-independent activity, the time-periodic remark")
+
+    PALD = np.array([sum(((x >> i) & 1) != ((x >> (7 - i)) & 1) for i in range(4)) for x in range(256)])
+    PALS = np.array([x for x in range(256) if int(f'{x:08b}'[::-1], 2) == x])
+    lin = lambda h: h
+    quad = lambda h: h * (1 - h)
+
+    def start(dim, seed):
+        rng = np.random.default_rng(seed)
+        n = (rng.permutation(dim) % 256).astype(np.int64)
+        c = rng.integers(0, 2, dim).astype(np.int64)
+        return c, n
+
+    def evolve(c, n, dim, steps, msb=True, g=lin, rank=False, pal=False, mark=0):
+        """the dynamics of Section 2 on integer words (B = 8). Returns the final state and a dict of
+        per-step traces: 'act' (activity in %), on request 'rank' (distinct words) and 'pal' (mean
+        palindrome distance), and 'changed' (cells that changed during the last `mark` steps)"""
+        act = np.empty(steps); rk = np.empty(steps) if rank else None; pd = np.empty(steps) if pal else None
+        changed = np.zeros(dim, dtype=bool)
+        for t in range(steps):
+            h = c + np.roll(c, 1) + np.roll(c, -1)
+            c2 = (n >> ((7 - h) if msb else h)) & 1
+            n = ((n + (2 * c2 - 1) * g(h) - 1) % dim) & 0xFF
+            act[t] = 100 * np.mean(c2 != c)
+            if t >= steps - mark: changed |= (c2 != c)
+            c = c2
+            if rank: rk[t] = len(np.unique(n))
+            if pal: pd[t] = PALD[n].mean()
+        return c, n, {'act': act, 'rank': rk, 'pal': pd, 'changed': changed}
+
+    def largest_domain(changed):
+        """largest cluster of changing cells on the ring, clusters being separated by three or more quiet cells"""
+        N = len(changed); idx = np.flatnonzero(changed)
+        if idx.size == 0: return 0
+        gaps = np.diff(np.concatenate([idx, [idx[0] + N]]))
+        cuts = np.flatnonzero(gaps >= 4)
+        if cuts.size == 0: return N
+        return max(int((idx[cuts[(k + 1) % cuts.size]] - idx[(cuts[k] + 1) % idx.size]) % N) + 1 for k in range(cuts.size))
+
+    # -- gate: this runner against the canonical run(), both readings, both increments --
+    for enc in ('msb', 'lsb'):
+        for var, g in (('linear', lin), ('poly', quad)):
+            r_, m_, p_ = run(160, 30, 7, enc, var, 'plain', track_pal=True)
+            c0, n0 = start(160, 7)
+            _, _, tr = evolve(c0, n0, 160, 30, msb=(enc == 'msb'), g=g, rank=True, pal=True)
+            checkbool(f"S11 runner == canonical, 30 steps, {enc} {var}: activity, rank and palindrome-distance traces",
+                      bool(np.allclose(tr['act'] * 160 / 100, m_) and np.array_equal(tr['rank'], r_) and np.allclose(tr['pal'], p_)))
+
+    # ---------------------------------------------------------------- (a) Theorem 2
+    emit("  (a) Theorem 2: the full conjugation rho M rho against M from the reflected words")
+    def run_conj(dim, steps, init_ints, seed_c, encoding, variant, conj):
+        msb = (encoding == 'msb'); poly = (variant == 'poly')
+        rng = np.random.default_rng(seed_c)
+        rules = np.array([d2b(int(v), msb) for v in init_ints], dtype=int)
+        c = rng.integers(0, 2, dim); K = kernel(dim); traj = []
+        for _ in range(steps):
+            h = (K @ c).astype(int)
+            for j in range(dim):
+                w = rules[j][::-1] if conj else rules[j]        # rho before the step
+                hj = int(h[j]); c[j] = w[hj]                    # the lookup addresses the reflected word
+                num = b2d(w, msb); sgn = 2 * c[j] - 1
+                incr = sgn * hj * (1 - hj) if poly else sgn * hj
+                nb = d2b(((num + incr - 1) % dim) & 0xFF, msb)
+                rules[j] = nb[::-1] if conj else nb             # rho after the step
+            traj.append((c.copy(), rules.copy()))
+        return traj
+    rng = np.random.default_rng(1); v0 = rng.permutation(800) % 256
+    bitrev = lambda x: int(bin(int(x))[2:].zfill(8)[::-1], 2)
+    for variant in ('linear', 'poly'):
+        tA = run_conj(800, 150, v0, 7, 'msb', variant, True)
+        tB = run_conj(800, 150, [bitrev(x) for x in v0], 7, 'msb', variant, False)
+        checkbool(f"rho M rho == M in reflected coordinates, 150 steps, {variant}: bits identical, words mirror images",
+                  all(np.array_equal(a[0], b[0]) and np.array_equal(a[1], b[1][:, ::-1]) for a, b in zip(tA, tB)))
+
+    # ---------------------------------------------------------------- (b) Proposition 1
+    emit("  (b) Proposition 1 at every residue")
+    conf_ok = map_ok = rot_ok = sharp_ok = True
+    for r in range(1, 256):
+        N = 512 + r; x = np.arange(256)
+        for v in range(-7, 0):
+            T = ((x + v) % N) & 0xFF
+            P = T.copy()
+            for _ in range(9): P = P[P]                 # T^512: every word is on its eventual cycle
+            if v >= -r:
+                conf_ok &= bool(P.max() < r)
+                inside = np.arange(r)
+                map_ok &= bool(np.array_equal(T[:r], np.where(inside >= -v, inside + v, inside + v + r)))
+            else:
+                sharp_ok &= bool(P.max() >= r)          # outside the hypothesis the cycles leave [0, r)
+        for v in (0, 1, 2):
+            rot_ok &= bool(np.array_equal(((x + v) % N) & 0xFF, (x + v) % 256))
+    checkbool("confinement: for every r = 1..255 and v = -7..-1 with v >= -r the eventual cycles lie in [0, r)", conf_ok)
+    checkbool("on [0, r) the map is n -> n + v, re-entering at n + v + r (same range)", map_ok)
+    checkbool("for v < -r (r = 1..6) the eventual cycles leave [0, r)", sharp_ok)
+    checkbool("rotation: T_v = +v on Z_256 for v = 0, 1, 2 at every r = 1..255", rot_ok)
+
+    # ---------------------------------------------------------------- (c) Proposition 2
+    emit("  (c) Proposition 2 cycle by cycle, every residue, B = 6..12; configurations at B = 8")
+    def cycle_fraction(B, N, v, bit, val):
+        """fraction of the words on eventual cycles of T_v whose whole cycle shows `val` at `bit`"""
+        base = 1 << B; x = np.arange(base)
+        T = ((x + v) % N) & (base - 1)
+        K = B + 1
+        P = T.copy()
+        for _ in range(K): P = P[P]
+        on = np.unique(P)
+        bad = (((x >> bit) & 1) != val)
+        Q = T.copy()
+        for _ in range(K):
+            bad = bad | bad[Q]; Q = Q[Q]
+        return float(np.mean(~bad[on]))
+    for B in range(6, 13):
+        base = 1 << B; ok = True; partial = []
+        for r in range(0, base):
+            N = 2 * base + r
+            f0 = cycle_fraction(B, N, -1, B - 1, 0)
+            f1 = cycle_fraction(B, N, -2, B - 2, 0)
+            f2 = cycle_fraction(B, N, -3, B - 3, 0)
+            ok &= ((f0 == 1.0) == (1 <= r <= base // 2)) and f0 in (0.0, 1.0)
+            ok &= ((f1 == 1.0) == (2 <= r <= base // 4)) and f1 in (0.0, 1.0)
+            ok &= ((f2 == 1.0) == (3 <= r <= base // 8))
+            if 0.0 < f2 < 1.0: partial.append((r, round(f2, 4)))
+            if r in (0, 1, base // 8, base // 4, base // 2, base - 1):
+                ok &= cycle_fraction(B, N, 1, B - 3, 1) == 0.0 and cycle_fraction(B, N, 2, B - 4, 1) == 0.0
+        exc = (base // 8 + 1, round(2 / 3, 4)) if B % 2 == 0 else (base // 8 + 2, round(1 / 3, 4))
+        checkbool(f"B={B}: 0-cells with h=0, 1, 2 consistent on every cycle exactly for 1<=r<=2^(B-1), 2<=r<=2^(B-2), 3<=r<=2^(B-3); "
+                  f"h=2 on part of the cycles only at r={exc[0]} (fraction {exc[1]}); 1-cells with h>=2 never", ok and partial == [exc])
+    def frozen_for(r, ones, mid=None, steps=2000, seed=5):
+        """does a prepared configuration at N = 512 + r keep its cells for `steps` steps?"""
+        N = 512 + r; rng = np.random.default_rng(seed)
+        c = np.zeros(N, dtype=np.int64); c[list(ones)] = 1
+        n = rng.integers(0, r, N).astype(np.int64)                       # sea words on their cycles
+        n[list(ones)] = rng.integers(0, 256, len(ones)) | 64             # static words with bit 6 set
+        if mid is not None: n[mid[0]] = mid[1]
+        c0 = c.copy()
+        for _ in range(steps):
+            h = c + np.roll(c, 1) + np.roll(c, -1)
+            c = (n >> (7 - h)) & 1
+            n = ((n + (2 * c - 1) * h - 1) % N) & 0xFF
+            if not np.array_equal(c, c0): return False
+        return True
+    sea = {r: frozen_for(r, ()) for r in (1, 2, 3, 32, 33, 34, 64, 65, 128, 129)}
+    iso = {r: frozen_for(r, (10, 20, 33, 100)) for r in (1, 2, 3, 32, 33, 34, 64, 65, 128)}
+    m101 = {r: frozen_for(r, (50, 52, 120), mid=(51, 0)) for r in (2, 3, 32, 34, 64)}
+    m33 = {w: frozen_for(33, (50, 52, 120), mid=(51, w)) for w in (0, 1, 2, 3, 4, 5, 30, 31, 32)}
+    checkbool("simulation: the all-zero sea is invariant at r = 1, 2, 3, 32, 33, 34, 64, 65, 128 and not at 129",
+              all(sea[r] for r in sea if r != 129) and not sea[129])
+    checkbool("simulation: isolated 1s are invariant at r = 2, 3, 32, 33, 34, 64 and not at r = 1, 65, 128",
+              all(iso[r] for r in (2, 3, 32, 33, 34, 64)) and not any(iso[r] for r in (1, 65, 128)))
+    checkbool("simulation: a 101 motif is invariant at r = 3, 32 and not at r = 2, 34, 64",
+              m101[3] and m101[32] and not (m101[2] or m101[34] or m101[64]))
+    checkbool("simulation at r = 33: a 101 motif is invariant exactly when its middle word is 0 or 1 modulo 3",
+              all(m33[w] == (w % 3 != 2) for w in m33))
+
+    # ---------------------------------------------------------------- (d) Corollary 2
+    emit("  (d) Corollary 2: the lsb reading and the quadratic increment at every residue")
+    found = set()
+    for r in range(0, 256):
+        N = 512 + r
+        for hh, v, bit in ((0, -1, 0), (1, -2, 1), (2, -3, 2)):
+            if cycle_fraction(8, N, v, bit, 0) > 0: found.add((hh, r))
+    checkbool("lsb: a 0-cell type is consistent on some cycle only for (h, r) = (0,1), (1,2), (2,3), (2,4), (2,6)",
+              found == {(0, 1), (1, 2), (2, 3), (2, 4), (2, 6)})
+    def lsb_keeps(N, pattern, w1, w0, steps=5000):
+        c = np.tile(pattern, N // len(pattern)).astype(np.int64)
+        n = np.where(c == 1, w1, w0).astype(np.int64); c0 = c.copy()
+        for _ in range(steps):
+            h = c + np.roll(c, 1) + np.roll(c, -1)
+            c = (n >> h) & 1
+            n = ((n + (2 * c - 1) * h - 1) % N) & 0xFF
+            if not np.array_equal(c, c0): return False
+        return True
+    checkbool("lsb: invariant configurations at r = 1 (all zero, N=513), r = 2 (pattern 100, N=258), r = 4 and 6 (alternating, N=516, 518)",
+              lsb_keeps(513, [0], 0, 0) and lsb_keeps(258, [1, 0, 0], 2, 0) and lsb_keeps(516, [1, 0], 2, 0) and lsb_keeps(518, [1, 0], 2, 0))
+    checkbool("lsb: the alternating ring is not invariant at r = 2 (N=514), nor the all-zero ring at r = 3 (N=515)",
+              not lsb_keeps(514, [1, 0], 2, 0) and not lsb_keeps(515, [0], 0, 0))
+    for N, ev in ((513, 48.69), (258, 47.46), (516, 54.27), (518, 49.06)):
+        c0, n0 = start(N, 1)
+        a = evolve(c0, n0, N, 3000, msb=False)[2]['act']
+        check(f"lsb from a random state, N={N} (r={N % 256}) seed1, tail activity at t=3000", a[-100:].mean(), ev, 0.15)
+    q_ok = True
+    for r in range(1, 256):
+        N = 512 + r
+        q_ok &= (cycle_fraction(8, N, -1, 7, 0) == 1.0) == (r <= 128)     # (0, h=0), v = -1
+        q_ok &= cycle_fraction(8, N, -1, 6, 1) == 0.0                     # (1, h=1): bit 6 never constantly set
+        q_ok &= cycle_fraction(8, N, -3, 5, 1) == 0.0                     # (1, h=2)
+        q_ok &= cycle_fraction(8, N, -7, 4, 1) == 0.0                     # (1, h=3)
+    checkbool("quadratic, msb: the all-zero sea consistent exactly for r <= 128; no frozen 1-cell on any cycle at any r = 1..255", q_ok)
+
+    # ---------------------------------------------------------------- (e) widths below the word modulus
+    emit("  (e) Section 4: a width below the word modulus against two of the same residue above it")
+    for (N, s), ev in {(100, 1): 0.00, (100, 2): 0.00, (356, 1): 30.76, (356, 2): 23.90, (612, 1): 28.07, (612, 2): 29.55}.items():
+        c0, n0 = start(N, s)
+        a = evolve(c0, n0, N, 800)[2]['act']
+        check(f"msb-linear tail activity at t=800, N={N} (N mod 256 = {N % 256}) seed{s}", a[-100:].mean(), ev, 0.15)
+
+    # ---------------------------------------------------------------- (f) Table 1 beyond 800 steps
+    emit("  (f) Table 1 at 2 x 10^4 steps (two-seed means, rank% / activity%), and the msb quadratic")
+    emit("      activity at residue 128 followed to 6 x 10^4 steps")
+    exp20k = {  # N: ((msb h), (lsb h), (msb h(1-h)), (lsb h(1-h)))
+        512:  ((12.04, 47.62), (75.83, 48.56), (11.29, 75.17), (66.63, 66.54)),
+        768:  ((12.74, 47.59), (83.86, 48.30), (12.12, 74.62), (73.75, 67.84)),
+        1024: ((13.29, 47.56), (87.63, 48.33), (13.27, 74.76), (79.68, 67.17)),
+        640:  ((3.37, 47.14), (45.46, 48.43), (50.55, 0.82), (41.38, 68.21)),
+        896:  ((3.35, 47.26), (46.89, 48.47), (50.85, 0.47), (44.15, 66.59)),
+        544:  ((23.73, 6.35), (12.80, 48.59), (27.44, 13.29), (14.97, 67.27)),
+        800:  ((29.17, 7.56), (12.99, 48.36), (32.81, 14.49), (14.18, 67.34)),
+        1056: ((31.79, 7.74), (13.13, 48.45), (34.47, 15.75), (12.04, 68.71))}
+    for N, cells in exp20k.items():
+        for (enc, g, name), (er, ea) in zip((('msb', lin, 'h'), ('lsb', lin, 'h'), ('msb', quad, 'h(1-h)'), ('lsb', quad, 'h(1-h)')), cells):
+            R, A = [], []
+            for s in (1, 2):
+                c0, n0 = start(N, s)
+                tr = evolve(c0, n0, N, 20000, msb=(enc == 'msb'), g=g, rank=True)[2]
+                R.append(tr['rank'][-100:].mean() / 256 * 100); A.append(tr['act'][-100:].mean())
+            check(f"dim {N} (mod {N % 256}) {enc} {name} rank% at t=20000", float(np.mean(R)), er, 0.15)
+            check(f"dim {N} (mod {N % 256}) {enc} {name} act% at t=20000", float(np.mean(A)), ea, 0.15)
+    exp128 = {(640, 1): (20.17, 5.07, 1.63, 0.94), (640, 2): (14.54, 4.02, 0.00, 0.00),
+              (896, 1): (21.55, 5.77, 0.00, 0.00), (896, 2): (18.66, 2.88, 0.94, 0.81)}
+    sea_end = []
+    for (N, s), evs in exp128.items():
+        c0, n0 = start(N, s)
+        c1, n1, tr = evolve(c0, n0, N, 60000, g=quad)
+        a = tr['act']
+        for t, ev in zip((800, 5000, 20000, 60000), evs):
+            check(f"msb quadratic, residue 128, N={N} seed{s}: activity% at t={t}", a[t - 100:t].mean(), ev, 0.15)
+        if c1.sum() == 0 and n1.max() < 128: sea_end.append((N, s))
+    checkbool("msb quadratic, residue 128: the runs that end in the all-zero sea (all cells 0, all words below 128) == (640, 2), (896, 1)",
+              sea_end == [(640, 2), (896, 1)])
+
+    # ---------------------------------------------------------------- (g)-(i) Section 5 in time and over seeds
+    emit("  (g) residues 80 and 96 over eight seeds; (h) the fine scan; (i) the slow invasion at and below r_c")
+    for N, lo, hi in ((592, 0.86, 3.31), (608, 1.06, 6.18)):
+        A8, zero = [], 0
+        for s in range(1, 9):
+            c0, n0 = start(N, s)
+            a = evolve(c0, n0, N, 2000)[2]['act']
+            A8.append(a[700:800].mean()); zero += int(a[1900:2000].max() == 0)
+        check(f"msb-linear N={N} (r={N % 256}), eight seeds, t=800: lowest tail activity", min(A8), lo, 0.15)
+        check(f"msb-linear N={N} (r={N % 256}), eight seeds, t=800: highest tail activity", max(A8), hi, 0.15)
+        checkbool(f"msb-linear N={N}: runs at zero activity over steps 1900-2000 == {1 if N == 592 else 0} of 8", zero == (1 if N == 592 else 0))
+    exp_scan = {90: (0.00, 2.66, 0.00, 2.65), 92: (0.00, 2.48, 0.00, 1.84), 94: (0.00, 3.44, 0.00, 2.84), 95: (0.54, 2.75, 0.00, 3.25),
+                96: (0.64, 4.18, 0.00, 4.54), 97: (12.17, 24.48, 18.72, 41.97), 98: (35.73, 39.18, 44.17, 44.96),
+                100: (37.77, 40.71, 44.08, 44.95), 104: (42.90, 44.45, 44.62, 45.82)}
+    largest97 = []
+    for r, (l3, h3, l8, h8) in exp_scan.items():
+        N = 512 + r; A3, A8 = [], []
+        for s in range(1, 9):
+            c0, n0 = start(N, s)
+            c1, n1, tr = evolve(c0, n0, N, 3000, mark=100)
+            A3.append(tr['act'][-100:].mean())
+            if r == 97: largest97.append(largest_domain(tr['changed']))
+            A8.append(evolve(c1, n1, N, 5000)[2]['act'][-100:].mean())
+        check(f"fine scan r={r}, eight seeds, t=3000: lowest tail activity", min(A3), l3, 0.15)
+        check(f"fine scan r={r}, eight seeds, t=3000: highest tail activity", max(A3), h3, 0.15)
+        check(f"fine scan r={r}, eight seeds, t=8000: lowest tail activity", min(A8), l8, 0.15)
+        check(f"fine scan r={r}, eight seeds, t=8000: highest tail activity", max(A8), h8, 0.15)
+    checkbool("r = 97 at t = 3000: the largest domain of changing cells per seed == [75, 75, 89, 127, 143, 79, 75, 52]",
+              largest97 == [75, 75, 89, 127, 143, 79, 75, 52])
+    exp_long = {94: ((0, 0, 0, 0, 0), (7, 11, 11, 11, 11)), 95: ((0, 0, 0, 4, 5), (0, 4, 5, 5, 5)), 96: ((0, 0, 3, 8, 10), (0, 2, 2, 2, 2))}
+    marks = (3000, 10000, 30000, 100000, 200000)
+    for r, (above, zero) in exp_long.items():
+        N = 512 + r; got_above = [0] * 5; got_zero = [0] * 5; sea = 0
+        for s in range(1, 13):
+            c0, n0 = start(N, s)
+            c1, n1, tr = evolve(c0, n0, N, 200000)
+            a = tr['act']
+            for k, m in enumerate(marks):
+                w = a[m - 100:m].mean()
+                got_above[k] += int(w > 5.0); got_zero[k] += int(w == 0.0)
+            sea += int(c1.sum() == 0 and n1.max() < r)
+        checkbool(f"r={r}, twelve seeds: runs with tail activity above 5% at t = 3e3, 1e4, 3e4, 1e5, 2e5 == {above}", tuple(got_above) == above)
+        checkbool(f"r={r}, twelve seeds: runs at zero activity at the same times == {zero}", tuple(got_zero) == zero)
+        checkbool(f"r={r}: the runs at zero activity at t = 2e5 are in the all-zero sea (all cells 0, all words below r): {zero[-1]} of 12", sea == zero[-1])
+
+    # ---------------------------------------------------------------- (j) excitability along single cycles
+    emit("  (j) the excitabilities along the single cycles at r_c = 96")
+    from fractions import Fraction
+    def per_cycle(N, v, bit):
+        T = [((x + v) % N) & 0xFF for x in range(256)]
+        xs = list(range(256))
+        for _ in range(600): xs = [T[x] for x in xs]
+        out, seen = [], set()
+        for s in sorted(set(xs)):
+            if s in seen: continue
+            cyc, y = [], s
+            while y not in seen: seen.add(y); cyc.append(y); y = T[y]
+            out.append(Fraction(sum((x >> bit) & 1 for x in cyc), len(cyc)))
+        return sorted(out)
+    checkbool("r = 96: e_2 along the three cycles of T_-3 == 5/16, 11/32, 11/32 (mean 1/3)",
+              per_cycle(608, -3, 5) == [Fraction(5, 16), Fraction(11, 32), Fraction(11, 32)])
+    checkbool("r = 96: e_1 along the two cycles of T_-2 == 1/3, 1/3", per_cycle(608, -2, 6) == [Fraction(1, 3), Fraction(1, 3)])
+
+    # ---------------------------------------------------------------- (l) Section 6
+    emit("  (l) Section 6: the frozen-phase rank over eight seeds; the fast linear cell passing 71 words")
+    R20 = []
+    for s in range(1, 9):
+        c0, n0 = start(800, s)
+        rk = evolve(c0, n0, 800, 20000, rank=True)[2]['rank']
+        R20.append(rk[-100:].mean())
+    check("msb-linear N=800, eight seeds, t=20000: lowest tail rank (words)", min(R20), 69.32, 0.15)
+    check("msb-linear N=800, eight seeds, t=20000: highest tail rank (words)", max(R20), 78.23, 0.15)
+    check("msb-linear N=800 seed1, t=20000: tail rank (words)", R20[0], 71.11, 0.15)
+    first, tails = [], []
+    for s in range(1, 9):
+        c0, n0 = start(800, s)
+        rk = evolve(c0, n0, 800, 5000, msb=False, rank=True)[2]['rank']
+        first.append(int(np.flatnonzero(rk <= 71)[0]) + 1); tails.append(rk[-100:].mean())
+    checkbool("lsb-linear N=800, seeds 1..8: first step with rank <= 71 == [274, 260, 268, 281, 273, 271, 274, 271]",
+              first == [274, 260, 268, 281, 273, 271, 274, 271])
+    check("lsb-linear N=800, eight seeds, t=5000: lowest tail rank (words)", min(tails), 33.09, 0.15)
+    check("lsb-linear N=800, eight seeds, t=5000: highest tail rank (words)", max(tails), 33.29, 0.15)
+
+    # ---------------------------------------------------------------- (m) Section 7
+    emit("  (m) Section 7: the palindrome distance in time; the palindromic start; the lsb activity at every residue")
+    exp_pd = {('msb', 'linear', 1): (1.737, 1.779, 1.808, 1.810), ('msb', 'linear', 2): (1.752, 1.760, 1.767, 1.764),
+              ('lsb', 'linear', 1): (2.111, 2.134, 2.234, 2.230), ('lsb', 'linear', 2): (2.111, 2.125, 2.231, 2.234),
+              ('msb', 'poly', 1): (2.073, 2.042, 2.025, 2.024), ('lsb', 'poly', 1): (2.031, 2.014, 2.018, 2.009)}
+    for (enc, var, s), evs in exp_pd.items():
+        c0, n0 = start(800, s)
+        pd = evolve(c0, n0, 800, 5000, msb=(enc == 'msb'), g=(quad if var == 'poly' else lin), pal=True)[2]['pal']
+        for (a_, b_), ev in zip(((50, 100), (100, 200), (400, 500), (4900, 5000)), evs):
+            check(f"{enc} {var} seed{s} pal-dist over steps {a_}-{b_}", pd[a_:b_].mean(), ev, 0.006)
+    def pal_start(seed):
+        rng = np.random.default_rng(seed)
+        n = PALS[rng.integers(0, 16, 800)].astype(np.int64)      # words drawn uniformly from the 16 palindromes
+        c = rng.integers(0, 2, 800).astype(np.int64)             # then uniform bits
+        return c, n
+    exp_ps = {1: (73.50, 23.45, 8.31, 13.00, 48.42), 2: (75.375, 26.23, 10.36, 12.94, 48.22)}
+    two = {'mr': [], 'ma': [], 'lr': [], 'la': []}
+    for s, (e_np, e_mr, e_ma, e_lr, e_la) in exp_ps.items():
+        c0, n0 = pal_start(s)
+        c1, n1, _ = evolve(c0.copy(), n0.copy(), 800, 1)
+        check(f"palindromic start seed{s}: words non-palindromic after one step (%)", 100 * float(np.mean(PALD[n1] > 0)), e_np, 0.01)
+        cl, nl, _ = evolve(c0.copy(), n0.copy(), 800, 1, msb=False)
+        c2m = evolve(c0.copy(), n0.copy(), 800, 2)[0]; c2l = evolve(c0.copy(), n0.copy(), 800, 2, msb=False)[0]
+        checkbool(f"palindromic start seed{s}: after one step the two readings hold the same bits and the same integers "
+                  "(so their stored words are mirror images wherever the word is no longer a palindrome); after two steps the bits differ",
+                  bool(np.array_equal(c1, cl) and np.array_equal(n1, nl) and np.any(PALD[n1] > 0) and not np.array_equal(c2m, c2l)))
+        tr = evolve(c0.copy(), n0.copy(), 800, 800, rank=True)[2]
+        check(f"palindromic start seed{s}: msb tail rank%", tr['rank'][-100:].mean() / 2.56, e_mr, 0.15)
+        check(f"palindromic start seed{s}: msb tail act%", tr['act'][-100:].mean(), e_ma, 0.15)
+        two['mr'].append(tr['rank'][-100:].mean() / 2.56); two['ma'].append(tr['act'][-100:].mean())
+        tr = evolve(c0.copy(), n0.copy(), 800, 800, msb=False, rank=True)[2]
+        check(f"palindromic start seed{s}: lsb tail rank%", tr['rank'][-100:].mean() / 2.56, e_lr, 0.15)
+        check(f"palindromic start seed{s}: lsb tail act%", tr['act'][-100:].mean(), e_la, 0.15)
+        two['lr'].append(tr['rank'][-100:].mean() / 2.56); two['la'].append(tr['act'][-100:].mean())
+    for key, name, ev in (('mr', 'msb tail rank%', 24.84), ('ma', 'msb tail act%', 9.33), ('lr', 'lsb tail rank%', 12.97), ('la', 'lsb tail act%', 48.32)):
+        check(f"palindromic start, two-seed mean: {name}", float(np.mean(two[key])), ev, 0.05)
+    RP, RG, AP, AG = [], [], [], []
+    for s in range(1, 9):
+        c0, n0 = pal_start(s)
+        tr = evolve(c0, n0, 800, 800, rank=True)[2]
+        RP.append(tr['rank'][-100:].mean() / 2.56); AP.append(tr['act'][-100:].mean())
+        c0, n0 = start(800, s)
+        tr = evolve(c0, n0, 800, 800, rank=True)[2]
+        RG.append(tr['rank'][-100:].mean() / 2.56); AG.append(tr['act'][-100:].mean())
+    check("msb tail rank%, eight seeds, palindromic start: mean", float(np.mean(RP)), 24.56, 0.05)
+    check("msb tail rank%, eight seeds, palindromic start: sd", float(np.std(RP, ddof=1)), 1.48, 0.05)
+    check("msb tail rank%, eight seeds, generic start: mean", float(np.mean(RG)), 29.29, 0.05)
+    check("msb tail rank%, eight seeds, generic start: sd", float(np.std(RG, ddof=1)), 1.31, 0.05)
+    check("msb tail act%, eight seeds, palindromic start: mean", float(np.mean(AP)), 8.82, 0.05)
+    check("msb tail act%, eight seeds, palindromic start: sd", float(np.std(AP, ddof=1)), 1.21, 0.05)
+    check("msb tail act%, eight seeds, generic start: mean", float(np.mean(AG)), 7.70, 0.05)
+    check("msb tail act%, eight seeds, generic start: sd", float(np.std(AG, ddof=1)), 0.90, 0.05)
+    L, Q = {}, {}
+    for r in range(256):
+        c0, n0 = start(512 + r, 1)
+        L[r] = evolve(c0, n0, 512 + r, 3000, msb=False)[2]['act'][-100:].mean()
+        c0, n0 = start(512 + r, 1)
+        Q[r] = evolve(c0, n0, 512 + r, 3000, msb=False, g=quad)[2]['act'][-100:].mean()
+    check("lsb linear, every residue (N = 512 + r, seed 1, t = 3000): lowest tail activity", min(L.values()), 46.25, 0.15)
+    check("lsb linear, every residue: highest tail activity", max(L.values()), 55.51, 0.15)
+    check("lsb linear, residues 25..255: lowest tail activity", min(L[r] for r in range(25, 256)), 47.27, 0.15)
+    check("lsb linear, residues 25..255: highest tail activity", max(L[r] for r in range(25, 256)), 49.45, 0.15)
+    check("lsb quadratic, r = 1: tail activity", Q[1], 30.32, 0.15)
+    check("lsb quadratic, every residue except r = 1: lowest tail activity", min(Q[r] for r in range(256) if r != 1), 62.60, 0.15)
+    check("lsb quadratic, every residue except r = 1: highest tail activity", max(Q[r] for r in range(256) if r != 1), 71.09, 0.15)
+
+    # ---------------------------------------------------------------- (n) Section 9
+    emit("  (n) Section 9: Rule 110 on 8 cells; toy widths; the resweep on all histories of Rule 110 on 4 cells")
+    def rule110(x, nc):
+        out = 0
+        for j in range(nc):
+            l, m_, r_ = (x >> ((j - 1) % nc)) & 1, (x >> j) & 1, (x >> ((j + 1) % nc)) & 1
+            out |= ((110 >> (4 * l + 2 * m_ + r_)) & 1) << j
+        return out
+    F8 = np.array([rule110(x, 8) for x in range(256)]); y = np.arange(256)
+    for _ in range(600): y = F8[y]
+    cyc, seen = [], set()
+    for s in sorted(set(y.tolist())):
+        if s in seen: continue
+        Lc, z = 0, s
+        while z not in seen: seen.add(z); z = int(F8[z]); Lc += 1
+        cyc.append(Lc)
+    checkbool("Rule 110 on 8 cells: cycle lengths == [1, 2, 2, 8, 16, 16]", sorted(cyc) == [1, 2, 2, 8, 16, 16])
+    counts = []
+    for T in range(1, 17):
+        z = np.arange(256)
+        for _ in range(T): z = F8[z]
+        counts.append((int((z == np.arange(256)).sum()), sum(Lc for Lc in cyc if T % Lc == 0)))
+    checkbool("T-periodic histories: direct count == sum of cycle lengths dividing T, for T = 1..16", all(a_ == b_ for a_, b_ in counts))
+    checkbool("the counts at T = 1, 2, 8, 16 == 1, 5, 13, 45", [counts[T - 1][0] for T in (1, 2, 8, 16)] == [1, 5, 13, 45])
+    per_ok = zero_ok = True
+    for dim in range(4, 101):
+        for s in range(1, 6):
+            c, n = start(dim, s); seen = {}; t = 0; key = (c.tobytes(), n.tobytes())
+            while key not in seen:
+                seen[key] = t
+                h = c + np.roll(c, 1) + np.roll(c, -1)
+                c = (n >> (7 - h)) & 1
+                n = ((n + (2 * c - 1) * h - 1) % dim) & 0xFF
+                t += 1; key = (c.tobytes(), n.tobytes())
+            per_ok &= (t - seen[key] == dim); zero_ok &= (c.sum() == 0)
+    checkbool("toy widths N = 4..100, seeds 1..5 (msb, linear): the cycle reached has period exactly N in all 485 runs", per_ok)
+    checkbool("toy widths: on that cycle the configuration is all-zero and only the words move", bool(zero_ok))
+    import itertools
+    F4 = [rule110(x, 4) for x in range(16)]
+    sweep = lambda hst: tuple(F4[hst[(t - 1) % 4]] for t in range(4))
+    viol = lambda hst: sum(F4[hst[t]] != hst[(t + 1) % 4] for t in range(4))
+    mono = ident = True; last = 0; positive = 0; falls = 0; cons0 = 0
+    for hst in itertools.product(range(16), repeat=4):
+        seq = [viol(hst)]; g_ = hst
+        for _ in range(6):
+            g_ = sweep(g_); seq.append(viol(g_))
+        mono &= all(seq[k + 1] <= seq[k] for k in range(6))
+        last = max(last, max([k for k in range(1, 7) if seq[k] != seq[k - 1]], default=0))
+        positive += int(seq[-1] > 0); falls += int(seq[-1] < seq[0]); cons0 += int(seq[0] == 0)
+        ident &= sweep(sweep(sweep(sweep(hst)))) == tuple(F4[F4[F4[F4[x]]]] for x in hst)
+    img, transient = set(range(16)), 0
+    while {F4[x] for x in img} != img: img = {F4[x] for x in img}; transient += 1
+    checkbool("resweep G on the 65536 histories (Rule 110, 4 cells, T = 4): G^T = F^T slicewise", ident)
+    checkbool("resweep: the violated-link count never increases and stops changing after at most two sweeps", mono and last == 2)
+    checkbool("Rule 110 on 4 cells: the eventual image (5 states, F a bijection on it) is reached after two steps",
+              transient == 2 and len(img) == 5 and len({F4[x] for x in img}) == 5)
+    check("resweep: histories whose count falls (% of 65536)", 100 * falls / 65536, 45.116, 0.01)
+    checkbool("resweep: consistent histories before the sweeps == 5, after them == 580", cons0 == 5 and 65536 - positive == 580)
+    check("resweep: histories whose count stays positive (% of 65536)", 100 * positive / 65536, 99.115, 0.01)
+
+
 if __name__ == "__main__":
     args = [a for a in sys.argv[1:]]
     quick = '--quick' in args
-    chosen = [a for a in args if a.startswith('S')] or ['S1','S2','S3','S4','S5','S6','S7','S8','S9','S10']
+    chosen = [a for a in args if a.startswith('S')] or ['S1','S2','S3','S4','S5','S6','S7','S8','S9','S10','S11']
     seeds = (1,) if quick else (1, 2)
     emit(f"verify_p1  {datetime.date.today()}  numpy {np.__version__}  quick={quick}  sections={chosen}")
     for s in chosen:
         {'S1': S1, 'S2': S2, 'S3': lambda: S3(seeds), 'S4': lambda: S4(seeds),
-         'S5': S5, 'S6': S6, 'S7': S7, 'S8': S8, 'S9': S9, 'S10': S10}[s]()
+         'S5': S5, 'S6': S6, 'S7': S7, 'S8': S8, 'S9': S9, 'S10': S10, 'S11': S11}[s]()
     emit(f"\nSUMMARY  PASS {TALLY['PASS']}  WARN {TALLY['WARN']}  FAIL {TALLY['FAIL']}")
     emit("Output also written to verify_p1_results.txt.")
     OUT.close()

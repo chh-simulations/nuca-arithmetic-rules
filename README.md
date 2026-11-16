@@ -52,21 +52,29 @@ of his choice if he wishes, or linked where he places them.
 
 ## Layout
 
-- `python/verify_p1.py` - regenerates every number of the paper: 407
-  labelled checks in ten sections (S1-S10), each printing measured
-  against expected with PASS / WARN / FAIL. Requires numpy only.
-  Full run 30-50 minutes; `python verify_p1.py S8 S9` runs chosen
-  sections; `--quick` uses one seed where two are used.
+- `python/verify_p1.py` - regenerates every measured number of the
+  paper (version 3, November 2026): 657 labelled checks in eleven
+  sections (S1-S11), each printing measured against expected with
+  PASS / WARN / FAIL. Requires numpy only. The full run takes about
+  half an hour; `python verify_p1.py S8 S9` runs chosen sections;
+  `--quick` uses one seed where two are used. Section S11 was added
+  with version 3 of the paper: the propositions at every residue and
+  on every cycle, the tables followed in time, the runs over eight and
+  twelve seeds, the palindromic start, and the numbers of Section 9.
 - `python/hca_canonical.py` - the canonical simulator (pure Python,
   numpy, scipy), faithful to the original MATLAB implementation.
-- `python/fig2_wordlength.py` - regenerates Figure 2 of the paper
-  (the threshold across word lengths and the interface velocity) by
-  simulation; needs matplotlib.
+- `python/fig1_spacetime.py`, `python/fig2_wordlength.py`,
+  `python/fig3_aliasing.py`, `python/fig4_activity.py` - regenerate
+  Figures 1 to 4 of the paper by simulation (Figure 2, the threshold
+  across word lengths and the interface velocity, takes about twenty
+  minutes; the others seconds); need matplotlib.
 - `python/hca_phase_map.py`, `python/hca_probes.py`,
   `python/gate_b_dim_sweep.py` - the probe scripts (increment sweep,
   width sweep, palindrome distance, convergence windows).
 - `python/toroid_check.py` - the exact content behind the
-  time-periodic remark of Section 9.
+  time-periodic remark of Section 9, on Rule 110 with four cells (the
+  eight-cell numbers of the paper are checked in section S11 of
+  `verify_p1.py`).
 - `matlab/hca_canonical.m` - MATLAB/Octave port of the canonical
   simulator (made from the Python reference, not from the original
   programs; see Origin) with an embedded self-test whose checksums
@@ -79,7 +87,14 @@ of his choice if he wishes, or linked where he places them.
   checks: the interface velocity of Fig. 2b re-measured with the
   changed cells counted in the prepared half of the ring, 17 Oct 2026)
   on the same two machines, `verify_p1_results_v2_linux.txt` and
-  `verify_p1_results_v2_windows.txt`, digit-identical.
+  `verify_p1_results_v2_windows.txt`, digit-identical; version 3
+  (657 checks, 16 Nov 2026) on Linux with numpy 2.5.3,
+  `verify_p1_results_v3_linux.txt`. The run of version 3 on the
+  second machine is recorded as `verify_p1_results_v3_windows.txt`
+  when it has been made.
+- `notes/predictions_26Sep_11Oct2026.md` - the record of the verdicts
+  written down before the runs of Section 5 of the paper, and their
+  outcome.
 - `transition_study/` - the follow-up study of the frozen-to-active
   transition (the transition paper, "Front pinning and depinning at
   exact rational thresholds in a cellular automaton with arithmetic
@@ -121,10 +136,12 @@ and release v1.2.0 (the transition study complete: five campaigns,
 the exact pinning floor, the sectioned verification suite with its
 190-check runs on two machines, the dated predictions record) at
 doi:10.5281/zenodo.24015703. Release v1.3.0 (November 2026) is the
-version cited by the transition paper and the classification paper: it
-carries the corrected word-front analysis of the transition study with
-its three added scripts, the 190-check run on the corrected suite, and
-the classification study (158 checks). The concept DOI
+version cited by version 3 of the paper, by the transition paper and
+by the classification paper: it carries the verification suite of
+version 3 (657 checks) with the scripts of Figures 1, 3 and 4, the
+corrected word-front analysis of the transition study with its three
+added scripts, the 190-check run on the corrected suite, and the
+classification study (158 checks). The concept DOI
 10.5281/zenodo.23322968 always resolves to the latest version. The paper's preprint is
 deposited at doi:10.5281/zenodo.23323144 (all versions); version 2 of
 17 October 2026, doi:10.5281/zenodo.23434750, carries the re-measured
