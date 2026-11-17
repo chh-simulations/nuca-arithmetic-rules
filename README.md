@@ -88,10 +88,9 @@ of his choice if he wishes, or linked where he places them.
   changed cells counted in the prepared half of the ring, 17 Oct 2026)
   on the same two machines, `verify_p1_results_v2_linux.txt` and
   `verify_p1_results_v2_windows.txt`, digit-identical; version 3
-  (657 checks, 16 Nov 2026) on Linux with numpy 2.5.3,
-  `verify_p1_results_v3_linux.txt`. The run of version 3 on the
-  second machine is recorded as `verify_p1_results_v3_windows.txt`
-  when it has been made.
+  (657 checks, 16-17 Nov 2026) on the same two machines, numpy 2.5.3,
+  `verify_p1_results_v3_linux.txt` and
+  `verify_p1_results_v3_windows.txt`, digit-identical.
 - `notes/predictions_26Sep_11Oct2026.md` - the record of the verdicts
   written down before the runs of Section 5 of the paper, and their
   outcome.
