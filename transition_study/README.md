@@ -181,8 +181,11 @@ gate (its third dead-ring check; the line of the suite reads the same)
 and the nineteen checks of the word fronts in S9, which now compare
 displacements, converted cells, initial positions and changed-cell
 fronts with the regenerated records; the other 170 print the same
-values as on 28 October, timings apart. The corrected suite has not
-yet been run on Windows.
+values as on 28 October, timings apart. The corrected suite passed
+with zero failures on the Windows machine on 17 November 2026
+(numpy 2.5.3, `results/verify_pre_results_quick_windows_17Nov.txt`);
+its 190 check lines are identical to those of the Linux record,
+timings apart.
 
 The form of 28 October (190 checks after the fifth campaign of 27-28
 October) passed with zero failures on two machines: Linux (Python

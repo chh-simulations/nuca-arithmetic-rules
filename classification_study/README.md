@@ -30,7 +30,14 @@ The verification script of the paper
   automaton (Phys. Rev. D 105, 074502 (2022)) at three sites, with an
   explained output; `verify_p2.py` reuses its two step functions
   verbatim and re-checks every property the paper states.
-- `results/` holds the recorded outputs of the verification runs.
+- `results/` holds the recorded outputs of the verification runs:
+  `verify_p2_results_linux.txt` (13 November 2026) and
+  `verify_p2_results_windows.txt` (17 November 2026), both 158 PASS
+  with numpy 2.5.3. Every exact count and integer result is identical
+  in the two; fourteen floating-point residuals of order 1e-15 (the
+  Weyl relation, Gram matrices and eigenvalue deviations) differ in
+  their last digits between the two machines' linear-algebra
+  libraries, each below its tolerance.
 
 Sections 1 to 10 of the script were written from the paper's
 statements, independently of the computations that produced the draft;
