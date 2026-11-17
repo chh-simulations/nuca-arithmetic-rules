@@ -134,9 +134,10 @@ re-measured, the transition study added) at doi:10.5281/zenodo.23434888,
 and release v1.2.0 (the transition study complete: five campaigns,
 the exact pinning floor, the sectioned verification suite with its
 190-check runs on two machines, the dated predictions record) at
-doi:10.5281/zenodo.24015703. Release v1.3.0 (November 2026) is the
-version cited by version 3 of the paper, by the transition paper and
-by the classification paper: it carries the verification suite of
+doi:10.5281/zenodo.24015703. Release v1.3.0 (17 November 2026,
+doi:10.5281/zenodo.24300061) is the version cited by version 3 of the
+paper, by the transition paper and by the classification paper: it
+carries the verification suite of
 version 3 (657 checks) with the scripts of Figures 1, 3 and 4, the
 corrected word-front analysis of the transition study with its three
 added scripts, the 190-check run on the corrected suite, and the
