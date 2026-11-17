@@ -143,9 +143,12 @@ corrected word-front analysis of the transition study with its three
 added scripts, the 190-check run on the corrected suite, and the
 classification study (158 checks). The concept DOI
 10.5281/zenodo.23322968 always resolves to the latest version. The paper's preprint is
-deposited at doi:10.5281/zenodo.23323144 (all versions); version 2 of
-17 October 2026, doi:10.5281/zenodo.23434750, carries the re-measured
-Fig. 2b (version 1: doi:10.5281/zenodo.23323145).
+deposited at doi:10.5281/zenodo.23323144 (all versions): version 3 of
+17 November 2026, doi:10.5281/zenodo.24293007, is the corrected text
+with the 657-check suite; version 2 of 17 October 2026,
+doi:10.5281/zenodo.23434750, carries the re-measured Fig. 2b; version
+1 is doi:10.5281/zenodo.23323145. The transition paper is deposited at
+doi:10.5281/zenodo.24015982.
 
 ## License
 
